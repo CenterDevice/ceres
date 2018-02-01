@@ -1,0 +1,6 @@
+[package]
+name = "ceres"
+version = "0.0.1"
+authors = ["Lukas Pustina <lukas@pustina.net>"]
+
+[dependencies]
