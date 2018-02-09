@@ -12,6 +12,11 @@ check:
 test:
 	cargo test
 
+docs: doctoc
+	
+doctoc: README.md
+	doctoc $<
+
 clippy:
 	rustup run nightly cargo clippy --features bin
 
