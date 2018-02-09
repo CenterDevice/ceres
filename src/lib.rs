@@ -13,14 +13,13 @@ use std::io::{self, Write};
 use tabwriter::TabWriter;
 
 
-pub fn run() {
+pub fn instances_list(provider_arn: &str, tag_key: Option<&str>, tag_value: Option<&str>) {
     let base_provider = DefaultCredentialsProvider::new().unwrap();
     let sts = StsClient::new(default_tls_client().unwrap(), base_provider, Region::EuCentral1);
 
     let provider = StsAssumeRoleSessionCredentialsProvider::new(
         sts,
-        //"arn:aws:iam::959479900016:role/OrganizationAccountAccessRole".to_string(),
-        "arn:aws:iam::737288212407:role/OrganizationAccountAccessRole".to_string(),
+        provider_arn.to_string(),
         "default".to_string(),
         None, None, None, None
     );
@@ -34,8 +33,12 @@ pub fn run() {
     writeln!(&mut tw, "  ID\t  Private IP\t  Public IP\t  Tags:Name").unwrap();
     for resv in result.reservations.unwrap() {
         //writeln!(&mut tw, "Reservation ID: '{}'", resv.reservation_id.as_ref().unwrap()).unwrap();
-        let instances = resv.instances.as_ref().unwrap().iter()
-            .filter(|i| has_tag(i.tags.as_ref().unwrap(), "Na..", Some("dns...")));
+        let instances: Vec<_> = if let Some(tag_key) = tag_key {
+            resv.instances.as_ref().unwrap().iter()
+                .filter(|i| has_tag(i.tags.as_ref().unwrap(), tag_key, tag_value)).collect()
+        } else {
+            resv.instances.as_ref().unwrap().iter().collect()
+        };
         for i in instances {
             writeln!(&mut tw, "| {}\t| {}\t| {}\t| {}\t|",
                      i.instance_id.as_ref().unwrap(),
