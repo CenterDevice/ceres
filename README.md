@@ -27,6 +27,8 @@ Ceres the goddess of agriculture, grain crops, fertility and motherly relationsh
 ### PoC: List AWS EC2 instances in one account using "Assume Role" and filter by tags
 
 ```bash
+export AWS_ACCESS_KEY_ID=...
+export AWS_SECRET_ACCESS_KEY=...
 ceres --profile prod@aws instances list --filter 'adlkfjdafjdsf'
 ```
 
