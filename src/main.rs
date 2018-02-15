@@ -4,7 +4,7 @@ extern crate error_chain;
 extern crate clap;
 extern crate env_logger;
 
-use clap::{App, Arg, ArgMatches, Shell, SubCommand};
+use clap::{App, Arg, ArgMatches, Shell};
 
 quick_main!(run);
 
@@ -65,20 +65,7 @@ fn build_cli() -> App<'static, 'static> {
                 .possible_values(&["bash", "fish", "zsh"])
                 .hidden(true),
         )
-        .subcommand(
-            SubCommand::with_name("instances")
-                .about("Do stuff with EC2 instances")
-                .subcommand(
-                    SubCommand::with_name("list")
-                        .about("List EC2 instances")
-                        .arg(
-                            Arg::with_name("filter")
-                                .long("filter")
-                                .help("Tag filter in form of '<Tag>[:Value]' ")
-                                .takes_value(true),
-                        ),
-                ),
-        )
+        .subcommand(ceres::subcommand())
 }
 
 fn generate_completion(args: &ArgMatches) -> Result<()> {

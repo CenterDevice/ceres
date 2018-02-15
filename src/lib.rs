@@ -1,3 +1,4 @@
+extern crate clap;
 #[macro_use]
 extern crate error_chain;
 extern crate regex;
@@ -6,6 +7,7 @@ extern crate rusoto_ec2;
 extern crate rusoto_sts;
 extern crate tabwriter;
 
+use clap::{Arg, App, SubCommand};
 use regex::Regex;
 use rusoto_core::{default_tls_client, DefaultCredentialsProvider, Region};
 use rusoto_ec2::{Ec2, Ec2Client, Tag};
@@ -30,6 +32,21 @@ error_chain! {
             description("Failed to write output.")
         }
     }
+}
+
+pub fn subcommand() -> App<'static, 'static> {
+    SubCommand::with_name("instances")
+        .about("Do stuff with EC2 instances")
+        .subcommand(
+            SubCommand::with_name("list")
+                .about("List EC2 instances")
+                .arg(
+                    Arg::with_name("filter")
+                        .long("filter")
+                        .help("Tag filter in form of '<Tag>[:Value]' ")
+                        .takes_value(true),
+                )
+        )
 }
 
 pub fn noop() -> Result<()> {
@@ -79,9 +96,9 @@ pub fn instances_list(provider_arn: &str, tag_key: Option<&str>, tag_value: Opti
     }
     let out_str = String::from_utf8(
         tw
-                .into_inner()
-                .chain_err(|| ErrorKind::OutputError)?
-        ).chain_err(|| ErrorKind::OutputError)?;
+            .into_inner()
+            .chain_err(|| ErrorKind::OutputError)?
+    ).chain_err(|| ErrorKind::OutputError)?;
 
     println!("{}", out_str);
 
