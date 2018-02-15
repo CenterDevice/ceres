@@ -2,7 +2,7 @@ extern crate ceres;
 extern crate clap;
 extern crate env_logger;
 
-use clap::{Arg, ArgMatches, App, Shell, SubCommand};
+use clap::{App, Arg, ArgMatches, Shell, SubCommand};
 
 fn main() {
     let _ = env_logger::try_init();
@@ -31,10 +31,10 @@ fn run() -> Result<(), ()> {
             match splits.len() {
                 1 => (Some(splits[0]), None),
                 2 => (Some(splits[0]), Some(splits[1])),
-                _ => (None, None)
+                _ => (None, None),
             }
-        },
-        None => (None, None)
+        }
+        None => (None, None),
     };
 
     ceres::instances_list(profile_arn, tag_key, tag_value);
@@ -55,38 +55,38 @@ fn build_cli() -> App<'static, 'static> {
                 .long("profile_arn")
                 .help("Sets profile ARN")
                 .takes_value(true)
-                .required_unless("completions")
+                .required_unless("completions"),
         )
-       .arg(
+        .arg(
             Arg::with_name("completions")
                 .long("completions")
                 .help("The shell to generate the script for")
                 .takes_value(true)
                 .possible_values(&["bash", "fish", "zsh"])
-                .hidden(true)
+                .hidden(true),
         )
         .subcommand(
             SubCommand::with_name("instances")
-            .about("Do stuff with EC2 instances")
-            .subcommand(
-                SubCommand::with_name("list")
-                .about("List EC2 instances")
-                .arg(
-                    Arg::with_name("filter")
-                        .long("filter")
-                        .help("Tag filter in form of '<Tag>[:Value]' ")
-                        .takes_value(true)
-                )
-            )
+                .about("Do stuff with EC2 instances")
+                .subcommand(
+                    SubCommand::with_name("list")
+                        .about("List EC2 instances")
+                        .arg(
+                            Arg::with_name("filter")
+                                .long("filter")
+                                .help("Tag filter in form of '<Tag>[:Value]' ")
+                                .takes_value(true),
+                        ),
+                ),
         )
 }
 
 fn generate_completion(args: &ArgMatches) -> Result<(), ()> {
     let bin_name = env!("CARGO_PKG_NAME");
     let shell = args.value_of("completions").unwrap();
-        //ok_or(
-        //ErrorKind::CliArgsParsingError,
-        //)?;
+    //ok_or(
+    //ErrorKind::CliArgsParsingError,
+    //)?;
     build_cli().gen_completions_to(
         bin_name,
         shell.parse::<Shell>().unwrap(),
@@ -94,4 +94,3 @@ fn generate_completion(args: &ArgMatches) -> Result<(), ()> {
     );
     Ok(())
 }
-

@@ -7,7 +7,7 @@ extern crate tabwriter;
 use regex::Regex;
 use rusoto_core::{default_tls_client, DefaultCredentialsProvider, Region};
 use rusoto_ec2::{Ec2, Ec2Client, Tag};
-use rusoto_sts::{StsClient, StsAssumeRoleSessionCredentialsProvider};
+use rusoto_sts::{StsAssumeRoleSessionCredentialsProvider, StsClient};
 use std::default::Default;
 use std::io::Write;
 use tabwriter::TabWriter;
@@ -18,13 +18,20 @@ pub fn noop() -> Result<(), ()> {
 
 pub fn instances_list(provider_arn: &str, tag_key: Option<&str>, tag_value: Option<&str>) {
     let base_provider = DefaultCredentialsProvider::new().unwrap();
-    let sts = StsClient::new(default_tls_client().unwrap(), base_provider, Region::EuCentral1);
+    let sts = StsClient::new(
+        default_tls_client().unwrap(),
+        base_provider,
+        Region::EuCentral1,
+    );
 
     let provider = StsAssumeRoleSessionCredentialsProvider::new(
         sts,
         provider_arn.to_string(),
         "default".to_string(),
-        None, None, None, None
+        None,
+        None,
+        None,
+        None,
     );
 
     let client = Ec2Client::new(default_tls_client().unwrap(), provider, Region::EuCentral1);
@@ -37,18 +44,24 @@ pub fn instances_list(provider_arn: &str, tag_key: Option<&str>, tag_value: Opti
     for resv in result.reservations.unwrap() {
         //writeln!(&mut tw, "Reservation ID: '{}'", resv.reservation_id.as_ref().unwrap()).unwrap();
         let instances: Vec<_> = if let Some(tag_key) = tag_key {
-            resv.instances.as_ref().unwrap().iter()
-                .filter(|i| has_tag(i.tags.as_ref().unwrap(), tag_key, tag_value)).collect()
+            resv.instances
+                .as_ref()
+                .unwrap()
+                .iter()
+                .filter(|i| has_tag(i.tags.as_ref().unwrap(), tag_key, tag_value))
+                .collect()
         } else {
             resv.instances.as_ref().unwrap().iter().collect()
         };
         for i in instances {
-            writeln!(&mut tw, "| {}\t| {}\t| {}\t| {}\t|",
-                     i.instance_id.as_ref().unwrap(),
-                     i.private_ip_address.as_ref().unwrap(),
-                     i.public_ip_address.as_ref().unwrap(),
-                     get_name_from_tags(i.tags.as_ref().unwrap()).unwrap()
-                     ).unwrap();
+            writeln!(
+                &mut tw,
+                "| {}\t| {}\t| {}\t| {}\t|",
+                i.instance_id.as_ref().unwrap(),
+                i.private_ip_address.as_ref().unwrap(),
+                i.public_ip_address.as_ref().unwrap(),
+                get_name_from_tags(i.tags.as_ref().unwrap()).unwrap()
+            ).unwrap();
         }
     }
     let out_str = String::from_utf8(tw.into_inner().unwrap()).unwrap();
@@ -98,14 +111,14 @@ fn get_name_from_tags(tags: &[Tag]) -> Option<&String> {
 pub fn has_tag(tags: &[Tag], key: &str, value: Option<&str>) -> bool {
     let key_re = Regex::new(key).unwrap();
     let pred: Box<Fn(&Tag) -> bool> = match (key, value) {
-        (_, None) => Box::new( |tag: &Tag| key_re.is_match(tag.key.as_ref().unwrap()) ),
+        (_, None) => Box::new(|tag: &Tag| key_re.is_match(tag.key.as_ref().unwrap())),
         (_, Some(v)) => {
             let value_re = Regex::new(v).unwrap();
-            Box::new( move |tag: &Tag|
-                      key_re.is_match(tag.key.as_ref().unwrap())
-                      && value_re.is_match(tag.value.as_ref().unwrap())
-                    )
-        },
+            Box::new(move |tag: &Tag| {
+                key_re.is_match(tag.key.as_ref().unwrap())
+                    && value_re.is_match(tag.value.as_ref().unwrap())
+            })
+        }
     };
     tags.iter().any(|tag| pred(tag))
 }
@@ -117,16 +130,26 @@ mod tests {
 
     #[test]
     fn get_name_from_tags_okay() {
-        let tags = vec![ Tag{ key: Some("Name".to_string()), value: Some("Example Instance".to_string()) }];
+        let tags = vec![
+            Tag {
+                key: Some("Name".to_string()),
+                value: Some("Example Instance".to_string()),
+            },
+        ];
 
         let result = get_name_from_tags(&tags);
 
         assert_eq!(result, Some(&"Example Instance".to_string()));
     }
 
-     #[test]
+    #[test]
     fn get_name_from_tags_fails() {
-        let tags = vec![ Tag{ key: Some("NoName".to_string()), value: Some("Example Instance".to_string()) }];
+        let tags = vec![
+            Tag {
+                key: Some("NoName".to_string()),
+                value: Some("Example Instance".to_string()),
+            },
+        ];
 
         let result = get_name_from_tags(&tags);
 
