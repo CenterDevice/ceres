@@ -1,16 +1,16 @@
 extern crate ceres;
+#[macro_use]
+extern crate error_chain;
 extern crate clap;
 extern crate env_logger;
 
 use clap::{App, Arg, ArgMatches, Shell, SubCommand};
 
-fn main() {
+quick_main!(run);
+
+fn run() -> Result<()> {
     let _ = env_logger::try_init();
 
-    let _ = run();
-}
-
-fn run() -> Result<(), ()> {
     let args = build_cli().get_matches();
 
     if args.is_present("completions") {
@@ -37,7 +37,7 @@ fn run() -> Result<(), ()> {
         None => (None, None),
     };
 
-    ceres::instances_list(profile_arn, tag_key, tag_value);
+    let _ = ceres::instances_list(profile_arn, tag_key, tag_value)?;
 
     Ok(())
 }
@@ -81,7 +81,7 @@ fn build_cli() -> App<'static, 'static> {
         )
 }
 
-fn generate_completion(args: &ArgMatches) -> Result<(), ()> {
+fn generate_completion(args: &ArgMatches) -> Result<()> {
     let bin_name = env!("CARGO_PKG_NAME");
     let shell = args.value_of("completions").unwrap();
     //ok_or(
@@ -93,4 +93,10 @@ fn generate_completion(args: &ArgMatches) -> Result<(), ()> {
         &mut std::io::stdout(),
     );
     Ok(())
+}
+
+error_chain! {
+    links {
+        Ceres(ceres::Error, ceres::ErrorKind);
+    }
 }

@@ -1,3 +1,5 @@
+#[macro_use]
+extern crate error_chain;
 extern crate regex;
 extern crate rusoto_core;
 extern crate rusoto_ec2;
@@ -12,14 +14,87 @@ use std::default::Default;
 use std::io::Write;
 use tabwriter::TabWriter;
 
-pub fn noop() -> Result<(), ()> {
+error_chain! {
+    errors {
+        AwsApiError {
+            description("Call to AWS API failed.")
+        }
+        AwsApiResultError(reason: String) {
+            description("Unexpected result.")
+            display("Unexpected result because {}.", reason)
+        }
+        RegExError {
+            description("RegEx failed.")
+        }
+        OutputError {
+            description("Failed to write output.")
+        }
+    }
+}
+
+pub fn noop() -> Result<()> {
     Ok(())
 }
 
-pub fn instances_list(provider_arn: &str, tag_key: Option<&str>, tag_value: Option<&str>) {
-    let base_provider = DefaultCredentialsProvider::new().unwrap();
+pub fn instances_list(provider_arn: &str, tag_key: Option<&str>, tag_value: Option<&str>) -> Result<()> {
+    let provider = assume_role(provider_arn)?;
+    let default_client = default_tls_client().chain_err(|| ErrorKind::AwsApiError)?;
+    let client = Ec2Client::new(default_client, provider, Region::EuCentral1);
+
+    let request = Default::default();
+    let result = client.describe_instances(&request).chain_err(|| ErrorKind::AwsApiError)?;
+    let reservations = result.reservations
+        .ok_or_else(|| Error::from_kind(ErrorKind::AwsApiResultError("no reservations found".to_string())))?;
+
+    let mut tw = TabWriter::new(vec![]).padding(1);
+    writeln!(&mut tw, "  ID\t  Private IP\t  Public IP\t  Tags:Name").chain_err(|| ErrorKind::OutputError)?;
+    for resv in reservations {
+        let instance_iter = resv.instances
+            .as_ref()
+            .ok_or_else(|| Error::from_kind(ErrorKind::AwsApiResultError("no instances found".to_string())))?
+            .iter();
+        let empty_tags = Vec::new();
+        let instances: Vec<_> = if let Some(tag_key) = tag_key {
+            instance_iter
+                .filter(|i| has_tag(
+                    i.tags.as_ref().unwrap_or_else(|| &empty_tags),
+                    tag_key,
+                    tag_value))
+                .collect()
+        } else {
+            instance_iter.collect()
+        };
+        let unset = "-".to_string();
+        for i in instances {
+            let tags = i.tags.as_ref().unwrap_or_else(|| &empty_tags);
+            writeln!(
+                &mut tw,
+                "| {}\t| {}\t| {}\t| {}\t|",
+                i.instance_id.as_ref().unwrap_or(&unset),
+                i.private_ip_address.as_ref().unwrap_or(&unset),
+                i.public_ip_address.as_ref().unwrap_or(&unset),
+                get_name_from_tags(tags).unwrap_or(&unset)
+            ).chain_err(|| ErrorKind::OutputError)?;
+        }
+    }
+    let out_str = String::from_utf8(
+        tw
+                .into_inner()
+                .chain_err(|| ErrorKind::OutputError)?
+        ).chain_err(|| ErrorKind::OutputError)?;
+
+    println!("{}", out_str);
+
+    Ok(())
+}
+
+fn assume_role(provider_arn: &str) -> Result<StsAssumeRoleSessionCredentialsProvider> {
+    let base_provider = DefaultCredentialsProvider::new()
+        .chain_err(|| ErrorKind::AwsApiError)?;
+    let default_client = default_tls_client()
+        .chain_err(|| ErrorKind::AwsApiError)?;
     let sts = StsClient::new(
-        default_tls_client().unwrap(),
+        default_client,
         base_provider,
         Region::EuCentral1,
     );
@@ -34,39 +109,7 @@ pub fn instances_list(provider_arn: &str, tag_key: Option<&str>, tag_value: Opti
         None,
     );
 
-    let client = Ec2Client::new(default_tls_client().unwrap(), provider, Region::EuCentral1);
-
-    let request = Default::default();
-    let result = client.describe_instances(&request).unwrap();
-
-    let mut tw = TabWriter::new(vec![]).padding(1);
-    writeln!(&mut tw, "  ID\t  Private IP\t  Public IP\t  Tags:Name").unwrap();
-    for resv in result.reservations.unwrap() {
-        //writeln!(&mut tw, "Reservation ID: '{}'", resv.reservation_id.as_ref().unwrap()).unwrap();
-        let instances: Vec<_> = if let Some(tag_key) = tag_key {
-            resv.instances
-                .as_ref()
-                .unwrap()
-                .iter()
-                .filter(|i| has_tag(i.tags.as_ref().unwrap(), tag_key, tag_value))
-                .collect()
-        } else {
-            resv.instances.as_ref().unwrap().iter().collect()
-        };
-        for i in instances {
-            writeln!(
-                &mut tw,
-                "| {}\t| {}\t| {}\t| {}\t|",
-                i.instance_id.as_ref().unwrap(),
-                i.private_ip_address.as_ref().unwrap(),
-                i.public_ip_address.as_ref().unwrap(),
-                get_name_from_tags(i.tags.as_ref().unwrap()).unwrap()
-            ).unwrap();
-        }
-    }
-    let out_str = String::from_utf8(tw.into_inner().unwrap()).unwrap();
-
-    println!("{}", out_str);
+    Ok(provider)
 }
 
 fn get_name_from_tags(tags: &[Tag]) -> Option<&String> {
@@ -108,6 +151,7 @@ fn get_name_from_tags(tags: &[Tag]) -> Option<&String> {
 /// # assert_eq!(res, false);
 /// # }
 /// ```
+/// TODO: Refactor: Move RE compilation out
 pub fn has_tag(tags: &[Tag], key: &str, value: Option<&str>) -> bool {
     let key_re = Regex::new(key).unwrap();
     let pred: Box<Fn(&Tag) -> bool> = match (key, value) {

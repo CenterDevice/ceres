@@ -4,5 +4,5 @@ extern crate ceres;
 fn noop_okay() {
     let result = ceres::noop();
 
-    assert_eq!(result, Ok(()));
+    assert!(result.is_ok());
 }
