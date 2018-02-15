@@ -12,6 +12,10 @@ check:
 test:
 	cargo test
 
+use_case_tests: use_cases
+	make -C $<
+
+
 docs: doctoc
 	
 doctoc: README.md

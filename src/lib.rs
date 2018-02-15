@@ -12,6 +12,9 @@ use std::default::Default;
 use std::io::{self, Write};
 use tabwriter::TabWriter;
 
+pub fn noop() -> Result<(), ()> {
+    Ok(())
+}
 
 pub fn instances_list(provider_arn: &str, tag_key: Option<&str>, tag_value: Option<&str>) {
     let base_provider = DefaultCredentialsProvider::new().unwrap();
@@ -107,3 +110,26 @@ pub fn has_tag(tags: &Vec<Tag>, key: &str, value: Option<&str>) -> bool {
     tags.iter().any(|tag| pred(tag))
 }
 
+#[cfg(test)]
+mod tests {
+    use super::*;
+    use rusoto_ec2::Tag;
+
+    #[test]
+    fn get_name_from_tags_okay() {
+        let tags = vec![ Tag{ key: Some("Name".to_string()), value: Some("Example Instance".to_string()) }];
+
+        let result = get_name_from_tags(&tags);
+
+        assert_eq!(result, Some(&"Example Instance".to_string()));
+    }
+
+     #[test]
+    fn get_name_from_tags_fails() {
+        let tags = vec![ Tag{ key: Some("NoName".to_string()), value: Some("Example Instance".to_string()) }];
+
+        let result = get_name_from_tags(&tags);
+
+        assert_eq!(result, None);
+    }
+}
