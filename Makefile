@@ -32,5 +32,5 @@ duplicate_libs:
 _update-clippy_n_fmt:
 	rustup update
 	rustup run nightly cargo install clippy --force
-	rustup run nightly cargo install rustfmt --force
+	rustup component add rustfmt-preview --toolchain=nightly
 
