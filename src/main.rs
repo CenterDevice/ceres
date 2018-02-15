@@ -7,7 +7,7 @@ use clap::{Arg, ArgMatches, App, Shell, SubCommand};
 fn main() {
     let _ = env_logger::try_init();
 
-    run();
+    let _ = run();
 }
 
 fn run() -> Result<(), ()> {
@@ -37,7 +37,7 @@ fn run() -> Result<(), ()> {
         None => (None, None)
     };
 
-    ceres::instances_list(&profile_arn, tag_key, tag_value);
+    ceres::instances_list(profile_arn, tag_key, tag_value);
 
     Ok(())
 }

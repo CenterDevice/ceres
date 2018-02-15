@@ -15,14 +15,13 @@ test:
 use_case_tests: use_cases
 	make -C $<
 
-
 docs: doctoc
 	
 doctoc: README.md
 	doctoc $<
 
 clippy:
-	rustup run nightly cargo clippy --features bin
+	rustup run nightly cargo clippy
 
 fmt:
 	rustup run nightly cargo fmt

@@ -6,10 +6,10 @@ extern crate tabwriter;
 
 use regex::Regex;
 use rusoto_core::{default_tls_client, DefaultCredentialsProvider, Region};
-use rusoto_ec2::{Ec2, Ec2Client, DescribeInstancesRequest, Tag};
+use rusoto_ec2::{Ec2, Ec2Client, Tag};
 use rusoto_sts::{StsClient, StsAssumeRoleSessionCredentialsProvider};
 use std::default::Default;
-use std::io::{self, Write};
+use std::io::Write;
 use tabwriter::TabWriter;
 
 pub fn noop() -> Result<(), ()> {
@@ -56,7 +56,7 @@ pub fn instances_list(provider_arn: &str, tag_key: Option<&str>, tag_value: Opti
     println!("{}", out_str);
 }
 
-fn get_name_from_tags(tags: &Vec<Tag>) -> Option<&String> {
+fn get_name_from_tags(tags: &[Tag]) -> Option<&String> {
     let tag_name = Some("Name".to_string());
     tags.iter()
         .filter(|tag| tag.key == tag_name)
@@ -95,7 +95,7 @@ fn get_name_from_tags(tags: &Vec<Tag>) -> Option<&String> {
 /// # assert_eq!(res, false);
 /// # }
 /// ```
-pub fn has_tag(tags: &Vec<Tag>, key: &str, value: Option<&str>) -> bool {
+pub fn has_tag(tags: &[Tag], key: &str, value: Option<&str>) -> bool {
     let key_re = Regex::new(key).unwrap();
     let pred: Box<Fn(&Tag) -> bool> = match (key, value) {
         (_, None) => Box::new( |tag: &Tag| key_re.is_match(tag.key.as_ref().unwrap()) ),
