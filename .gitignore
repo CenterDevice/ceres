@@ -1,3 +1,4 @@
-
+.idea/
+ceres.iml
 /target/
 **/*.rs.bk
