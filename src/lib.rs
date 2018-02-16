@@ -5,10 +5,11 @@ extern crate regex;
 extern crate rusoto_core;
 extern crate rusoto_ec2;
 extern crate rusoto_sts;
+#[cfg(test)]
+extern crate spectral;
 extern crate tabwriter;
-#[cfg(test)] extern crate spectral;
 
-use clap::{Arg, ArgMatches, App, SubCommand};
+use clap::{App, Arg, ArgMatches, SubCommand};
 use regex::Regex;
 use rusoto_core::{default_tls_client, DefaultCredentialsProvider, Region};
 use rusoto_ec2::{Ec2, Ec2Client, Tag};
@@ -49,7 +50,7 @@ pub fn subcommand() -> App<'static, 'static> {
                         .long("filter")
                         .help("Tag filter in form of '<Tag>[:Value]' ")
                         .takes_value(true),
-                )
+                ),
         )
 }
 
@@ -63,7 +64,7 @@ pub fn instances(args: &ArgMatches, config: &str) -> Result<()> {
 
     match subcommand {
         "list" => list(config, subargs),
-        _ => Err(ErrorKind::SubcommandError.into())
+        _ => Err(ErrorKind::SubcommandError.into()),
     }
 }
 
@@ -86,24 +87,37 @@ fn list(config: &str, args: &ArgMatches) -> Result<()> {
     let client = Ec2Client::new(default_client, provider, Region::EuCentral1);
 
     let request = Default::default();
-    let result = client.describe_instances(&request).chain_err(|| ErrorKind::AwsApiError)?;
-    let reservations = result.reservations
-        .ok_or_else(|| Error::from_kind(ErrorKind::AwsApiResultError("no reservations found".to_string())))?;
+    let result = client
+        .describe_instances(&request)
+        .chain_err(|| ErrorKind::AwsApiError)?;
+    let reservations = result.reservations.ok_or_else(|| {
+        Error::from_kind(ErrorKind::AwsApiResultError(
+            "no reservations found".to_string(),
+        ))
+    })?;
 
     let mut tw = TabWriter::new(vec![]).padding(1);
-    writeln!(&mut tw, "  ID\t  Private IP\t  Public IP\t  Tags:Name").chain_err(|| ErrorKind::OutputError)?;
+    writeln!(&mut tw, "  ID\t  Private IP\t  Public IP\t  Tags:Name")
+        .chain_err(|| ErrorKind::OutputError)?;
     for resv in reservations {
         let instance_iter = resv.instances
             .as_ref()
-            .ok_or_else(|| Error::from_kind(ErrorKind::AwsApiResultError("no instances found".to_string())))?
+            .ok_or_else(|| {
+                Error::from_kind(ErrorKind::AwsApiResultError(
+                    "no instances found".to_string(),
+                ))
+            })?
             .iter();
         let empty_tags = Vec::new();
         let instances: Vec<_> = if let Some(tag_key) = tag_key {
             instance_iter
-                .filter(|i| has_tag(
-                    i.tags.as_ref().unwrap_or_else(|| &empty_tags),
-                    tag_key,
-                    tag_value))
+                .filter(|i| {
+                    has_tag(
+                        i.tags.as_ref().unwrap_or_else(|| &empty_tags),
+                        tag_key,
+                        tag_value,
+                    )
+                })
                 .collect()
         } else {
             instance_iter.collect()
@@ -121,11 +135,8 @@ fn list(config: &str, args: &ArgMatches) -> Result<()> {
             ).chain_err(|| ErrorKind::OutputError)?;
         }
     }
-    let out_str = String::from_utf8(
-        tw
-            .into_inner()
-            .chain_err(|| ErrorKind::OutputError)?
-    ).chain_err(|| ErrorKind::OutputError)?;
+    let out_str = String::from_utf8(tw.into_inner().chain_err(|| ErrorKind::OutputError)?)
+        .chain_err(|| ErrorKind::OutputError)?;
 
     println!("{}", out_str);
 
@@ -133,15 +144,9 @@ fn list(config: &str, args: &ArgMatches) -> Result<()> {
 }
 
 fn assume_role(provider_arn: &str) -> Result<StsAssumeRoleSessionCredentialsProvider> {
-    let base_provider = DefaultCredentialsProvider::new()
-        .chain_err(|| ErrorKind::AwsApiError)?;
-    let default_client = default_tls_client()
-        .chain_err(|| ErrorKind::AwsApiError)?;
-    let sts = StsClient::new(
-        default_client,
-        base_provider,
-        Region::EuCentral1,
-    );
+    let base_provider = DefaultCredentialsProvider::new().chain_err(|| ErrorKind::AwsApiError)?;
+    let default_client = default_tls_client().chain_err(|| ErrorKind::AwsApiError)?;
+    let sts = StsClient::new(default_client, base_provider, Region::EuCentral1);
 
     let provider = StsAssumeRoleSessionCredentialsProvider::new(
         sts,
@@ -228,7 +233,10 @@ mod tests {
 
         let result = get_name_from_tags(&tags);
 
-        asserting(&"name tag included").that(&result).is_some().is_equal_to(&"Example Instance".to_string());
+        asserting(&"name tag included")
+            .that(&result)
+            .is_some()
+            .is_equal_to(&"Example Instance".to_string());
     }
 
     #[test]
