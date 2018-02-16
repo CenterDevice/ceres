@@ -6,8 +6,9 @@ extern crate rusoto_core;
 extern crate rusoto_ec2;
 extern crate rusoto_sts;
 extern crate tabwriter;
+#[cfg(test)] extern crate spectral;
 
-use clap::{Arg, App, SubCommand};
+use clap::{Arg, ArgMatches, App, SubCommand};
 use regex::Regex;
 use rusoto_core::{default_tls_client, DefaultCredentialsProvider, Region};
 use rusoto_ec2::{Ec2, Ec2Client, Tag};
@@ -27,6 +28,9 @@ error_chain! {
         }
         RegExError {
             description("RegEx failed.")
+        }
+        SubcommandError {
+            description("Invalid Subcommand specified.")
         }
         OutputError {
             description("Failed to write output.")
@@ -53,8 +57,31 @@ pub fn noop() -> Result<()> {
     Ok(())
 }
 
-pub fn instances_list(provider_arn: &str, tag_key: Option<&str>, tag_value: Option<&str>) -> Result<()> {
-    let provider = assume_role(provider_arn)?;
+pub fn instances(args: &ArgMatches, config: &str) -> Result<()> {
+    let subcommand = args.subcommand_name().unwrap();
+    let subargs = args.subcommand_matches(subcommand).unwrap();
+
+    match subcommand {
+        "list" => list(config, subargs),
+        _ => Err(ErrorKind::SubcommandError.into())
+    }
+}
+
+fn list(config: &str, args: &ArgMatches) -> Result<()> {
+    let (tag_key, tag_value) = match args.value_of("filter") {
+        Some(kv) => {
+            // cf. https://github.com/rust-lang/rust/issues/23121
+            let splits: Vec<_> = kv.split(':').collect();
+            match splits.len() {
+                1 => (Some(splits[0]), None),
+                2 => (Some(splits[0]), Some(splits[1])),
+                _ => (None, None),
+            }
+        }
+        None => (None, None),
+    };
+
+    let provider = assume_role(config)?;
     let default_client = default_tls_client().chain_err(|| ErrorKind::AwsApiError)?;
     let client = Ec2Client::new(default_client, provider, Region::EuCentral1);
 
@@ -188,6 +215,7 @@ pub fn has_tag(tags: &[Tag], key: &str, value: Option<&str>) -> bool {
 mod tests {
     use super::*;
     use rusoto_ec2::Tag;
+    use spectral::prelude::*;
 
     #[test]
     fn get_name_from_tags_okay() {
@@ -200,7 +228,7 @@ mod tests {
 
         let result = get_name_from_tags(&tags);
 
-        assert_eq!(result, Some(&"Example Instance".to_string()));
+        asserting(&"name tag included").that(&result).is_some().is_equal_to(&"Example Instance".to_string());
     }
 
     #[test]
@@ -214,6 +242,6 @@ mod tests {
 
         let result = get_name_from_tags(&tags);
 
-        assert_eq!(result, None);
+        asserting(&"name tag not included").that(&result).is_none();
     }
 }
