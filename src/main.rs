@@ -4,6 +4,8 @@ extern crate env_logger;
 #[macro_use]
 extern crate error_chain;
 
+use ceres::modules::{self, Module};
+use ceres::config::Config;
 use clap::{App, AppSettings, Arg, ArgMatches, Shell, SubCommand};
 
 quick_main!(run);
@@ -12,22 +14,14 @@ fn run() -> Result<()> {
     let _ = env_logger::try_init();
 
     let args = build_cli().get_matches();
+    let config: Config = Default::default();
 
-    run_subcommand(&args)
-}
-
-fn run_subcommand(args: &ArgMatches) -> Result<()> {
-    let subcommand = args.subcommand_name().unwrap();
-    let subargs = args.subcommand_matches(subcommand).unwrap();
-
-    match subcommand {
-        "completions" => generate_completion(subargs),
-        "instances" => {
-            let config = args.value_of("profile_arn").unwrap();
-            ceres::instances(subargs, config).map_err(|e| e.into())
+    if let Some(subcommand_name) = args.subcommand_name() {
+        if subcommand_name == "completions" {
+            return generate_completion(args.subcommand_matches(subcommand_name).unwrap());
         }
-        _ => Err(ErrorKind::CliArgsParsingError("unknown subcommand".to_string()).into()),
     }
+    modules::call(&args, &config).map_err(|e| e.into())
 }
 
 fn build_cli() -> App<'static, 'static> {
@@ -49,17 +43,17 @@ fn build_cli() -> App<'static, 'static> {
             SubCommand::with_name("completions").arg(
                 Arg::with_name("shell")
                     .long("shell")
-                    .help("The shell to generate the script for")
                     .takes_value(true)
                     .possible_values(&["bash", "fish", "zsh"])
-                    .required(true),
+                    .required(true)
+                    .hidden(true)
+                    .help("The shell to generate the script for")
             ),
         )
-        .subcommand(ceres::subcommand())
+        .subcommand(modules::instances::Instances::build_sub_cli())
 }
 
 fn generate_completion(args: &ArgMatches) -> Result<()> {
-    println!("{:?}", args);
     let bin_name = env!("CARGO_PKG_NAME");
     let shell = args.value_of("shell")
         .ok_or_else(|| ErrorKind::CliArgsParsingError("shell argument is missing".to_string()))?;
@@ -82,6 +76,6 @@ error_chain! {
         }
     }
     links {
-        Ceres(ceres::Error, ceres::ErrorKind);
+        Module(ceres::modules::Error, ceres::modules::ErrorKind);
     }
 }
