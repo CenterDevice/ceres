@@ -9,8 +9,11 @@ Ceres the goddess of agriculture, grain crops, fertility and motherly relationsh
 - [General Requirements](#general-requirements)
 - [Use Cases](#use-cases)
   - [PoC: List AWS EC2 instances in one account using "Assume Role" and filter by tags](#poc-list-aws-ec2-instances-in-one-account-using-assume-role-and-filter-by-tags)
-    - [Requirements](#requirements)
-- [Todos](#todos)
+    - [Step 1](#step-1)
+      - [Requirements](#requirements)
+      - [Non-Functional Requirements](#non-functional-requirements)
+    - [Step 2](#step-2)
+      - [Non-Functional Requirements](#non-functional-requirements-1)
 - [Pointer](#pointer)
 
 <!-- END doctoc generated TOC please keep comment here to allow auto update -->
@@ -27,21 +30,39 @@ Ceres the goddess of agriculture, grain crops, fertility and motherly relationsh
 ### PoC: List AWS EC2 instances in one account using "Assume Role" and filter by tags
 
 ```bash
-export AWS_ACCESS_KEY_ID=...
-export AWS_SECRET_ACCESS_KEY=...
-ceres --profile prod@aws instances list --filter 'adlkfjdafjdsf'
+ceres --profile prod@aws instances list --filter 'Tag:Value,Tag2:Value2' -o [humon|json] --o-opts=instance_id,image_id,instance_type
 ```
 
-#### Requirements
+#### Step 1
 
-* [ ] Use Assume Role mechanism
+##### Requirements
 
-* [ ] Show usage of clippy with subcommands
+* [X] Use Assume Role mechanism
 
-* [ ] Show dynamic completion in zsh
+* [ ] Use profiles to select AWS account, Bosun and Consul etc. end-points, ssh keys
 
+* [ ] Read profile from configuration file: ~/.ceres.conf
 
-## Todos
+* [ ] Nice human readable output
+
+* [ ] Allow for selection of limited set of instance information for human display
+
+* [ ] JSON output of all instance information
+
+##### Non-Functional Requirements
+
+* [ ] brew installation
+
+#### Step 2
+
+##### Non-Functional Requirements
+
+* [ ] Write man page
+
+* [ ] Provider Abstraction -- abstract from rusoto
+
+* [ ] Prepare for modules, sub-modules etc.
+
 
 ## Pointer
 * https://github.com/rusoto/rusoto/blob/master/AWS-CREDENTIALS.md
