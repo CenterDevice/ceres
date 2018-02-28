@@ -10,6 +10,7 @@ use std::path::Path;
 
 use ceres::modules::{self, Module};
 use ceres::config::Config;
+use ceres::run_config::RunConfig;
 
 const DEFAULT_CONFIG_FILE_NAME: &str = "ceres.conf";
 
@@ -23,12 +24,16 @@ fn run() -> Result<()> {
     let config = load_config(
         args.value_of("config").unwrap_or(&default_config_file_name))?;
 
+    let run_config = RunConfig {
+        active_profile: args.value_of("profile").unwrap().to_owned(), // Safe unwrap
+    };
+
     if let Some(subcommand_name) = args.subcommand_name() {
         if subcommand_name == "completions" {
-            return generate_completion(args.subcommand_matches(subcommand_name).unwrap());
+            return generate_completion(args.subcommand_matches(subcommand_name).unwrap());  // Safe unwrap
         }
     }
-    modules::call(&args, &config).map_err(|e| e.into())
+    modules::call(&args, &run_config, &config).map_err(|e| e.into())
 }
 
 fn build_cli() -> App<'static, 'static> {

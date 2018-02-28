@@ -2,6 +2,7 @@ use clap::{App, ArgMatches, SubCommand};
 use std::io::Write;
 
 use config::{Config, Provider};
+use run_config::RunConfig;
 use modules::*;
 use output::OutputInstances;
 use output::table_output::TableOutputInstances;
@@ -19,9 +20,9 @@ impl Module for List {
             .about("List instances")
     }
 
-    fn call(cli_args: Option<&ArgMatches>, config: &Config) -> Result<()> {
+    fn call(cli_args: Option<&ArgMatches>, run_config: &RunConfig, config: &Config) -> Result<()> {
         // TODO: Move these lines into a factory from cli_args and config
-        let Provider::Aws(ref provider) = config.profiles.get("default").unwrap().provider;
+        let Provider::Aws(ref provider) = config.profiles.get(&run_config.active_profile).unwrap().provider;
         let output: TableOutputInstances = Default::default();
         let mut stdout = ::std::io::stdout();
 

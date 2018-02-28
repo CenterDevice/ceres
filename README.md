@@ -39,7 +39,7 @@ ceres --profile prod@aws instances list --filter 'Tag:Value,Tag2:Value2' -o [hum
 
 * [X] Use Assume Role mechanism
 
-* [ ] Use profiles to select AWS account, Bosun and Consul etc. end-points, ssh keys
+* [X] Use profiles to select AWS account, Bosun and Consul etc. end-points, ssh keys
 
 * [X] Read profile from configuration file: ~/.ceres.conf
 
