@@ -9,6 +9,7 @@ use provider;
 
 #[derive(Debug, Default, Serialize, Deserialize, PartialEq)]
 pub struct Config {
+    pub default_profile: String,
     pub profiles: HashMap<String, Profile>
 }
 
@@ -73,7 +74,7 @@ mod tests {
         let prod_profile = Profile { provider: Provider::Aws(aws_provider) };
         let mut profiles = HashMap::new();
         profiles.insert("prod@cd".to_owned(), prod_profile);
-        let config = Config { profiles };
+        let config = Config { default_profile: "prod@cd".to_owned(), profiles };
         let toml = toml::to_string(&config).unwrap();
 
         let re_config: Config = toml::from_str(&toml).unwrap();
@@ -85,8 +86,10 @@ mod tests {
     fn load_from_file() {
         let config = Config::from_file("examples/ceres.conf").unwrap();
 
-        assert_that(&config.profiles).contains_key(String::from("default"));
-        let default_profile = config.profiles.get("default").unwrap();
+        assert_that(&config.default_profile).is_equal_to("prod".to_owned());
+
+        assert_that(&config.profiles).contains_key(String::from("prod"));
+        let default_profile = config.profiles.get("prod").unwrap();
 
         let &Provider::Aws(ref aws) = &default_profile.provider;
         assert_that(&aws.access_key_id).is_equal_to("a key id".to_owned());

@@ -27,8 +27,7 @@ Ceres the goddess of agriculture, grain crops, fertility and motherly relationsh
 
 ## Configuration
 
-`ceres` tries to read `~/.ceres.conf` by default. See [example](examples/ceres.conf) for an example configuration. There should always be a _default_ provider which is automatically selected in case no provider is set.
-
+`ceres` tries to read `~/.ceres.conf` by default. See [example](examples/ceres.conf) for an example configuration.
 
 ## General Requirements
 

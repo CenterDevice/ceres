@@ -40,7 +40,12 @@ impl Module for List {
     fn call(cli_args: Option<&ArgMatches>, run_config: &RunConfig, config: &Config) -> Result<()> {
         let args = cli_args.unwrap(); // Safe unwrap
         // TODO: Move these lines into a factory from cli_args and config
-        let Provider::Aws(ref provider) = config.profiles.get(&run_config.active_profile).unwrap().provider;
+        let &Provider::Aws(ref provider) = if run_config.active_profile == "default" {
+            let default_profile = &config.default_profile;
+            &config.profiles.get(default_profile).unwrap().provider
+        } else {
+            &config.profiles.get(&run_config.active_profile).unwrap().provider
+        };
 
         // TODO: Fix this using type classes
         match args.value_of("output").unwrap() { // Safe
