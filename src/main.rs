@@ -20,19 +20,19 @@ fn run() -> Result<()> {
     let _ = env_logger::try_init();
 
     let args = build_cli().get_matches();
+    if let Some(subcommand_name) = args.subcommand_name() {
+        if subcommand_name == "completions" {
+            return generate_completion(args.subcommand_matches(subcommand_name).unwrap()); // Safe unwrap
+        }
+    }
+
     let default_config_file_name = format!("{}/.{}", env::home_dir().unwrap().display(), DEFAULT_CONFIG_FILE_NAME);
     let config = load_config(
         args.value_of("config").unwrap_or(&default_config_file_name))?;
-
     let run_config = RunConfig {
         active_profile: args.value_of("profile").unwrap().to_owned(), // Safe unwrap
     };
 
-    if let Some(subcommand_name) = args.subcommand_name() {
-        if subcommand_name == "completions" {
-            return generate_completion(args.subcommand_matches(subcommand_name).unwrap());  // Safe unwrap
-        }
-    }
     modules::call(&args, &run_config, &config).map_err(|e| e.into())
 }
 
