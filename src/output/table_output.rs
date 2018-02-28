@@ -1,3 +1,7 @@
+use prettytable::Table;
+use prettytable::cell::Cell;
+use prettytable::format;
+use prettytable::row::Row;
 use std::collections::HashMap;
 use std::io::Write;
 
@@ -14,8 +18,9 @@ impl Default for TableOutputInstances {
             fields: vec![
                 InstanceDescriptorFields::InstanceId,
                 InstanceDescriptorFields::InstanceType,
-                InstanceDescriptorFields::PrivateDnsName,
-                InstanceDescriptorFields::Tags,
+                InstanceDescriptorFields::LaunchTime,
+                InstanceDescriptorFields::PrivateIpAddress,
+                InstanceDescriptorFields::PublicIpAddress,
             ]
         }
     }
@@ -23,27 +28,63 @@ impl Default for TableOutputInstances {
 
 impl OutputInstances for TableOutputInstances {
     fn output<T: Write>(&self, writer: &mut T, instances: &[InstanceDescriptor]) -> Result<()> {
+        let mut table = Table::new();
+        table.set_format(*format::consts::FORMAT_NO_LINESEP_WITH_TITLE);
+
+        table.set_titles(
+            Row::new(
+                self.fields.iter().map(|f| Cell::new(header_for_field(f))).collect::<Vec<_>>()
+            ));
+
+        // We have to create / allocate the Strings first since `Table` only accepts `&str` and some
+        // `InstanceDescriptorFields` need to allocate representations first, e.g., `InstanceDescriptorFields::Tags`
+        let mut rows = Vec::new();
         for instance in instances {
-            for field in &self.fields {
-                let field_str = match *field {
-                    InstanceDescriptorFields::Hypervisor => format!("Hypervisor: {}", instance.hypervisor.as_ref().unwrap()),
-                    InstanceDescriptorFields::InstanceId => format!("Instance Id: {}", instance.instance_id.as_ref().unwrap()),
-                    InstanceDescriptorFields::InstanceType => format!("Instance Type: {}", instance.instance_type.as_ref().unwrap()),
-                    InstanceDescriptorFields::LaunchTime => format!("Launch Time: {}", instance.launch_time.as_ref().unwrap()),
-                    InstanceDescriptorFields::PrivateDnsName => format!("Private DNS Name: {}", instance.private_dns_name.as_ref().unwrap()),
-                    InstanceDescriptorFields::PrivateIpAddress => format!("Private IP Address: {}", instance.private_ip_address.as_ref().unwrap()),
-                    InstanceDescriptorFields::PublicDnsName => format!("Public DNS Name: {}", instance.public_dns_name.as_ref().unwrap()),
-                    InstanceDescriptorFields::PublicIpAddress => format!("Public IP Address: {}", instance.public_dns_name.as_ref().unwrap()),
-                    InstanceDescriptorFields::RootDeviceName => format!("Root Device Name: {}", instance.root_device_name.as_ref().unwrap()),
-                    InstanceDescriptorFields::RootDeviceType => format!("Root Device Type: {}", instance.root_device_type.as_ref().unwrap()),
-                    InstanceDescriptorFields::Tags => format!("Tags: {:?}", format_tags(instance.tags.as_ref().unwrap())),
-                };
-                write!(writer, "{} ", field_str).chain_err(|| ErrorKind::OutputFailed)?;
-            }
-            writeln!(writer, "").chain_err(|| ErrorKind::OutputFailed)?;
+            let row = self.fields.iter().map(|f| value_for_field(f, instance)).collect::<Vec<_>>();
+            rows.push(row);
         }
-        Ok(())
+        for r in rows {
+            table.add_row(
+                Row::new(
+                    r.iter().map(|cell| Cell::new(cell)).collect::<Vec<_>>()
+                ));
+        }
+
+        table.print(writer).chain_err(|| ErrorKind::OutputFailed)
     }
+}
+
+fn header_for_field(field: &InstanceDescriptorFields) -> &str {
+    match *field {
+        InstanceDescriptorFields::Hypervisor => "Hypervisor",
+        InstanceDescriptorFields::InstanceId => "Instance Id",
+        InstanceDescriptorFields::InstanceType => "Instance Type",
+        InstanceDescriptorFields::LaunchTime => "Launch Time",
+        InstanceDescriptorFields::PrivateDnsName => "Private DNS Name",
+        InstanceDescriptorFields::PrivateIpAddress => "Private IP Address",
+        InstanceDescriptorFields::PublicDnsName => "Public DNS Name",
+        InstanceDescriptorFields::PublicIpAddress => "Public IP Address",
+        InstanceDescriptorFields::RootDeviceName => "Root Device Name",
+        InstanceDescriptorFields::RootDeviceType => "Root Device Type",
+        InstanceDescriptorFields::Tags => "Tags",
+    }
+}
+
+fn value_for_field(field: &InstanceDescriptorFields, instance: &InstanceDescriptor) -> String {
+    match *field {
+        InstanceDescriptorFields::Hypervisor => instance.hypervisor.clone(),
+        InstanceDescriptorFields::InstanceId => instance.instance_id.clone(),
+        InstanceDescriptorFields::InstanceType => instance.instance_type.clone(),
+        InstanceDescriptorFields::LaunchTime => instance.launch_time.clone(),
+        InstanceDescriptorFields::PrivateDnsName => instance.private_dns_name.clone(),
+        InstanceDescriptorFields::PrivateIpAddress => instance.private_ip_address.clone(),
+        InstanceDescriptorFields::PublicDnsName => instance.public_dns_name.clone(),
+        InstanceDescriptorFields::PublicIpAddress => instance.public_ip_address.clone(),
+        InstanceDescriptorFields::RootDeviceName => instance.root_device_name.clone(),
+        InstanceDescriptorFields::RootDeviceType => instance.root_device_type.clone(),
+        InstanceDescriptorFields::Tags =>
+            Some(format_tags(instance.tags.as_ref().unwrap())),
+    }.unwrap_or_else(|| String::from("-"))
 }
 
 /// Format a `HashMap` of `String` -> `Option<String>` into a single line, pretty string.

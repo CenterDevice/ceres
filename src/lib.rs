@@ -1,6 +1,7 @@
 extern crate clap;
 #[macro_use]
 extern crate error_chain;
+extern crate prettytable;
 extern crate regex;
 extern crate rusoto_core;
 extern crate rusoto_credential;
@@ -12,7 +13,6 @@ extern crate serde_derive;
 #[cfg(test)]
 extern crate spectral;
 extern crate toml;
-extern crate tabwriter;
 
 pub mod config;
 pub mod modules;
