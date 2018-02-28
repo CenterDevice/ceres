@@ -5,6 +5,7 @@ extern crate regex;
 extern crate rusoto_core;
 extern crate rusoto_ec2;
 extern crate rusoto_sts;
+extern crate serde;
 #[macro_use]
 extern crate serde_derive;
 #[cfg(test)]
