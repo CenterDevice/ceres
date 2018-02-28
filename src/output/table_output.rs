@@ -9,7 +9,7 @@ use provider::{InstanceDescriptor, InstanceDescriptorFields};
 use output::*;
 
 pub struct TableOutputInstances {
-    fields: Vec<InstanceDescriptorFields>,
+    pub fields: Vec<InstanceDescriptorFields>,
 }
 
 impl Default for TableOutputInstances {

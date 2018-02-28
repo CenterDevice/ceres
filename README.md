@@ -43,11 +43,13 @@ ceres --profile prod@aws instances list --filter 'Tag:Value,Tag2:Value2' -o [hum
 
 * [X] Read profile from configuration file: ~/.ceres.conf
 
-* [ ] Nice human readable output
+* [X] Nice human readable output
 
-* [ ] Allow for selection of limited set of instance information for human display
+* [X] Allow for selection of limited set of instance information for human display
 
 * [ ] JSON output of all instance information
+
+* [ ] Allow for filtering re/ Tags and other information with reg ex
 
 ##### Non-Functional Requirements
 

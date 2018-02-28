@@ -1,4 +1,5 @@
 use std::collections::HashMap;
+use std::str::FromStr;
 
 pub mod aws;
 
@@ -18,6 +19,27 @@ pub enum InstanceDescriptorFields {
     RootDeviceName,
     RootDeviceType,
     Tags,
+}
+
+impl FromStr for InstanceDescriptorFields {
+    type Err = Error;
+
+    fn from_str(s: &str) -> ::std::result::Result<Self, Self::Err> {
+        match s {
+            "Hypervisor" => Ok(InstanceDescriptorFields::Hypervisor),
+            "InstanceId" => Ok(InstanceDescriptorFields::InstanceId),
+            "InstanceType" => Ok(InstanceDescriptorFields::InstanceType),
+            "LaunchTime" => Ok(InstanceDescriptorFields::LaunchTime),
+            "PrivateDnsName" => Ok(InstanceDescriptorFields::PrivateDnsName),
+            "PrivateIpAddress" => Ok(InstanceDescriptorFields::PrivateIpAddress),
+            "PublicDnsName" => Ok(InstanceDescriptorFields::PublicDnsName),
+            "PublicIpAddress" => Ok(InstanceDescriptorFields::PublicIpAddress),
+            "RootDeviceName" => Ok(InstanceDescriptorFields::RootDeviceName),
+            "RootDeviceType" => Ok(InstanceDescriptorFields::RootDeviceType),
+            "Tags" => Ok(InstanceDescriptorFields::Tags),
+            _ => Err(Error::from_kind(ErrorKind::InstanceDescriptorFieldsParsingFailed(s.to_owned())))
+        }
+    }
 }
 
 pub struct InstanceDescriptor {
@@ -67,6 +89,10 @@ error_chain! {
         ProviderCallFailed(call: String) {
             description("API call to provider failed.")
             display("API call '{}' to provider failed.", call)
+        }
+        InstanceDescriptorFieldsParsingFailed(s: String) {
+            description("Failed to parse InstanceDescriptorFields from String.")
+            display("Failed to parse InstanceDescriptorFields from String '{}'.", s)
         }
     }
 }
