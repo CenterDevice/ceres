@@ -10,6 +10,7 @@ extern crate rusoto_sts;
 extern crate serde;
 #[macro_use]
 extern crate serde_derive;
+extern crate serde_json;
 #[cfg(test)]
 extern crate spectral;
 extern crate toml;

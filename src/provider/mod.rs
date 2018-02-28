@@ -42,6 +42,7 @@ impl FromStr for InstanceDescriptorFields {
     }
 }
 
+#[derive(Serialize)]
 pub struct InstanceDescriptor {
     pub ami_launch_index: Option<i64>,
     pub architecture: Option<String>,

@@ -4,7 +4,8 @@ use std::io::Write;
 use config::{Config, Provider};
 use run_config::RunConfig;
 use modules::*;
-use output::OutputInstances;
+use output::{self, OutputInstances};
+use output::json_output::JsonOutputInstances;
 use output::table_output::TableOutputInstances;
 use provider::{DescribeInstances, InstanceDescriptor, InstanceDescriptorFields};
 use provider::aws::Aws;
@@ -19,11 +20,20 @@ impl Module for List {
         SubCommand::with_name(NAME)
             .about("List instances")
             .arg(
+                Arg::with_name("output")
+                    .long("output")
+                    .short("o")
+                    .takes_value(true)
+                    .default_value("human")
+                    .possible_values(&["human", "json"])
+                    .help("Selects output format")
+            )
+            .arg(
                 Arg::with_name("output-options")
                     .long("output-options")
                     .takes_value(true)
                     .default_value("InstanceId,InstanceType,LaunchTime,PrivateIpAddress,PublicIpAddress")
-                    .help("Selects the instance description fields to output")
+                    .help("Selects the instance description fields to human output")
             )
     }
 
@@ -31,15 +41,29 @@ impl Module for List {
         let args = cli_args.unwrap(); // Safe unwrap
         // TODO: Move these lines into a factory from cli_args and config
         let Provider::Aws(ref provider) = config.profiles.get(&run_config.active_profile).unwrap().provider;
-        let fields: ::std::result::Result<Vec<_>, _> = args.value_of("output-options").unwrap() // Safe unwrap
-            .split(',')
-            .map(|s| s.parse::<InstanceDescriptorFields>())
-            .collect();
-        let fields = fields.map_err(|e| Error::with_chain(e, ErrorKind::ModuleFailed(NAME.to_owned())))?;
-        let output = TableOutputInstances { fields };
-        let mut stdout = ::std::io::stdout();
 
-        do_call(provider, &mut stdout, &output)
+        // TODO: Fix this using type classes
+        match args.value_of("output").unwrap() { // Safe
+            "human" => {
+                let
+                fields: ::std::result::Result<Vec<_>, _> = args.value_of("output-options").unwrap() // Safe unwrap
+                    .split(',')
+                    .map(|s| s.parse::<InstanceDescriptorFields>())
+                    .collect();
+                let fields = fields.map_err(|e| Error::with_chain(e, ErrorKind::ModuleFailed(NAME.to_owned())))?;
+                let output = TableOutputInstances { fields };
+                let mut stdout = ::std::io::stdout();
+                do_call(provider, &mut stdout, &output)
+            },
+            "json" => {
+                let output = JsonOutputInstances;
+                let mut stdout = ::std::io::stdout();
+                do_call(provider, &mut stdout, &output)
+            },
+            _ => {
+                Err(Error::from_kind(ErrorKind::ModuleFailed(NAME.to_owned())))
+            },
+        }
     }
 }
 
