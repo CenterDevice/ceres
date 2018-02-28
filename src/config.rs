@@ -1,13 +1,11 @@
 use rusoto_core::Region;
-use serde::de::{self, Deserializer, Visitor};
-use serde::ser::Serializer;
 use std::collections::HashMap;
 use std::fs::File;
-use std::fmt;
 use std::io::Read;
 use std::path::Path;
-use std::str::FromStr;
 use toml;
+
+use provider;
 
 #[derive(Debug, Default, Serialize, Deserialize, PartialEq)]
 pub struct Config {
@@ -45,43 +43,8 @@ pub struct Profile {
 #[serde(tag = "type")]
 pub enum Provider {
     #[serde(rename = "aws")]
-    Aws(AwsProvider)
+    Aws(provider::aws::Aws)
 }
-
-#[derive(Debug, Serialize, Deserialize, PartialEq)]
-pub struct AwsProvider {
-    pub access_key_id: String,
-    pub secret_access_key: String,
-    #[serde(serialize_with = "ser_region", deserialize_with = "de_ser_region")]
-    pub region: Region,
-    pub role_arn: String,
-}
-
-fn ser_region<S>(region: &Region, serializer: S) -> ::std::result::Result<S::Ok, S::Error> where S: Serializer {
-    serializer.serialize_str(region.name())
-}
-
-fn de_ser_region<'de, D>(deserializer: D) -> ::std::result::Result<Region, D::Error> where D: Deserializer<'de> {
-    struct RegionVisitor;
-
-    impl<'a> Visitor<'a> for RegionVisitor {
-        type Value = Region;
-
-        fn expecting(&self, formatter: &mut fmt::Formatter) -> fmt::Result {
-            formatter.write_str("valid AWS region string")
-        }
-
-        fn visit_str<E>(self, s: &str) -> ::std::result::Result<Self::Value, E> where E: de::Error {
-            let region = Region::from_str(s)
-                .map_err(|_| de::Error::custom(
-                    format!("invalid region string '{}'", s)))?;
-            Ok(region)
-        }
-    }
-
-    deserializer.deserialize_string(RegionVisitor)
-}
-
 
 error_chain! {
     errors {
@@ -101,7 +64,7 @@ mod tests {
 
     #[test]
     fn serialize_deserialize_round_trip() {
-        let aws_provider = AwsProvider {
+        let aws_provider = provider::aws::Aws {
             access_key_id: String::from("a key id"),
             secret_access_key: String::from("an access key"),
             region: Region::EuCentral1,

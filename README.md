@@ -41,7 +41,7 @@ ceres --profile prod@aws instances list --filter 'Tag:Value,Tag2:Value2' -o [hum
 
 * [ ] Use profiles to select AWS account, Bosun and Consul etc. end-points, ssh keys
 
-* [ ] Read profile from configuration file: ~/.ceres.conf
+* [X] Read profile from configuration file: ~/.ceres.conf
 
 * [ ] Nice human readable output
 

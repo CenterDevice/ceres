@@ -1,27 +1,62 @@
 use regex::Regex;
-use rusoto_core::{default_tls_client, DefaultCredentialsProvider, Region};
+use rusoto_core::{default_tls_client, Region};
+use rusoto_credential::StaticProvider;
 use rusoto_ec2::{Ec2, Ec2Client, Instance as Ec2Instance, Tag};
 use rusoto_sts::{StsAssumeRoleSessionCredentialsProvider, StsClient};
+use serde::de::{self, Deserializer, Visitor};
+use serde::ser::Serializer;
 use std::collections::HashMap;
 use std::default::Default;
+use std::fmt;
+use std::str::FromStr;
 
 use provider::{Error as ProviderError, ErrorKind as ProviderErrorKind, InstanceDescriptor, DescribeInstances, Result as ProviderResult};
 
+#[derive(Debug, Serialize, Deserialize, PartialEq)]
 pub struct Aws {
-    pub provider_arn: String,
+    pub access_key_id: String,
+    pub secret_access_key: String,
+    #[serde(serialize_with = "ser_region", deserialize_with = "de_ser_region")]
+    pub region: Region,
+    pub role_arn: String,
+}
+
+fn ser_region<S>(region: &Region, serializer: S) -> ::std::result::Result<S::Ok, S::Error> where S: Serializer {
+    serializer.serialize_str(region.name())
+}
+
+fn de_ser_region<'de, D>(deserializer: D) -> ::std::result::Result<Region, D::Error> where D: Deserializer<'de> {
+    struct RegionVisitor;
+
+    impl<'a> Visitor<'a> for RegionVisitor {
+        type Value = Region;
+
+        fn expecting(&self, formatter: &mut fmt::Formatter) -> fmt::Result {
+            formatter.write_str("valid AWS region string")
+        }
+
+        fn visit_str<E>(self, s: &str) -> ::std::result::Result<Self::Value, E> where E: de::Error {
+            let region = Region::from_str(s)
+                .map_err(|_| de::Error::custom(
+                    format!("invalid region string '{}'", s)))?;
+            Ok(region)
+        }
+    }
+
+    deserializer.deserialize_string(RegionVisitor)
 }
 
 impl DescribeInstances for Aws {
     fn describe_instances(&self) -> ProviderResult<Vec<InstanceDescriptor>> {
-        list(&self.provider_arn).map_err(
+        list(&self).map_err(
             |e| ProviderError::with_chain(e, ProviderErrorKind::ProviderCallFailed(String::from("describe_instance"))))
     }
 }
 
-fn list(provider_arn: &str) -> Result<Vec<InstanceDescriptor>> {
-    let role_provider = assume_role(provider_arn)?;
+fn list(aws: &Aws) -> Result<Vec<InstanceDescriptor>> {
+    let credentials_provider = assume_role(&aws)?;
     let default_client = default_tls_client().chain_err(|| ErrorKind::AwsApiError)?;
-    let client = Ec2Client::new(default_client, role_provider, Region::EuCentral1);
+    let client = Ec2Client::new(default_client, credentials_provider, aws.region.clone());
 
     let request = Default::default();
     let result = client
@@ -43,70 +78,6 @@ fn list(provider_arn: &str) -> Result<Vec<InstanceDescriptor>> {
     }
 
     Ok(instances)
-    //let (tag_key, tag_value) = (None, None);
-    /*
-    }
-    let (tag_key, tag_value) = match args.value_of("filter") {
-        Some(kv) => {
-            // cf. https://github.com/rust-lang/rust/issues/23121
-            let splits: Vec<_> = kv.split(':').collect();
-            match splits.len() {
-                1 => (Some(splits[0]), None),
-                2 => (Some(splits[0]), Some(splits[1])),
-                _ => (None, None),
-            }
-        }
-        None => (None, None),
-    };
-    */
-
-    /*
-    let mut tw = TabWriter::new(vec![]).padding(1);
-    writeln!(&mut tw, "  ID\t  Private IP\t  Public IP\t  Tags:Name")
-        .chain_err(|| ErrorKind::OutputError)?;
-    for resv in reservations {
-        let instance_iter = resv.instances
-            .as_ref()
-            .ok_or_else(|| {
-                Error::from_kind(ErrorKind::AwsApiResultError(
-                    "no instances found".to_string(),
-                ))
-            })?
-            .iter();
-        let empty_tags = Vec::new();
-        let instances: Vec<_> = if let Some(tag_key) = tag_key {
-            instance_iter
-                .filter(|i| {
-                    has_tag(
-                        i.tags.as_ref().unwrap_or_else(|| &empty_tags),
-                        tag_key,
-                        tag_value,
-                    )
-                })
-                .collect()
-        } else {
-            instance_iter.collect()
-        };
-        let unset = "-".to_string();
-        for i in instances {
-            let tags = i.tags.as_ref().unwrap_or_else(|| &empty_tags);
-            writeln!(
-                &mut tw,
-                "| {}\t| {}\t| {}\t| {}\t|",
-                i.instance_id.as_ref().unwrap_or(&unset),
-                i.private_ip_address.as_ref().unwrap_or(&unset),
-                i.public_ip_address.as_ref().unwrap_or(&unset),
-                get_name_from_tags(tags).unwrap_or(&unset)
-            ).chain_err(|| ErrorKind::OutputError)?;
-        }
-    }
-    let out_str = String::from_utf8(tw.into_inner().chain_err(|| ErrorKind::OutputError)?)
-        .chain_err(|| ErrorKind::OutputError)?;
-
-    println!("{}", out_str);
-
-    Ok(())
-    */
 }
 
 impl From<Ec2Instance> for InstanceDescriptor {
@@ -148,7 +119,7 @@ impl From<Ec2Instance> for InstanceDescriptor {
             //state_reason: r.state_reason,
             state_transition_reason: r.state_transition_reason,
             subnet_id: r.subnet_id,
-            tags: if let Some(tags) = r.tags {Some(vec_tags_to_hashmap(tags))} else { None },
+            tags: if let Some(tags) = r.tags { Some(vec_tags_to_hashmap(tags)) } else { None },
             virtualization_type: r.virtualization_type,
             vpc_id: r.vpc_id,
         }
@@ -157,7 +128,6 @@ impl From<Ec2Instance> for InstanceDescriptor {
 
 fn vec_tags_to_hashmap(tags: Vec<Tag>) -> HashMap<String, Option<String>> {
     let mut tag_map = HashMap::new();
-
     for tag in tags {
         if let Some(key) = tag.key {
             tag_map.insert(key, tag.value);
@@ -167,14 +137,20 @@ fn vec_tags_to_hashmap(tags: Vec<Tag>) -> HashMap<String, Option<String>> {
     tag_map
 }
 
-fn assume_role(provider_arn: &str) -> Result<StsAssumeRoleSessionCredentialsProvider> {
-    let base_provider = DefaultCredentialsProvider::new().chain_err(|| ErrorKind::AwsApiError)?;
+fn assume_role(aws: &Aws) -> Result<StsAssumeRoleSessionCredentialsProvider> {
+    //let base_provider = DefaultCredentialsProvider::new().chain_err(|| ErrorKind::AwsApiError)?;
+    let base_provider = StaticProvider::new(
+        aws.access_key_id.clone(),
+        aws.secret_access_key.clone(),
+        None,
+        None
+    );
     let default_client = default_tls_client().chain_err(|| ErrorKind::AwsApiError)?;
-    let sts = StsClient::new(default_client, base_provider, Region::EuCentral1);
+    let sts = StsClient::new(default_client, base_provider, aws.region.clone());
 
     let provider = StsAssumeRoleSessionCredentialsProvider::new(
         sts,
-        provider_arn.to_string(),
+        aws.role_arn.clone(),
         "default".to_string(),
         None,
         None,
@@ -184,100 +160,6 @@ fn assume_role(provider_arn: &str) -> Result<StsAssumeRoleSessionCredentialsProv
 
     Ok(provider)
 }
-
-fn get_name_from_tags(tags: &[Tag]) -> Option<&String> {
-    let tag_name = Some("Name".to_string());
-    tags.iter()
-        .filter(|tag| tag.key == tag_name)
-        .take(1)
-        .last()
-        .map(|tag| tag.value.as_ref())
-        .and_then(|t| t)
-}
-
-/// Checks if tags contain a specific tag and optionally with a specific value
-/// Tag key and tag value are both matched using regular expressions
-///
-/// # Examples
-///
-/// ```
-/// # extern crate ceres;
-/// # extern crate rusoto_ec2;
-/// # use rusoto_ec2::Tag;
-/// # use ceres::provider::aws::has_tag;
-/// # fn main() {
-/// let tags = vec![ Tag{ key: Some("Name".to_string()), value: Some("Example Instance".to_string()) }];
-///
-/// let res = has_tag(&tags, "Name", None); // true
-/// # assert_eq!(res, true);
-///
-/// let res = has_tag(&tags, "Name", Some("Example Instance")); // true
-/// # assert_eq!(res, true);
-///
-/// let res = has_tag(&tags, "Name", Some("Example")); // true
-/// # assert_eq!(res, true);
-///
-/// let res = has_tag(&tags, "Name", Some("Example$")); // false
-/// # assert_eq!(res, false);
-///
-/// let res = has_tag(&tags, "NoSuchTag", None); // false
-/// # assert_eq!(res, false);
-/// # }
-/// ```
-/// TODO: Refactor: Move RE compilation out
-pub fn has_tag(tags: &[Tag], key: &str, value: Option<&str>) -> bool {
-    let key_re = Regex::new(key).unwrap();
-    let pred: Box<Fn(&Tag) -> bool> = match (key, value) {
-        (_, None) => Box::new(|tag: &Tag| key_re.is_match(tag.key.as_ref().unwrap())),
-        (_, Some(v)) => {
-            let value_re = Regex::new(v).unwrap();
-            Box::new(move |tag: &Tag| {
-                key_re.is_match(tag.key.as_ref().unwrap())
-                    && value_re.is_match(tag.value.as_ref().unwrap())
-            })
-        }
-    };
-    tags.iter().any(|tag| pred(tag))
-}
-
-#[cfg(test)]
-mod tests {
-    use super::*;
-    use rusoto_ec2::Tag;
-    use spectral::prelude::*;
-
-    #[test]
-    fn get_name_from_tags_okay() {
-        let tags = vec![
-            Tag {
-                key: Some("Name".to_string()),
-                value: Some("Example Instance".to_string()),
-            },
-        ];
-
-        let result = get_name_from_tags(&tags);
-
-        asserting(&"name tag included")
-            .that(&result)
-            .is_some()
-            .is_equal_to(&"Example Instance".to_string());
-    }
-
-    #[test]
-    fn get_name_from_tags_fails() {
-        let tags = vec![
-            Tag {
-                key: Some("NoName".to_string()),
-                value: Some("Example Instance".to_string()),
-            },
-        ];
-
-        let result = get_name_from_tags(&tags);
-
-        asserting(&"name tag not included").that(&result).is_none();
-    }
-}
-
 
 error_chain! {
 errors {

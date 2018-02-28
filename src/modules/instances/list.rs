@@ -1,7 +1,7 @@
 use clap::{App, ArgMatches, SubCommand};
 use std::io::Write;
 
-use config::Config;
+use config::{Config, Provider};
 use modules::*;
 use output::OutputInstances;
 use output::table_output::TableOutputInstances;
@@ -21,11 +21,11 @@ impl Module for List {
 
     fn call(cli_args: Option<&ArgMatches>, config: &Config) -> Result<()> {
         // TODO: Move these lines into a factory from cli_args and config
-        let provider = Aws { provider_arn: String::from("") };
+        let Provider::Aws(ref provider) = config.profiles.get("default").unwrap().provider;
         let output: TableOutputInstances = Default::default();
         let mut stdout = ::std::io::stdout();
 
-        do_call(&provider, &mut stdout, &output)
+        do_call(provider, &mut stdout, &output)
     }
 }
 
