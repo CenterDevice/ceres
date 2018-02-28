@@ -6,6 +6,8 @@ Ceres the goddess of agriculture, grain crops, fertility and motherly relationsh
 <!-- DON'T EDIT THIS SECTION, INSTEAD RE-RUN doctoc TO UPDATE -->
 **Table of Contents**
 
+- [Installation](#installation)
+- [Configuration](#configuration)
 - [General Requirements](#general-requirements)
 - [Use Cases](#use-cases)
   - [PoC: List AWS EC2 instances in one account using "Assume Role" and filter by tags](#poc-list-aws-ec2-instances-in-one-account-using-assume-role-and-filter-by-tags)
@@ -17,6 +19,16 @@ Ceres the goddess of agriculture, grain crops, fertility and motherly relationsh
 - [Pointer](#pointer)
 
 <!-- END doctoc generated TOC please keep comment here to allow auto update -->
+
+## Installation
+
+`brew install lukaspustina/os/ceres --HEAD`
+
+
+## Configuration
+
+`ceres` tries to read `~/.ceres.conf` by default. See [example](examples/ceres.conf) for an example configuration. There should always be a _default_ provider which is automatically selected in case no provider is set.
+
 
 ## General Requirements
 
@@ -31,6 +43,7 @@ Ceres the goddess of agriculture, grain crops, fertility and motherly relationsh
 
 ```bash
 ceres --profile prod@aws instances list --filter 'Tag:Value,Tag2:Value2' -o [humon|json] --o-opts=instance_id,image_id,instance_type
+ceres --config ~/.ceres.conf --profile staging@cd instances list -o [humon|json] --output-options=InstanceId,Tags
 ```
 
 #### Step 1
@@ -47,23 +60,25 @@ ceres --profile prod@aws instances list --filter 'Tag:Value,Tag2:Value2' -o [hum
 
 * [X] Allow for selection of limited set of instance information for human display
 
-* [ ] JSON output of all instance information
+* [X] JSON output of all instance information
 
 * [ ] Allow for filtering re/ Tags and other information with reg ex
 
 ##### Non-Functional Requirements
 
-* [ ] brew installation
+* [X] brew installation
+
+* [X] Provider Abstraction -- abstract from rusoto
+
+* [X] Prepare for modules, sub-modules etc.
 
 #### Step 2
 
-##### Non-Functional Requirements
-
 * [ ] Write man page
 
-* [ ] Provider Abstraction -- abstract from rusoto
+##### Non-Functional Requirements
 
-* [ ] Prepare for modules, sub-modules etc.
+* [ ] Better abstraction for output
 
 
 ## Pointer
