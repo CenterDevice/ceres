@@ -1,15 +1,11 @@
 use clap::{App, Arg, ArgMatches, SubCommand};
-use std::io::Write;
 
 use config::{Config, Provider};
 use run_config::RunConfig;
 use modules::*;
-use output::{self, OutputInstances};
-use output::json_output::JsonOutputInstances;
-use output::table_output::TableOutputInstances;
+use output::OutputInstances;
+use output::instances::{JsonOutputInstances, OutputType, TableOutputInstances};
 use provider::{DescribeInstances, InstanceDescriptor, InstanceDescriptorFields};
-use provider::aws::Aws;
-
 
 pub const NAME: &str = "list";
 
@@ -39,50 +35,50 @@ impl Module for List {
 
     fn call(cli_args: Option<&ArgMatches>, run_config: &RunConfig, config: &Config) -> Result<()> {
         let args = cli_args.unwrap(); // Safe unwrap
-        // TODO: Move these lines into a factory from cli_args and config
-        let &Provider::Aws(ref provider) = if run_config.active_profile == "default" {
-            let default_profile = &config.default_profile;
-            &config.profiles.get(default_profile).unwrap().provider
-        } else {
-            &config.profiles.get(&run_config.active_profile).unwrap().provider
-        };
-
-        // TODO: Fix this using type classes
-        match args.value_of("output").unwrap() { // Safe
-            "human" => {
-                let
-                fields: ::std::result::Result<Vec<_>, _> = args.value_of("output-options").unwrap() // Safe unwrap
-                    .split(',')
-                    .map(|s| s.parse::<InstanceDescriptorFields>())
-                    .collect();
-                let fields = fields.map_err(|e| Error::with_chain(e, ErrorKind::ModuleFailed(NAME.to_owned())))?;
-                let output = TableOutputInstances { fields };
-                let mut stdout = ::std::io::stdout();
-                do_call(provider, &mut stdout, &output)
-            },
-            "json" => {
-                let output = JsonOutputInstances;
-                let mut stdout = ::std::io::stdout();
-                do_call(provider, &mut stdout, &output)
-            },
-            _ => {
-                Err(Error::from_kind(ErrorKind::ModuleFailed(NAME.to_owned())))
-            },
-        }
+        do_call(args, run_config, config)
     }
 }
 
-fn do_call<T: DescribeInstances, S: Write, U: OutputInstances>(provider: &T, writer: &mut S, output: &U) -> Result<()> {
-    let instances = list_instances(provider)?;
-    output_instances(writer, output, &instances)?;
+fn do_call(args: &ArgMatches, run_config: &RunConfig, config: &Config) -> Result<()> {
+    let instances = list_instances(args, run_config, config)?;
+    let _ = output_instances(args, run_config, config, &instances)?;
 
     Ok(())
 }
 
-fn list_instances<T: DescribeInstances>(provider: &T) -> Result<Vec<InstanceDescriptor>> {
+fn list_instances(_: &ArgMatches, run_config: &RunConfig, config: &Config) -> Result<Vec<InstanceDescriptor>> {
+    let &Provider::Aws(ref provider) = match run_config.active_profile.as_ref() {
+        "default" => config.get_default_provider(),
+        s => config.get_provider_by_profile(s),
+    }.chain_err(|| ErrorKind::ModuleFailed(NAME.to_owned()))?;
+
     provider.describe_instances().chain_err(|| ErrorKind::ModuleFailed(String::from(NAME)))
 }
 
-fn output_instances<T: Write, S: OutputInstances>(writer: &mut T, output: &S, instances: &[InstanceDescriptor]) -> Result<()> {
-    output.output(writer, instances).chain_err(|| ErrorKind::ModuleFailed(String::from(NAME)))
+fn output_instances(args: &ArgMatches, _: &RunConfig, _: &Config, instances: &[InstanceDescriptor]) -> Result<()> {
+    let output_type = args.value_of("output").unwrap() // Safe
+        .parse::<OutputType>()
+        .chain_err(|| ErrorKind::ModuleFailed(NAME.to_owned()))?;
+    let mut stdout = ::std::io::stdout();
+
+    match output_type {
+        OutputType::Human => {
+            let fields: ::std::result::Result<Vec<_>, _> = args.value_of("output-options").unwrap() // Safe unwrap
+                .split(',')
+                .map(|s| s.parse::<InstanceDescriptorFields>())
+                .collect();
+            let fields = fields
+                .map_err(|e| Error::with_chain(e, ErrorKind::ModuleFailed(NAME.to_owned())))?;
+            let output = TableOutputInstances { fields };
+
+            output.output(&mut stdout, instances)
+                .chain_err(|| ErrorKind::ModuleFailed(String::from(NAME)))
+        }
+        OutputType::Json => {
+            let output = JsonOutputInstances;
+
+            output.output(&mut stdout, instances)
+                .chain_err(|| ErrorKind::ModuleFailed(String::from(NAME)))
+        }
+    }
 }

@@ -1,4 +1,3 @@
-use regex::Regex;
 use rusoto_core::{default_tls_client, Region};
 use rusoto_credential::StaticProvider;
 use rusoto_ec2::{Ec2, Ec2Client, Instance as Ec2Instance, Tag};

@@ -1,4 +1,3 @@
-use rusoto_core::Region;
 use std::collections::HashMap;
 use std::fs::File;
 use std::io::Read;
@@ -16,23 +15,34 @@ pub struct Config {
 impl Config {
     pub fn from_file<T: AsRef<Path>>(file_path: T) -> Result<Config> {
         let mut file = File::open(file_path)?;
-        let content = Config::read_to_string(&mut file)?;
+        let content = read_to_string(&mut file)?;
 
-        Config::parse_toml(&content)
+        parse_toml(&content)
     }
 
-    fn read_to_string(file: &mut File) -> Result<String> {
-        let mut content = String::new();
-        file.read_to_string(&mut content)?;
+    pub fn get_provider_by_profile(&self, profile_name: &str) -> Result<&Provider> {
+        let profile = self.profiles.get(profile_name)
+            .ok_or_else(|| ErrorKind::NoSuchProfile(profile_name.to_owned()))?;
 
-        Ok(content)
+        Ok(&profile.provider)
     }
 
-    fn parse_toml(content: &str) -> Result<Config> {
-        let config: Config = toml::from_str(content)?;
-
-        Ok(config)
+    pub fn get_default_provider(&self) -> Result<&Provider> {
+        self.get_provider_by_profile(&self.default_profile)
     }
+}
+
+fn read_to_string(file: &mut File) -> Result<String> {
+    let mut content = String::new();
+    file.read_to_string(&mut content)?;
+
+    Ok(content)
+}
+
+fn parse_toml(content: &str) -> Result<Config> {
+    let config: Config = toml::from_str(content)?;
+
+    Ok(config)
 }
 
 #[derive(Debug, Serialize, Deserialize, PartialEq)]
@@ -49,6 +59,10 @@ pub enum Provider {
 
 error_chain! {
     errors {
+        NoSuchProfile(profile: String) {
+            description("No such profile")
+            display("No such profile '{}'", profile)
+        }
     }
     foreign_links {
         CouldNotRead(::std::io::Error);
@@ -60,6 +74,7 @@ error_chain! {
 mod tests {
     use super::*;
 
+    use rusoto_core::Region;
     use spectral::prelude::*;
     use toml;
 
