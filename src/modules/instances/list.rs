@@ -28,7 +28,7 @@ impl Module for List {
                 Arg::with_name("output-options")
                     .long("output-options")
                     .takes_value(true)
-                    .default_value("InstanceId,InstanceType,LaunchTime,PrivateIpAddress,PublicIpAddress")
+                    .default_value("InstanceId,InstanceType,State,PrivateIpAddress,PublicIpAddress,LaunchTime")
                     .help("Selects the instance description fields to human output")
             )
     }
@@ -69,7 +69,10 @@ fn output_instances(args: &ArgMatches, _: &RunConfig, _: &Config, instances: &[I
                 .collect();
             let fields = fields
                 .map_err(|e| Error::with_chain(e, ErrorKind::ModuleFailed(NAME.to_owned())))?;
-            let output = TableOutputInstances { fields };
+            let output = TableOutputInstances {
+                fields,
+                tags_filter: Some(vec!["Name".to_owned(), "Intent".to_owned()])
+            };
 
             output.output(&mut stdout, instances)
                 .chain_err(|| ErrorKind::ModuleFailed(String::from(NAME)))

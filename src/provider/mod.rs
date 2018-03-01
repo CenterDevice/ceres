@@ -8,17 +8,24 @@ pub trait DescribeInstances {
 }
 
 pub enum InstanceDescriptorFields {
+    BlockDeviceMapping,
     Hypervisor,
+    IamInstanceProfile,
     InstanceId,
     InstanceType,
     LaunchTime,
+    Monitoring,
+    Placement,
     PrivateDnsName,
     PrivateIpAddress,
     PublicDnsName,
     PublicIpAddress,
     RootDeviceName,
     RootDeviceType,
-    Tags,
+    SecurityGroups,
+    State,
+    StateReason,
+    Tags(Option<Vec<String>>),
 }
 
 impl FromStr for InstanceDescriptorFields {
@@ -26,33 +33,52 @@ impl FromStr for InstanceDescriptorFields {
 
     fn from_str(s: &str) -> ::std::result::Result<Self, Self::Err> {
         match s {
+            "BlockDeviceMapping" => Ok(InstanceDescriptorFields::BlockDeviceMapping),
             "Hypervisor" => Ok(InstanceDescriptorFields::Hypervisor),
+            "IamInstanceProfile" => Ok(InstanceDescriptorFields::IamInstanceProfile),
             "InstanceId" => Ok(InstanceDescriptorFields::InstanceId),
             "InstanceType" => Ok(InstanceDescriptorFields::InstanceType),
             "LaunchTime" => Ok(InstanceDescriptorFields::LaunchTime),
+            "Monitoring" => Ok(InstanceDescriptorFields::Monitoring),
+            "Placement" => Ok(InstanceDescriptorFields::Placement),
             "PrivateDnsName" => Ok(InstanceDescriptorFields::PrivateDnsName),
             "PrivateIpAddress" => Ok(InstanceDescriptorFields::PrivateIpAddress),
             "PublicDnsName" => Ok(InstanceDescriptorFields::PublicDnsName),
             "PublicIpAddress" => Ok(InstanceDescriptorFields::PublicIpAddress),
             "RootDeviceName" => Ok(InstanceDescriptorFields::RootDeviceName),
             "RootDeviceType" => Ok(InstanceDescriptorFields::RootDeviceType),
-            "Tags" => Ok(InstanceDescriptorFields::Tags),
+            "SecurityGroups" => Ok(InstanceDescriptorFields::SecurityGroups),
+            "State" => Ok(InstanceDescriptorFields::State),
+            "StateReason" => Ok(InstanceDescriptorFields::StateReason),
+            s if s.starts_with("Tags") => {
+                let tags_filter = extract_tags_filter(s);
+                Ok(InstanceDescriptorFields::Tags(tags_filter))
+            }
             _ => Err(Error::from_kind(ErrorKind::InstanceDescriptorFieldsParsingFailed(s.to_owned())))
         }
     }
+}
+
+fn extract_tags_filter(tags_str: &str) -> Option<Vec<String>> {
+    if tags_str.len() < 5 { return None };
+    let tags = &tags_str[5..]; // Safe because we call this function only when the prefix 'Tags:' has been seen
+    let tags_filter: Vec<_> = tags.split(':').map(String::from).collect();
+
+    Some(tags_filter)
 }
 
 #[derive(Serialize)]
 pub struct InstanceDescriptor {
     pub ami_launch_index: Option<i64>,
     pub architecture: Option<String>,
-    //pub block_device_mappings: Option<Vec<InstanceBlockDeviceMapping>>,
+    pub block_device_mappings: Vec<String>,
     pub client_token: Option<String>,
     pub ebs_optimized: Option<bool>,
+    // Won't convert this
     //pub elastic_gpu_associations: Option<Vec<ElasticGpuAssociation>>,
     pub ena_support: Option<bool>,
     pub hypervisor: Option<String>,
-    //pub iam_instance_profile: Option<IamInstanceProfile>,
+    pub iam_instance_profile: Option<String>,
     pub image_id: Option<String>,
     pub instance_id: Option<String>,
     pub instance_lifecycle: Option<String>,
@@ -60,24 +86,26 @@ pub struct InstanceDescriptor {
     pub kernel_id: Option<String>,
     pub key_name: Option<String>,
     pub launch_time: Option<String>,
-    //pub monitoring: Option<Monitoring>,
+    pub monitoring: Option<String>,
+    // TODO: network_interfaces contains a lot of useful information but it's a data structure rabbit hole
     //pub network_interfaces: Option<Vec<InstanceNetworkInterface>>,
-    //pub placement: Option<Placement>,
+    pub placement: Option<String>,
     pub platform: Option<String>,
     pub private_dns_name: Option<String>,
     pub private_ip_address: Option<String>,
+    // Won't convert this
     //pub product_codes: Option<Vec<ProductCode>>,
     pub public_dns_name: Option<String>,
     pub public_ip_address: Option<String>,
     pub ramdisk_id: Option<String>,
     pub root_device_name: Option<String>,
     pub root_device_type: Option<String>,
-    //pub security_groups: Option<Vec<GroupIdentifier>>,
+    pub security_groups: Vec<String>,
     pub source_dest_check: Option<bool>,
     pub spot_instance_request_id: Option<String>,
     pub sriov_net_support: Option<String>,
-    //pub state: Option<InstanceState>,
-    //pub state_reason: Option<StateReason>,
+    pub state: Option<String>,
+    pub state_reason: Option<String>,
     pub state_transition_reason: Option<String>,
     pub subnet_id: Option<String>,
     pub tags: Option<HashMap<String, Option<String>>>,
@@ -95,5 +123,39 @@ error_chain! {
             description("Failed to parse InstanceDescriptorFields from String.")
             display("Failed to parse InstanceDescriptorFields from String '{}'.", s)
         }
+    }
+}
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+
+    use spectral::prelude::*;
+
+    #[test]
+    fn extract_tags_filter_empty() {
+        let tag_str = "Tag";
+
+        let res = extract_tags_filter(&tag_str);
+
+        assert_that(&res).is_none();
+    }
+
+    #[test]
+    fn extract_tags_filter_one_tag() {
+        let tag_str = "Tags:Name";
+
+        let res = extract_tags_filter(&tag_str);
+
+        assert_that(&res).is_some().is_equal_to(vec!["Name".to_owned()]);
+    }
+
+    #[test]
+    fn extract_tags_filter_two_tag() {
+        let tag_str = "Tags:Name:SomeOtherTag";
+
+        let res = extract_tags_filter(&tag_str);
+
+        assert_that(&res).is_some().is_equal_to(vec!["Name".to_owned(), "SomeOtherTag".to_owned()]);
     }
 }
