@@ -11,6 +11,7 @@ pub enum InstanceDescriptorFields {
     BlockDeviceMapping,
     Hypervisor,
     IamInstanceProfile,
+    ImageId,
     InstanceId,
     InstanceType,
     LaunchTime,
@@ -26,6 +27,8 @@ pub enum InstanceDescriptorFields {
     State,
     StateReason,
     Tags(Option<Vec<String>>),
+    VirtualizationType,
+    VpcId,
 }
 
 impl FromStr for InstanceDescriptorFields {
@@ -36,6 +39,7 @@ impl FromStr for InstanceDescriptorFields {
             "BlockDeviceMapping" => Ok(InstanceDescriptorFields::BlockDeviceMapping),
             "Hypervisor" => Ok(InstanceDescriptorFields::Hypervisor),
             "IamInstanceProfile" => Ok(InstanceDescriptorFields::IamInstanceProfile),
+            "ImageId" => Ok(InstanceDescriptorFields::ImageId),
             "InstanceId" => Ok(InstanceDescriptorFields::InstanceId),
             "InstanceType" => Ok(InstanceDescriptorFields::InstanceType),
             "LaunchTime" => Ok(InstanceDescriptorFields::LaunchTime),
@@ -54,6 +58,8 @@ impl FromStr for InstanceDescriptorFields {
                 let tags_filter = extract_tags_filter(s);
                 Ok(InstanceDescriptorFields::Tags(tags_filter))
             }
+            "VirtualizationType" => Ok(InstanceDescriptorFields::VirtualizationType),
+            "VpcId" => Ok(InstanceDescriptorFields::VpcId),
             _ => Err(Error::from_kind(ErrorKind::InstanceDescriptorFieldsParsingFailed(s.to_owned())))
         }
     }

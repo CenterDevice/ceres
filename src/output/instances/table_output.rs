@@ -64,8 +64,9 @@ fn header_for_field(field: &InstanceDescriptorFields) -> &str {
     match *field {
         InstanceDescriptorFields::BlockDeviceMapping => "Block Device Mapping",
         InstanceDescriptorFields::Hypervisor => "Hypervisor",
-        InstanceDescriptorFields::InstanceId => "Instance Id",
         InstanceDescriptorFields::IamInstanceProfile => "Iam Instance Profile",
+        InstanceDescriptorFields::ImageId => "Image Id",
+        InstanceDescriptorFields::InstanceId => "Instance Id",
         InstanceDescriptorFields::InstanceType => "Instance Type",
         InstanceDescriptorFields::LaunchTime => "Launch Time",
         InstanceDescriptorFields::Monitoring => "Monitoring",
@@ -80,6 +81,8 @@ fn header_for_field(field: &InstanceDescriptorFields) -> &str {
         InstanceDescriptorFields::State => "State",
         InstanceDescriptorFields::StateReason => "State Reason",
         InstanceDescriptorFields::Tags(_) => "Tags",
+        InstanceDescriptorFields::VirtualizationType => "Virtualization Type",
+        InstanceDescriptorFields::VpcId => "Vpc Id",
     }
 }
 
@@ -89,6 +92,7 @@ fn value_for_field(field: &InstanceDescriptorFields, instance: &InstanceDescript
             Some(instance.block_device_mappings.join("\n")),
         InstanceDescriptorFields::Hypervisor => instance.hypervisor.clone(),
         InstanceDescriptorFields::IamInstanceProfile => instance.iam_instance_profile.clone(),
+        InstanceDescriptorFields::ImageId => instance.image_id.clone(),
         InstanceDescriptorFields::InstanceId => instance.instance_id.clone(),
         InstanceDescriptorFields::InstanceType => instance.instance_type.clone(),
         InstanceDescriptorFields::LaunchTime => instance.launch_time.clone(),
@@ -107,6 +111,8 @@ fn value_for_field(field: &InstanceDescriptorFields, instance: &InstanceDescript
         InstanceDescriptorFields::Tags(ref tags_filter) => {
             Some(format_tags(instance.tags.as_ref().unwrap(), tags_filter.as_ref().map(|x| x.as_slice())))
         },
+        InstanceDescriptorFields::VirtualizationType => instance.virtualization_type.clone(),
+        InstanceDescriptorFields::VpcId => instance.vpc_id.clone(),
     }.unwrap_or_else(|| String::from("-"))
 }
 
