@@ -71,7 +71,7 @@ fn output_instances(args: &ArgMatches, _: &RunConfig, _: &Config, instances: &[I
                 .map_err(|e| Error::with_chain(e, ErrorKind::ModuleFailed(NAME.to_owned())))?;
             let output = TableOutputInstances {
                 fields,
-                tags_filter: Some(vec!["Name".to_owned(), "Intent".to_owned()])
+                tags_filter: Some(vec!["Name".to_owned(), "Intent".to_owned()]),
             };
 
             output.output(&mut stdout, instances)
@@ -82,6 +82,133 @@ fn output_instances(args: &ArgMatches, _: &RunConfig, _: &Config, instances: &[I
 
             output.output(&mut stdout, instances)
                 .chain_err(|| ErrorKind::ModuleFailed(String::from(NAME)))
+        }
+    }
+}
+
+mod filter {
+    use regex::Regex;
+
+    use provider::InstanceDescriptor;
+
+    struct FilterBuilder<'a> {
+        instance_id: Option<&'a str>,
+    }
+
+    impl<'a> FilterBuilder<'a> {
+        pub fn new() -> Self {
+            FilterBuilder {
+                instance_id: None,
+            }
+        }
+
+        pub fn with_instance_id(mut self, instance_id: &'a str) -> Self {
+            self.instance_id = Some(instance_id);
+            self
+        }
+
+        pub fn build(self) -> Result<Filter> {
+            let filter = Filter {
+                instance_id:
+                    if let Some(re) = self.instance_id {
+                        Some(Regex::new(re)
+                            .chain_err(|| ErrorKind::FilterRegexError(re.to_owned(), "instance_id".to_owned()))?)
+                    } else {
+                        None
+                    }
+            };
+            Ok(filter)
+        }
+    }
+
+    struct Filter {
+        instance_id: Option<Regex>,
+    }
+
+    impl Filter {
+        pub fn filter(&self, instance: &InstanceDescriptor) -> bool {
+            if let Some(ref re) = self.instance_id {
+                return instance.instance_id.is_none() || re.is_match(instance.instance_id.as_ref().unwrap());
+            }
+
+            true
+        }
+    }
+
+    error_chain! {
+        errors {
+            FilterRegexError(re: String, field: String) {
+                description("Failed to build reg exp.")
+                display("Failed to build reg exp '{}' for field '{}'.", re, field)
+            }
+        }
+    }
+
+    #[cfg(test)]
+    mod tests {
+        use super::*;
+
+        use spectral::prelude::*;
+
+        //--filter 'Instance=i-.*,Tags=Name=Packer.*:AnsibleHostGroup=batch_.*,State=stopped
+
+        #[test]
+        fn parse_filter_empty() {
+            assert!(false)
+        }
+
+        #[test]
+        fn filter_instance_with_empty_filter() {
+            let instance = InstanceDescriptor {
+                instance_id: Some("i-12345".to_owned()),
+                ..Default::default()
+            };
+            let filter = FilterBuilder::new()
+                .build()
+                .expect("Failed to build filter");
+
+            assert_that(&filter.filter(&instance)).is_true()
+        }
+
+        #[test]
+        fn filter_instance_with_instance_id_okay() {
+            let instance = InstanceDescriptor {
+                instance_id: Some("i-12345".to_owned()),
+                ..Default::default()
+            };
+            let filter = FilterBuilder::new()
+                .with_instance_id("i-.*")
+                .build()
+                .expect("Failed to build filter");
+
+            assert_that(&filter.filter(&instance)).is_true()
+        }
+
+        #[test]
+        fn filter_instance_with_instance_id_fail() {
+            let instance = InstanceDescriptor {
+                instance_id: Some("I-12345".to_owned()),
+                ..Default::default()
+            };
+            let filter = FilterBuilder::new()
+                .with_instance_id("i-.*")
+                .build()
+                .expect("Failed to build filter");
+
+            assert_that(&filter.filter(&instance)).is_false()
+        }
+
+        #[test]
+        fn filter_instance_with_invalid_re() {
+            let instance = InstanceDescriptor {
+                instance_id: Some("I-12345".to_owned()),
+                ..Default::default()
+            };
+            let filter = FilterBuilder::new()
+                .with_instance_id("\\i-.*")
+                .build();
+
+            assert!(&filter.is_err())
         }
     }
 }

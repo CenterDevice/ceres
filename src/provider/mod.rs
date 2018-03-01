@@ -119,6 +119,50 @@ pub struct InstanceDescriptor {
     pub vpc_id: Option<String>,
 }
 
+impl Default for InstanceDescriptor {
+    fn default() -> Self {
+        InstanceDescriptor {
+            ami_launch_index: None,
+            architecture: None,
+            block_device_mappings: Vec::new(),
+            client_token: None,
+            ebs_optimized: None,
+            ena_support: None,
+            hypervisor: None,
+            iam_instance_profile: None,
+            image_id: None,
+            instance_id: None,
+            instance_lifecycle: None,
+            instance_type: None,
+            kernel_id: None,
+            key_name: None,
+            launch_time: None,
+            monitoring: None,
+            placement: None,
+            platform: None,
+            private_dns_name: None,
+            private_ip_address: None,
+            public_dns_name: None,
+            public_ip_address: None,
+            ramdisk_id: None,
+            root_device_name: None,
+            root_device_type: None,
+            security_groups: Vec::new(),
+            source_dest_check: None,
+            spot_instance_request_id: None,
+            sriov_net_support: None,
+            state: None,
+            state_reason: None,
+            state_transition_reason: None,
+            subnet_id: None,
+            tags: None,
+            virtualization_type: None,
+            vpc_id: None,
+
+        }
+    }
+}
+
 error_chain! {
     errors {
         ProviderCallFailed(call: String) {

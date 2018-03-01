@@ -41,8 +41,7 @@ Ceres the goddess of agriculture, grain crops, fertility and motherly relationsh
 ### PoC: List AWS EC2 instances in one account using "Assume Role" and filter by tags
 
 ```bash
-ceres --profile prod@aws instances list --filter 'Tag:Value,Tag2:Value2' -o [humon|json] --output-options=InstanceId,Tags=Name:AnsibleHostGroup,State
-ceres --config ~/.ceres.conf --profile staging@cd instances list -o [humon|json] --output-options=InstanceId,Tags=Name:AnsibleHostGroup,State
+ceres --config ~/.ceres.conf --profile staging@cd instances list -o [humon|json] --output-options=InstanceId,Tags=Name:AnsibleHostGroup,State --filter 'Instance=i-.*,Tags=Name=Packer.*:AnsibleHostGroup=batch_.*,State=stopped'
 ```
 
 #### Step 1
