@@ -32,5 +32,5 @@ completions --shell *shell*
 
 # COPYRIGHT AND LICENSE
 
-Copyright (c) 2018 Lukas Pustina. Licensed under the MIT License. See *https://github.com/lukaspustina/mhost/blob/master/LICENSE* for details.
+Copyright (c) 2018 Lukas Pustina. Licensed under the MIT License. See *https://github.com/lukaspustina/ceres/blob/master/LICENSE* for details.
 
