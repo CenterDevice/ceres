@@ -72,6 +72,8 @@ ceres --config ~/.ceres.conf --profile staging@cd instances list -o [humon|json]
 
 #### Step 2
 
+* [ ] Fix Todos: `make todos`
+
 * [ ] Write man page
 
 ##### Non-Functional Requirements

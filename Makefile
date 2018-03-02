@@ -1,13 +1,13 @@
 all: check build test
 
-build-lib:
-	cargo build
-
-build:
-	cargo build
+todos:
+	rg -g '!Makefile' -i todo 
 
 check:
 	cargo check
+
+build:
+	cargo build
 
 test:
 	cargo test
