@@ -1,4 +1,6 @@
 .idea/
-ceres.iml
+*.iml
+.vscode/
+*.code-workspace
 /target/
 **/*.rs.bk
