@@ -246,7 +246,7 @@ mod filter {
         fn from_str(s: &str) -> ::std::result::Result<Self, Self::Err> {
             let tags = s.split(',');
             let kvs: Result<Vec<(&str, Option<&str>)>> = tags.map(|tag| {
-                let mut splits: Vec<_> = tag.split('=').collect();
+                let mut splits: Vec<_> = tag.splitn(2, '=').collect();
                 match splits.len() {
                     2 => Ok((splits.remove(0), Some(splits.remove(0)))),
                     1 => Ok((splits.remove(0), None)),
@@ -278,7 +278,7 @@ mod filter {
                         InstanceDescriptorFields::SecurityGroups => { /* TODO: Add this field */ },
                         InstanceDescriptorFields::State => { f_builder = f_builder.state(v); },
                         InstanceDescriptorFields::StateReason => { f_builder = f_builder.state_reason(v); },
-                        InstanceDescriptorFields::Tags(_) => { /* nothing to do for this Field */ },
+                        InstanceDescriptorFields::Tags(_) => { f_builder = f_builder.tags(parse_tags_filter_to_hash(v)?);  },
                         InstanceDescriptorFields::VirtualizationType => { f_builder = f_builder.virtualization_type(v); },
                         InstanceDescriptorFields::VpcId => { f_builder = f_builder.vpc_id(v); },
                     }
@@ -288,6 +288,20 @@ mod filter {
             f_builder.build().chain_err(||
                 Error::from_kind(ErrorKind::FilterParsingFailed(s.to_owned(), "building filter failed".to_owned())))
         }
+    }
+
+    fn parse_tags_filter_to_hash(tags_filter: &str) -> Result<HashMap<String, Option<&str>>> {
+        let mut hm = HashMap::new();
+        for tag in tags_filter.split(':') {
+            let mut kv: Vec<_> = tag.split('=').collect();
+            match kv.len() {
+                2 => hm.insert(kv.remove(0).to_owned(), Some(kv.remove(0))),
+                1 => hm.insert(kv.remove(0).to_owned(), None),
+                _ => return Err(Error::from_kind(ErrorKind::FilterParsingFailed(tags_filter.to_owned(), "splitting fields failed".to_owned()))),
+            };
+        }
+
+        Ok(hm)
     }
 
     error_chain! {
@@ -313,13 +327,23 @@ mod filter {
         #[test]
         fn parse_filter_no_tags_okay() {
             let filter_arg = "InstanceId=i-.*,State=stopped";
-            let filter = filter_arg.parse::<Filter>().unwrap();
+            let _ = filter_arg.parse::<Filter>().unwrap();
         }
 
-         #[test]
+        #[test]
         fn parse_filter_with_tags_okay() {
             let filter_arg = "InstanceId=i-.*,Tags=Name:AnsibleHostGroup=batch_.*,State=stopped";
-            let filter = filter_arg.parse::<Filter>().unwrap();
+            let _ = filter_arg.parse::<Filter>().unwrap();
+        }
+
+        #[test]
+        fn parse_tags_filter_to_hash_okay() {
+            let tags_filter = "Name:AnsibleHostGroup=batch_.*";
+
+            let hm = parse_tags_filter_to_hash(tags_filter);
+
+            assert_that(&hm).is_ok().contains_entry("Name".to_owned(), None);
+            assert_that(&hm).is_ok().contains_entry("AnsibleHostGroup".to_owned(), Some("batch_.*"));
         }
 
         #[test]
