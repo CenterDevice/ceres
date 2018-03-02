@@ -78,11 +78,13 @@ fn filter_instances(
     instances: Vec<InstanceDescriptor>,
 ) -> Result<Vec<InstanceDescriptor>> {
 
-    let filter = args.value_of("filter").unwrap() // Safe
-        .parse::<filter::Filter>()
-        .chain_err(|| ErrorKind::ModuleFailed(NAME.to_owned()))?;
-
-    let instances: Vec<_> = instances.into_iter().filter(|i| filter.filter(&i)).collect();
+    let instances = if let Some(filter_str) = args.value_of("filter") {
+        let filter = filter_str.parse::<filter::Filter>()
+            .chain_err(|| ErrorKind::ModuleFailed(NAME.to_owned()))?;
+        instances.into_iter().filter(|i| filter.filter(&i)).collect::<Vec<_>>()
+    } else {
+        instances
+    };
 
     Ok(instances)
 }
