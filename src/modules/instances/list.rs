@@ -16,6 +16,13 @@ impl Module for List {
         SubCommand::with_name(NAME)
             .about("List instances")
             .arg(
+                Arg::with_name("filter")
+                    .long("filter")
+                    .short("f")
+                    .takes_value(true)
+                    .help("Filters instances by description fields"),
+            )
+            .arg(
                 Arg::with_name("output")
                     .long("output")
                     .short("o")
@@ -43,6 +50,7 @@ impl Module for List {
 
 fn do_call(args: &ArgMatches, run_config: &RunConfig, config: &Config) -> Result<()> {
     let instances = list_instances(args, run_config, config)?;
+    let instances = filter_instances(args, run_config, config, instances)?;
     let _ = output_instances(args, run_config, config, &instances)?;
 
     Ok(())
@@ -61,6 +69,22 @@ fn list_instances(
     provider
         .describe_instances()
         .chain_err(|| ErrorKind::ModuleFailed(String::from(NAME)))
+}
+
+fn filter_instances(
+    args: &ArgMatches,
+    _: &RunConfig,
+    _: &Config,
+    instances: Vec<InstanceDescriptor>,
+) -> Result<Vec<InstanceDescriptor>> {
+
+    let filter = args.value_of("filter").unwrap() // Safe
+        .parse::<filter::Filter>()
+        .chain_err(|| ErrorKind::ModuleFailed(NAME.to_owned()))?;
+
+    let instances: Vec<_> = instances.into_iter().filter(|i| filter.filter(&i)).collect();
+
+    Ok(instances)
 }
 
 fn output_instances(
@@ -105,11 +129,12 @@ mod filter {
     use regex::Regex;
 
     use std::collections::HashMap;
-    use provider::InstanceDescriptor;
+    use std::str::FromStr;
+    use provider::{InstanceDescriptor, InstanceDescriptorFields};
 
     macro_rules! filter_builder {
         ($($field:tt),+) => {
-            struct FilterBuilder<'a> {
+            pub struct FilterBuilder<'a> {
                 $($field: Option<&'a str>),*,
                 tags: Option<HashMap<String, Option<&'a str>>>
             }
@@ -147,7 +172,7 @@ mod filter {
                         tags: if let Some(tags) = self.tags {
                                 // TODO: Does not work with empty RE
                                 let h = tags.into_iter().map(|(k, v)| (
-                                    k, 
+                                    k,
                                     if let Some(v) = v { Regex::new(v).ok() } else { None }
                                 )).collect();
                                 Some(h)
@@ -160,7 +185,7 @@ mod filter {
                 }
             }
 
-            struct Filter {
+            pub struct Filter {
                 $($field: Option<Regex>),*,
                 tags: Option<HashMap<String, Option<Regex>>>
             }
@@ -215,11 +240,65 @@ mod filter {
         vpc_id
     );
 
+    impl FromStr for Filter {
+        type Err = Error;
+
+        fn from_str(s: &str) -> ::std::result::Result<Self, Self::Err> {
+            let tags = s.split(',');
+            let kvs: Result<Vec<(&str, Option<&str>)>> = tags.map(|tag| {
+                let mut splits: Vec<_> = tag.split('=').collect();
+                match splits.len() {
+                    2 => Ok((splits.remove(0), Some(splits.remove(0)))),
+                    1 => Ok((splits.remove(0), None)),
+                    _ => Err(Error::from_kind(ErrorKind::FilterParsingFailed(s.to_owned(), "splitting fields failed".to_owned()))),
+                }
+            }).collect();
+            let kvs = kvs?;
+
+            let mut f_builder = FilterBuilder::new();
+            for (key, value) in kvs {
+                if let Some(v) = value {
+                    match key.parse::<InstanceDescriptorFields>()
+                    .chain_err(|| Error::from_kind(ErrorKind::FilterParsingFailed(s.to_owned(), "parsing instance descriptor field failed".to_owned())))? {
+                        InstanceDescriptorFields::BlockDeviceMapping => { /* TODO: Add this field */ },
+                        InstanceDescriptorFields::Hypervisor => { /* TODO: Add this field */ },
+                        InstanceDescriptorFields::IamInstanceProfile => { f_builder = f_builder.iam_instance_profile(v); },
+                        InstanceDescriptorFields::ImageId => { f_builder = f_builder.image_id(v); },
+                        InstanceDescriptorFields::InstanceId => { f_builder = f_builder.instance_id(v); },
+                        InstanceDescriptorFields::InstanceType => { f_builder = f_builder.instance_type(v); },
+                        InstanceDescriptorFields::LaunchTime => { /* TODO: Add this field */ },
+                        InstanceDescriptorFields::Monitoring => { f_builder = f_builder.monitoring(v); },
+                        InstanceDescriptorFields::Placement => { f_builder = f_builder.placement(v); },
+                        InstanceDescriptorFields::PrivateDnsName => { f_builder = f_builder.private_dns_name(v); },
+                        InstanceDescriptorFields::PrivateIpAddress => { f_builder = f_builder.private_ip_address(v); },
+                        InstanceDescriptorFields::PublicDnsName => { f_builder = f_builder.public_dns_name(v); },
+                        InstanceDescriptorFields::PublicIpAddress => { f_builder = f_builder.public_ip_address(v); },
+                        InstanceDescriptorFields::RootDeviceName => { f_builder = f_builder.root_device_name(v); },
+                        InstanceDescriptorFields::RootDeviceType => { f_builder = f_builder.root_device_type(v); },
+                        InstanceDescriptorFields::SecurityGroups => { /* TODO: Add this field */ },
+                        InstanceDescriptorFields::State => { f_builder = f_builder.state(v); },
+                        InstanceDescriptorFields::StateReason => { f_builder = f_builder.state_reason(v); },
+                        InstanceDescriptorFields::Tags(_) => { /* nothing to do for this Field */ },
+                        InstanceDescriptorFields::VirtualizationType => { f_builder = f_builder.virtualization_type(v); },
+                        InstanceDescriptorFields::VpcId => { f_builder = f_builder.vpc_id(v); },
+                    }
+                }
+            }
+
+            f_builder.build().chain_err(||
+                Error::from_kind(ErrorKind::FilterParsingFailed(s.to_owned(), "building filter failed".to_owned())))
+        }
+    }
+
     error_chain! {
         errors {
             FilterRegexError(re: String, field: String) {
                 description("Failed to build reg exp.")
-                display("Failed to build reg exp '{}' for field '{}'.", re, field)
+                display("Failed to build reg exp '{}' for field '{}'", re, field)
+            }
+            FilterParsingFailed(s: String, reason: String) {
+                description("Failed to parse Filter from String.")
+                display("Failed to parse Filter from String '{}' becaue {}", s, reason)
             }
         }
     }
@@ -231,7 +310,17 @@ mod filter {
         use spectral::prelude::*;
         use std::collections::HashMap;
 
-        //--filter 'Instance=i-.*,Tags=Name=Packer.*:AnsibleHostGroup=batch_.*,State=stopped
+        #[test]
+        fn parse_filter_no_tags_okay() {
+            let filter_arg = "InstanceId=i-.*,State=stopped";
+            let filter = filter_arg.parse::<Filter>().unwrap();
+        }
+
+         #[test]
+        fn parse_filter_with_tags_okay() {
+            let filter_arg = "InstanceId=i-.*,Tags=Name:AnsibleHostGroup=batch_.*,State=stopped";
+            let filter = filter_arg.parse::<Filter>().unwrap();
+        }
 
         #[test]
         fn filter_instance_with_invalid_re() {
