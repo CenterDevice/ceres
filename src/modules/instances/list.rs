@@ -138,6 +138,8 @@ mod filter {
         ($($field:tt),+) => {
             pub struct FilterBuilder<'a> {
                 $($field: Option<&'a str>),*,
+                block_device_mappings: Option<&'a str>,
+                security_groups: Option<&'a str>,
                 tags: Option<HashMap<String, Option<&'a str>>>
             }
 
@@ -145,6 +147,8 @@ mod filter {
                 pub fn new() -> Self {
                     FilterBuilder {
                         $($field: None),*,
+                        block_device_mappings: None,
+                        security_groups: None,
                         tags: None
                     }
                 }
@@ -156,6 +160,16 @@ mod filter {
                 }
                 )*
 
+                pub fn block_device_mappings(mut self, block_device_mappings: &'a str) -> Self {
+                    self.block_device_mappings = Some(block_device_mappings);
+                    self
+                }
+
+                pub fn security_groups(mut self, security_groups: &'a str) -> Self {
+                    self.security_groups = Some(security_groups);
+                    self
+                }
+
                 pub fn tags(mut self, tags: HashMap<String, Option<&'a str>>) -> Self {
                     self.tags = Some(tags);
                     self
@@ -165,22 +179,36 @@ mod filter {
                     let filter = Filter {
                         $(
                         $field: if let Some(re) = self.$field {
-                                Some(Regex::new(re)
-                                    .chain_err(|| ErrorKind::FilterRegexError(re.to_owned(), "$field".to_owned()))?)
-                            } else {
-                                None
-                            }
+                            Some(Regex::new(re)
+                                .chain_err(|| ErrorKind::FilterRegexError(re.to_owned(), "$field".to_owned()))?)
+                        } else {
+                            None
+                        }
                         ),*,
+
+                        block_device_mappings: if let Some(re) = self.block_device_mappings {
+                            Some(Regex::new(re)
+                                .chain_err(|| ErrorKind::FilterRegexError(re.to_owned(), "block_device_mappings".to_owned()))?)
+                        } else {
+                            None
+                        },
+                           
+                        security_groups: if let Some(re) = self.security_groups {
+                            Some(Regex::new(re)
+                                .chain_err(|| ErrorKind::FilterRegexError(re.to_owned(), "security_groups".to_owned()))?)
+                        } else {
+                            None
+                        },
+
                         tags: if let Some(tags) = self.tags {
-                                // TODO: Does not work with empty RE
-                                let h = tags.into_iter().map(|(k, v)| (
-                                    k,
-                                    if let Some(v) = v { Regex::new(v).ok() } else { None }
-                                )).collect();
-                                Some(h)
-                            } else {
-                                None
-                            }
+                            let h = tags.into_iter().map(|(k, v)| (
+                                k,
+                                if let Some(v) = v { Regex::new(v).ok() } else { None }
+                            )).collect();
+                            Some(h)
+                        } else {
+                            None
+                        },
                     };
 
                     Ok(filter)
@@ -189,6 +217,8 @@ mod filter {
 
             pub struct Filter {
                 $($field: Option<Regex>),*,
+                security_groups: Option<Regex>,
+                block_device_mappings: Option<Regex>,
                 tags: Option<HashMap<String, Option<Regex>>>
             }
 
@@ -199,6 +229,18 @@ mod filter {
                         if !re.is_match(instance.$field.as_ref().unwrap()) { return false };
                     }
                     )*
+
+                    if let Some(ref re) = self.block_device_mappings {
+                        for s in instance.block_device_mappings.as_ref().unwrap() {
+                            if !re.is_match(s) { return false };
+                        }
+                    }
+
+                    if let Some(ref re) = self.security_groups {
+                        for s in instance.security_groups.as_ref().unwrap() {
+                            if !re.is_match(s) { return false };
+                        }
+                    }
 
                     match (&self.tags, &instance.tags) {
                         (&Some(ref filter_tags), &Some(ref instance_tags)) => {
@@ -224,6 +266,7 @@ mod filter {
     }
 
     filter_builder!(
+        hypervisor,
         iam_instance_profile,
         image_id,
         instance_id,
@@ -262,13 +305,13 @@ mod filter {
                 if let Some(v) = value {
                     match key.parse::<InstanceDescriptorFields>()
                     .chain_err(|| Error::from_kind(ErrorKind::FilterParsingFailed(s.to_owned(), "parsing instance descriptor field failed".to_owned())))? {
-                        InstanceDescriptorFields::BlockDeviceMapping => { /* TODO: Add this field */ },
-                        InstanceDescriptorFields::Hypervisor => { /* TODO: Add this field */ },
+                        InstanceDescriptorFields::BlockDeviceMappings => { f_builder = f_builder.block_device_mappings(v) },
+                        InstanceDescriptorFields::Hypervisor => { f_builder = f_builder.hypervisor(v) },
                         InstanceDescriptorFields::IamInstanceProfile => { f_builder = f_builder.iam_instance_profile(v); },
                         InstanceDescriptorFields::ImageId => { f_builder = f_builder.image_id(v); },
                         InstanceDescriptorFields::InstanceId => { f_builder = f_builder.instance_id(v); },
                         InstanceDescriptorFields::InstanceType => { f_builder = f_builder.instance_type(v); },
-                        InstanceDescriptorFields::LaunchTime => { /* TODO: Add this field */ },
+                        InstanceDescriptorFields::LaunchTime => { /* A string based time matcher does not make sense */ },
                         InstanceDescriptorFields::Monitoring => { f_builder = f_builder.monitoring(v); },
                         InstanceDescriptorFields::Placement => { f_builder = f_builder.placement(v); },
                         InstanceDescriptorFields::PrivateDnsName => { f_builder = f_builder.private_dns_name(v); },
@@ -277,7 +320,7 @@ mod filter {
                         InstanceDescriptorFields::PublicIpAddress => { f_builder = f_builder.public_ip_address(v); },
                         InstanceDescriptorFields::RootDeviceName => { f_builder = f_builder.root_device_name(v); },
                         InstanceDescriptorFields::RootDeviceType => { f_builder = f_builder.root_device_type(v); },
-                        InstanceDescriptorFields::SecurityGroups => { /* TODO: Add this field */ },
+                        InstanceDescriptorFields::SecurityGroups => { f_builder = f_builder.security_groups(v);  },
                         InstanceDescriptorFields::State => { f_builder = f_builder.state(v); },
                         InstanceDescriptorFields::StateReason => { f_builder = f_builder.state_reason(v); },
                         InstanceDescriptorFields::Tags(_) => { f_builder = f_builder.tags(parse_tags_filter_to_hash(v)?);  },

@@ -87,9 +87,10 @@ impl From<ec2::Instance> for InstanceDescriptor {
             ami_launch_index: r.ami_launch_index,
             architecture: r.architecture,
             block_device_mappings: r.block_device_mappings
-                .unwrap_or_else(|| Vec::new())
-                .iter()
-                .map(block_device_mapping_to_string).collect(),
+                .map(|bdms| bdms
+                    .iter()
+                    .map(block_device_mapping_to_string).collect()
+                ),
             client_token: r.client_token,
             ebs_optimized: r.ebs_optimized,
             //elastic_gpu_associations: r.elastic_gpu_associations,
@@ -116,9 +117,10 @@ impl From<ec2::Instance> for InstanceDescriptor {
             root_device_name: r.root_device_name,
             root_device_type: r.root_device_type,
             security_groups: r.security_groups
-                .unwrap_or_else(|| Vec::new())
-                .iter()
-                .map(group_identifier_to_string).collect(),
+                .map(|bdms| bdms
+                    .iter()
+                    .map(group_identifier_to_string).collect()
+                ),
             source_dest_check: r.source_dest_check,
             spot_instance_request_id: r.spot_instance_request_id,
             sriov_net_support: r.sriov_net_support,

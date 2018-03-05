@@ -62,7 +62,7 @@ impl OutputInstances for TableOutputInstances {
 
 fn header_for_field(field: &InstanceDescriptorFields) -> &str {
     match *field {
-        InstanceDescriptorFields::BlockDeviceMapping => "Block Device Mapping",
+        InstanceDescriptorFields::BlockDeviceMappings => "Block Device Mappings",
         InstanceDescriptorFields::Hypervisor => "Hypervisor",
         InstanceDescriptorFields::IamInstanceProfile => "Iam Instance Profile",
         InstanceDescriptorFields::ImageId => "Image Id",
@@ -88,8 +88,8 @@ fn header_for_field(field: &InstanceDescriptorFields) -> &str {
 
 fn value_for_field(field: &InstanceDescriptorFields, instance: &InstanceDescriptor) -> String {
     match *field {
-        InstanceDescriptorFields::BlockDeviceMapping =>
-            Some(instance.block_device_mappings.join("\n")),
+        InstanceDescriptorFields::BlockDeviceMappings =>
+            instance.block_device_mappings.as_ref().map(|bdms| bdms.join("\n")),
         InstanceDescriptorFields::Hypervisor => instance.hypervisor.clone(),
         InstanceDescriptorFields::IamInstanceProfile => instance.iam_instance_profile.clone(),
         InstanceDescriptorFields::ImageId => instance.image_id.clone(),
@@ -105,7 +105,7 @@ fn value_for_field(field: &InstanceDescriptorFields, instance: &InstanceDescript
         InstanceDescriptorFields::RootDeviceName => instance.root_device_name.clone(),
         InstanceDescriptorFields::RootDeviceType => instance.root_device_type.clone(),
         InstanceDescriptorFields::SecurityGroups =>
-            Some(instance.security_groups.join("\n")),
+            instance.security_groups.as_ref().map(|sgs| sgs.join("\n")),
         InstanceDescriptorFields::State => instance.state.clone(),
         InstanceDescriptorFields::StateReason => instance.state_reason.clone(),
         InstanceDescriptorFields::Tags(ref tags_filter) => {

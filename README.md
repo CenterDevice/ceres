@@ -74,7 +74,7 @@ ceres --config ~/.ceres.conf --profile staging@cd instances list -o [humon|json]
 
 * [ ] Fix Todos: `make todos`
 
-    * [ ] Check missing fields in InstanceDescriptorFields
+    * [X] Check missing fields in InstanceDescriptorFields
     * [ ] Integration Test with mocked return value from AWS
 
 * [ ] Write man page

@@ -8,7 +8,7 @@ pub trait DescribeInstances {
 }
 
 pub enum InstanceDescriptorFields {
-    BlockDeviceMapping,
+    BlockDeviceMappings,
     Hypervisor,
     IamInstanceProfile,
     ImageId,
@@ -36,7 +36,7 @@ impl FromStr for InstanceDescriptorFields {
 
     fn from_str(s: &str) -> ::std::result::Result<Self, Self::Err> {
         match s {
-            "BlockDeviceMapping" => Ok(InstanceDescriptorFields::BlockDeviceMapping),
+            "BlockDeviceMappings" => Ok(InstanceDescriptorFields::BlockDeviceMappings),
             "Hypervisor" => Ok(InstanceDescriptorFields::Hypervisor),
             "IamInstanceProfile" => Ok(InstanceDescriptorFields::IamInstanceProfile),
             "ImageId" => Ok(InstanceDescriptorFields::ImageId),
@@ -77,7 +77,7 @@ fn extract_tags_filter(tags_str: &str) -> Option<Vec<String>> {
 pub struct InstanceDescriptor {
     pub ami_launch_index: Option<i64>,
     pub architecture: Option<String>,
-    pub block_device_mappings: Vec<String>,
+    pub block_device_mappings: Option<Vec<String>>,
     pub client_token: Option<String>,
     pub ebs_optimized: Option<bool>,
     // Won't convert this
@@ -93,7 +93,8 @@ pub struct InstanceDescriptor {
     pub key_name: Option<String>,
     pub launch_time: Option<String>,
     pub monitoring: Option<String>,
-    // TODO: network_interfaces contains a lot of useful information but it's a data structure rabbit hole
+    // network_interfaces contains a lot of useful information but it's a data structure rabbit hole,
+    // but the most important information is already available in InstanceDescriptor.
     //pub network_interfaces: Option<Vec<InstanceNetworkInterface>>,
     pub placement: Option<String>,
     pub platform: Option<String>,
@@ -106,7 +107,7 @@ pub struct InstanceDescriptor {
     pub ramdisk_id: Option<String>,
     pub root_device_name: Option<String>,
     pub root_device_type: Option<String>,
-    pub security_groups: Vec<String>,
+    pub security_groups: Option<Vec<String>>,
     pub source_dest_check: Option<bool>,
     pub spot_instance_request_id: Option<String>,
     pub sriov_net_support: Option<String>,
@@ -124,7 +125,7 @@ impl Default for InstanceDescriptor {
         InstanceDescriptor {
             ami_launch_index: None,
             architecture: None,
-            block_device_mappings: Vec::new(),
+            block_device_mappings: None,
             client_token: None,
             ebs_optimized: None,
             ena_support: None,
@@ -147,7 +148,7 @@ impl Default for InstanceDescriptor {
             ramdisk_id: None,
             root_device_name: None,
             root_device_type: None,
-            security_groups: Vec::new(),
+            security_groups: None,
             source_dest_check: None,
             spot_instance_request_id: None,
             sriov_net_support: None,
