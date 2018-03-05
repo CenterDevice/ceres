@@ -13,7 +13,11 @@ os:
 
 matrix:
   allow_failures:
-    - rust: nightly
+    - rust:
+        # Until Rust stable works on Linux again ...
+        - stable
+        - beta
+        - nightly
 
 # Thanks to Meltdown, we need this -- cf. https://github.com/travis-ci/travis-ci/issues/9061
 sudo: required
