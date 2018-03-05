@@ -10,7 +10,6 @@ use output::*;
 
 pub struct TableOutputInstances {
     pub fields: Vec<InstanceDescriptorFields>,
-    pub tags_filter: Option<Vec<String>>,
 }
 
 impl Default for TableOutputInstances {
@@ -24,7 +23,6 @@ impl Default for TableOutputInstances {
                 InstanceDescriptorFields::PublicIpAddress,
                 InstanceDescriptorFields::LaunchTime,
             ],
-            tags_filter: None,
         }
     }
 }

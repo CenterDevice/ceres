@@ -108,10 +108,7 @@ fn output_instances(
                 .collect();
             let fields =
                 fields.map_err(|e| Error::with_chain(e, ErrorKind::ModuleFailed(NAME.to_owned())))?;
-            let output = TableOutputInstances {
-                fields,
-                tags_filter: Some(vec!["Name".to_owned(), "Intent".to_owned()]),
-            };
+            let output = TableOutputInstances { fields };
 
             output
                 .output(&mut stdout, instances)
