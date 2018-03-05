@@ -3,6 +3,10 @@ name = "ceres"
 version = "0.0.1"
 authors = ["Lukas Pustina <lukas@pustina.net>"]
 
+[badges]
+travis-ci = { repository = "lukaspustina/ceres", branch = "master" }
+codecov = { repository = "lukaspustina/ceres", branch = "master", service = "github" }
+
 [dependencies]
 clap = "^2.30"
 env_logger = "0.5"
