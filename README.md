@@ -54,11 +54,3 @@ ceres --config ~/.ceres.conf --profile staging@cd instances list -o [humon|json]
 
 ## Todos
 
-### CI/CD
-
-* [X] Travis build
-* [X] Badges
-  * [X] Build
-  * [X] Test Coverage
-* [X] brew?
-
