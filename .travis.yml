@@ -15,7 +15,8 @@ matrix:
   allow_failures:
     - rust: nightly
 
-sudo: false
+# Thanks to Meltdown, we need this -- cf. https://github.com/travis-ci/travis-ci/issues/9061
+sudo: required
 
 addons:
   apt:
