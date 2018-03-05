@@ -44,3 +44,13 @@ Ceres the goddess of agriculture, grain crops, fertility and motherly relationsh
 ceres --config ~/.ceres.conf --profile staging@cd instances list -o [humon|json] --output-options=InstanceId,Tags=Name:AnsibleHostGroup,State --filter 'Instance=i-.*,Tags=Name:AnsibleHostGroup=batch_.*,State=stopped'
 ```
 
+## Todos
+
+### CI/CD
+
+* [ ] Travis build
+* [ ] Badges
+  * [ ] Build
+  * [ ] Test Coverage
+* [ ] brew?
+
