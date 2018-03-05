@@ -38,57 +38,9 @@ Ceres the goddess of agriculture, grain crops, fertility and motherly relationsh
 
 ## Use Cases
 
-### PoC: List AWS EC2 instances in one account using "Assume Role" and filter by tags
+### List AWS EC2 instances in one account using "Assume Role" and filter by tags
 
 ```bash
 ceres --config ~/.ceres.conf --profile staging@cd instances list -o [humon|json] --output-options=InstanceId,Tags=Name:AnsibleHostGroup,State --filter 'Instance=i-.*,Tags=Name:AnsibleHostGroup=batch_.*,State=stopped'
 ```
-
-#### Step 1
-
-##### Requirements
-
-* [X] Use Assume Role mechanism
-
-* [X] Use profiles to select AWS account, Bosun and Consul etc. end-points, ssh keys
-
-* [X] Read profile from configuration file: ~/.ceres.conf
-
-* [X] Nice human readable output
-
-* [X] Allow for selection of limited set of instance information for human display
-
-* [X] JSON output of all instance information
-
-* [X] Allow for filtering re/ Tags and other information with reg ex
-
-##### Non-Functional Requirements
-
-* [X] brew installation
-
-* [X] Provider Abstraction -- abstract from rusoto
-
-* [X] Prepare for modules, sub-modules etc.
-
-#### Step 2
-
-* [ ] Fix Todos: `make todos`
-
-    * [X] Check missing fields in InstanceDescriptorFields
-
-* [ ] Write man page
-
-##### Non-Functional Requirements
-
-* [X] Better abstraction for output
-
-#### Step 3
-
-##### Non-Functional Requirements
-
-* [ ] Integration Test with mocked return value from AWS
-
-## Pointer
-* https://github.com/rusoto/rusoto/blob/master/AWS-CREDENTIALS.md
-* https://github.com/cmsd2/stscli
 
