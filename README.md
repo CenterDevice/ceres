@@ -9,16 +9,14 @@ Ceres the goddess of agriculture, grain crops, fertility and motherly relationsh
 **Table of Contents**
 
 - [Installation](#installation)
+  - [Brew](#brew)
+  - [Cargo](#cargo)
+  - [From Source](#from-source)
 - [Configuration](#configuration)
-- [General Requirements](#general-requirements)
 - [Use Cases](#use-cases)
-  - [PoC: List AWS EC2 instances in one account using "Assume Role" and filter by tags](#poc-list-aws-ec2-instances-in-one-account-using-assume-role-and-filter-by-tags)
-    - [Step 1](#step-1)
-      - [Requirements](#requirements)
-      - [Non-Functional Requirements](#non-functional-requirements)
-    - [Step 2](#step-2)
-      - [Non-Functional Requirements](#non-functional-requirements-1)
-- [Pointer](#pointer)
+  - [List AWS EC2 instances in one account using "Assume Role" and filter by tags](#list-aws-ec2-instances-in-one-account-using-assume-role-and-filter-by-tags)
+- [Todos](#todos)
+  - [CI/CD](#cicd)
 
 <!-- END doctoc generated TOC please keep comment here to allow auto update -->
 
