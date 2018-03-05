@@ -1,6 +1,6 @@
 use rusoto_core::{default_tls_client, Region};
 use rusoto_credential::StaticProvider;
-use rusoto_ec2::{self as ec2, Ec2, TerminateInstancesRequest};
+use rusoto_ec2::{self as ec2, Ec2, TerminateInstancesRequest, TerminateInstancesError};
 use rusoto_sts::{StsAssumeRoleSessionCredentialsProvider, StsClient};
 use serde::de::{self, Deserializer, Visitor};
 use serde::ser::Serializer;
@@ -237,9 +237,12 @@ fn destroy(aws: &Aws, dry: bool, instance_ids: &[InstanceId]) -> Result<Vec<Stat
         dry_run: Some(true),
         instance_ids: instance_ids.iter().map(|x| x.to_owned()).collect::<Vec<_>>(),
     };
-    let result = client
-        .terminate_instances(&request)
-        .chain_err(|| ErrorKind::AwsApiError)?;
+    // If run in dry mode, AWS returns an error of type DryRunOperation
+    // cf. https://docs.rs/rusoto_ec2/0.31.0/rusoto_ec2/struct.TerminateInstancesRequest.html#structfield.dry_run
+    let result = match client.terminate_instances(&request) {
+        Err(TerminateInstancesError::Unknown(ref s)) if s.contains("DryRunOperation") => return Ok(create_dry_run_results(instance_ids)),
+        result => result
+    }.chain_err(|| ErrorKind::AwsApiError)?;
     let terminating_instances = result.terminating_instances.ok_or_else(|| {
         Error::from_kind(ErrorKind::AwsApiResultError(
             "termination failed".to_string(),
@@ -254,6 +257,17 @@ fn destroy(aws: &Aws, dry: bool, instance_ids: &[InstanceId]) -> Result<Vec<Stat
     Ok(state_changes)
 }
 
+fn create_dry_run_results(instance_ids: &[InstanceId]) -> Vec<StateChange> {
+    instance_ids
+        .iter()
+        .map(|i| StateChange {
+            instance_id: i.to_owned(),
+            previous_state: Some(String::from("- unknown -".to_owned())),
+            current_state: Some(String::from("- unchanged -".to_owned())),
+        })
+        .collect::<Vec<_>>()
+}
+
 impl From<ec2::InstanceStateChange> for StateChange {
     fn from(x: ec2::InstanceStateChange) -> Self {
         StateChange {
@@ -266,22 +280,22 @@ impl From<ec2::InstanceStateChange> for StateChange {
 }
 
 error_chain! {
-errors {
-AwsApiError {
-description("Call to AWS API failed.")
-}
-AwsApiResultError(reason: String) {
-description("Unexpected result.")
-display("Unexpected result because {}.", reason)
-}
-RegExError {
-description("RegEx failed.")
-}
-SubcommandError {
-description("Invalid Subcommand specified.")
-}
-OutputError {
-description("Failed to write output.")
-}
-}
+    errors {
+        AwsApiError {
+            description("Call to AWS API failed.")
+        }
+        AwsApiResultError(reason: String) {
+            description("Unexpected result.")
+            display("Unexpected result because {}.", reason)
+        }
+        RegExError {
+            description("RegEx failed.")
+        }
+        SubcommandError {
+            description("Invalid Subcommand specified.")
+        }
+        OutputError {
+            description("Failed to write output.")
+        }
+    }
 }
