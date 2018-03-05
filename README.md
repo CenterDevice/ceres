@@ -54,3 +54,5 @@ ceres --config ~/.ceres.conf --profile staging@cd instances list -o [humon|json]
 
 ## Todos
 
+* [ ] Add CLI Logging
+
