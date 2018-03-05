@@ -75,14 +75,18 @@ ceres --config ~/.ceres.conf --profile staging@cd instances list -o [humon|json]
 * [ ] Fix Todos: `make todos`
 
     * [X] Check missing fields in InstanceDescriptorFields
-    * [ ] Integration Test with mocked return value from AWS
 
 * [ ] Write man page
 
 ##### Non-Functional Requirements
 
-* [ ] Better abstraction for output
+* [X] Better abstraction for output
 
+#### Step 3
+
+##### Non-Functional Requirements
+
+* [ ] Integration Test with mocked return value from AWS
 
 ## Pointer
 * https://github.com/rusoto/rusoto/blob/master/AWS-CREDENTIALS.md
