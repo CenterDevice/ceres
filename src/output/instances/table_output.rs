@@ -5,7 +5,7 @@ use prettytable::row::Row;
 use std::collections::HashMap;
 use std::io::Write;
 
-use provider::{InstanceDescriptor, InstanceDescriptorFields};
+use provider::{InstanceDescriptor, InstanceDescriptorFields, StateChange};
 use output::*;
 
 pub struct TableOutputInstances {
@@ -142,6 +142,35 @@ fn format_tags(tags: &HashMap<String, Option<String>>, tags_filter: Option<&[Str
         concat.push_str(tags.get(k).unwrap().as_ref().unwrap_or(&empty));
     }
     concat
+}
+
+pub struct TableOutputStatusChanges;
+
+impl OutputStateChanges for TableOutputStatusChanges {
+    fn output<T: Write>(&self, writer: &mut T, state_changes: &[StateChange]) -> Result<()> {
+        let mut table = Table::new();
+        table.set_format(*format::consts::FORMAT_NO_LINESEP_WITH_TITLE);
+
+        table.set_titles(
+            Row::new(
+                ["Instance Id", "Previous State", "Current State"].iter().map(|x| Cell::new(x)).collect::<Vec<_>>()
+            ));
+
+        for change in state_changes {
+            table.add_row(
+                Row::new(
+                    vec![
+                        Cell::new(&change.instance_id),
+                        // TODO: Make unwrap safe or remove Option from StateChange
+                        Cell::new(change.previous_state.as_ref().unwrap()),
+                        Cell::new(change.current_state.as_ref().unwrap()),
+                    ]
+                )
+            );
+        }
+
+        table.print(writer).chain_err(|| ErrorKind::OutputFailed)
+    }
 }
 
 #[cfg(test)]

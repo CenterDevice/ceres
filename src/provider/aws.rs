@@ -1,6 +1,6 @@
 use rusoto_core::{default_tls_client, Region};
 use rusoto_credential::StaticProvider;
-use rusoto_ec2::{self as ec2, Ec2};
+use rusoto_ec2::{self as ec2, Ec2, TerminateInstancesRequest};
 use rusoto_sts::{StsAssumeRoleSessionCredentialsProvider, StsClient};
 use serde::de::{self, Deserializer, Visitor};
 use serde::ser::Serializer;
@@ -9,7 +9,7 @@ use std::default::Default;
 use std::fmt;
 use std::str::FromStr;
 
-use provider::{Error as ProviderError, ErrorKind as ProviderErrorKind, InstanceDescriptor, DescribeInstances, Result as ProviderResult};
+use provider::{Error as ProviderError, ErrorKind as ProviderErrorKind, InstanceDescriptor, InstanceId, DescribeInstances, Result as ProviderResult, StateChange, TerminateInstances};
 
 const EMPTY: &str = "-";
 
@@ -218,6 +218,51 @@ fn assume_role(aws: &Aws) -> Result<StsAssumeRoleSessionCredentialsProvider> {
     );
 
     Ok(provider)
+}
+
+impl TerminateInstances for Aws {
+    fn terminate_instances(&self, dry: bool, instance_ids: &[InstanceId]) -> ProviderResult<Vec<StateChange>> {
+        destroy(&self, dry, instance_ids).map_err(
+            |e| ProviderError::with_chain(e, ProviderErrorKind::ProviderCallFailed(String::from("terminate_instances"))))
+    }
+}
+
+fn destroy(aws: &Aws, dry: bool, instance_ids: &[InstanceId]) -> Result<Vec<StateChange>> {
+    let credentials_provider = assume_role(&aws)?;
+    let default_client = default_tls_client().chain_err(|| ErrorKind::AwsApiError)?;
+    let client = ec2::Ec2Client::new(default_client, credentials_provider, aws.region.clone());
+
+    let request = TerminateInstancesRequest {
+        // TODO: Activate: dry_run: Some(dry),
+        dry_run: Some(true),
+        instance_ids: instance_ids.iter().map(|x| x.to_owned()).collect::<Vec<_>>(),
+    };
+    let result = client
+        .terminate_instances(&request)
+        .chain_err(|| ErrorKind::AwsApiError)?;
+    let terminating_instances = result.terminating_instances.ok_or_else(|| {
+        Error::from_kind(ErrorKind::AwsApiResultError(
+            "termination failed".to_string(),
+        ))
+    })?;
+
+    let state_changes: Vec<StateChange> = terminating_instances
+        .into_iter()
+        .map(|x| x.into())
+        .collect();
+
+    Ok(state_changes)
+}
+
+impl From<ec2::InstanceStateChange> for StateChange {
+    fn from(x: ec2::InstanceStateChange) -> Self {
+        StateChange {
+            instance_id: x.instance_id.unwrap_or_else(|| String::from("-")),
+            // TODO: Fix me!
+            current_state: Some(String::from("-")),
+            previous_state: Some(String::from("-")),
+        }
+    }
 }
 
 error_chain! {

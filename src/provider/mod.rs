@@ -164,6 +164,19 @@ impl Default for InstanceDescriptor {
     }
 }
 
+pub type InstanceId = String;
+
+pub trait TerminateInstances {
+    fn terminate_instances(&self, dry: bool, instance_ids: &[InstanceId]) -> Result<Vec<StateChange>>;
+}
+
+#[derive(Serialize)]
+pub struct StateChange {
+    pub instance_id: InstanceId,
+    pub current_state: Option<String>,
+    pub previous_state: Option<String>,
+}
+
 error_chain! {
     errors {
         ProviderCallFailed(call: String) {
