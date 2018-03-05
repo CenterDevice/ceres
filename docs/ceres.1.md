@@ -5,16 +5,77 @@ CenterDevice SRE (ceres) -- Ceres the goddess of agriculture, grain crops, ferti
 
 # SYNOPSIS
 
-mhost [*options*] *MODULE*
+ceres [*options*] *MODULE*
+
+mhost --help
+
+mhost --version
 
 
 # DESCRIPTION
 
+ceres is a CLI tool for common SRE and ops tasks for CenterDevice.
+
+ceres comes with different modules. It supports human readable as well as JSON output for post-processing with other tools like `jq`. 
+
+For ceres to work properly -- actually to work at all -- a configuration file is required that specifies the stage and its endpoints as well as required credentials for CenterDevice environments. See *ceres.conf* for details.
+
+The project home page currently *https://github.com/lukaspustina/ceres*.
+
 
 # COMMON OPTIONS
 
+--config *config*
+: Sets config file to use. Default is *~/.ceres.conf*
+
+--profile *profile*
+: Sets profile to use. Default it to use the *default* profile.
+
+--help
+: Prints help information
+
 
 # LESS COMMON OPTIONS
+
+-V, --version
+: Prints version information.
+
+
+# MODULES
+
+Currently, there is only one module called *instances*.
+
+
+## INSTANCES 
+
+The *instances* modules interacts with instances in the environment selected by the profile to use. Currently the only command supported is *list*.
+
+### instances list
+
+  *instances list* shows all currently active instances. Instances can be filtered and the output can be controlled to allow for human readable format or JSON format for post-processing.
+
+  -f, --filter *filter*
+  : Filters instances by description fields. The filter syntax is *\<description field\>=\<reg ex\>*. Multiple filters can be used and have to be separated by ','. Each description field will be matched against the regular expression. Only instances matching all description field will be selected.
+
+  The special description field *Tags* supports a specialized syntax which is *Tags=\<tag name\>[=\<reg ex\>]*. Multiple tags can be used and have to be separated by ':'. If a tag is specified without a regular expressions, only instances bearing that tag will be selected. If a tag is specified with a regular expression, only instances bearing that tag with a matching value will be selected. Instances have to match all tags to be selected.
+
+  For example, the filter 'InstanceId=i-.\*,Tags=Name:AnsibleHostGroup=batch_.\*,State=stopped' will only selected instances with an instance id beginning in 'i-', the tag 'Name' set, the tag 'AnsibleHostGroup' with a value starting in 'batch_' and in the state 'stopped' will be selected. 
+
+  The available description field to filter against are:
+
+    BlockDeviceMappings, Hypervisor, IamInstanceProfile, ImageId, InstanceId, InstanceType, LaunchTime, Monitoring, Placement, PrivateDnsName, PrivateIpAddress, PublicDnsName, PublicIpAddress, RootDeviceName, RootDeviceType, SecurityGroups, State, StateReason, Tags(_), VirtualizationType, VpcId
+
+  -o, --output *output*
+  : Selects output format. The default is *human*. Available options are *human* and *json*.
+
+  --output-options *output-options*
+  : Selects the instance description fields for human output. The default is 'InstanceId,InstanceType,State,PrivateIpAddress,PublicIpAddress,LaunchTime'. The special description field *Tags* may take a list of concrete tags to show. The corresponding syntax is similar to the tags filter and is *Tags[=\<tag name\>]*. Multiple tags can be used have to separated by ':'.
+
+  For example, the output options 'InstanceId,Tags=Name:AnsibleHostGroup' outputs the instance id and the tags 'Name' and AnsibleHostGroup' for all selected instances.
+
+  The available options are: 
+
+    BlockDeviceMappings, Hypervisor, IamInstanceProfile, ImageId, InstanceId, InstanceType, LaunchTime, Monitoring, Placement, PrivateDnsName, PrivateIpAddress, PublicDnsName, PublicIpAddress, RootDeviceName, RootDeviceType, SecurityGroups, State, StateReason, Tags(_), VirtualizationType, VpcId
 
 
 # SHELL COMPLETION
@@ -24,11 +85,11 @@ completions --shell *shell*
 
 
 # FILES
- *~/.ceres.conf*
+  *~/.ceres.conf*
 
 
 # SEE ALSO
-
+  ceres.conf(5)
 
 # COPYRIGHT AND LICENSE
 

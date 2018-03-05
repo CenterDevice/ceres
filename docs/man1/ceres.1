@@ -8,10 +8,128 @@ CenterDevice SRE (ceres) \-\- Ceres the goddess of agriculture, grain
 crops, fertility and motherly relationships.
 .SH SYNOPSIS
 .PP
-mhost [\f[I]options\f[]] \f[I]MODULE\f[]
+ceres [\f[I]options\f[]] \f[I]MODULE\f[]
+.PP
+mhost \-\-help
+.PP
+mhost \-\-version
 .SH DESCRIPTION
+.PP
+ceres is a CLI tool for common SRE and ops tasks for CenterDevice.
+.PP
+ceres comes with different modules.
+It supports human readable as well as JSON output for post\-processing
+with other tools like \f[C]jq\f[].
+.PP
+For ceres to work properly \-\- actually to work at all \-\- a
+configuration file is required that specifies the stage and its
+endpoints as well as required credentials for CenterDevice environments.
+See \f[I]ceres.conf\f[] for details.
+.PP
+The project home page currently
+\f[I]https://github.com/lukaspustina/ceres\f[].
 .SH COMMON OPTIONS
+.TP
+.B \-\-config \f[I]config\f[]
+Sets config file to use.
+Default is \f[I]~/.ceres.conf\f[]
+.RS
+.RE
+.TP
+.B \-\-profile \f[I]profile\f[]
+Sets profile to use.
+Default it to use the \f[I]default\f[] profile.
+.RS
+.RE
+.TP
+.B \-\-help
+Prints help information
+.RS
+.RE
 .SH LESS COMMON OPTIONS
+.TP
+.B \-V, \-\-version
+Prints version information.
+.RS
+.RE
+.SH MODULES
+.PP
+Currently, there is only one module called \f[I]instances\f[].
+.SS INSTANCES
+.PP
+The \f[I]instances\f[] modules interacts with instances in the
+environment selected by the profile to use.
+Currently the only command supported is \f[I]list\f[].
+.SS instances list
+.PP
+\f[I]instances list\f[] shows all currently active instances.
+Instances can be filtered and the output can be controlled to allow for
+human readable format or JSON format for post\-processing.
+.TP
+.B \-f, \-\-filter \f[I]filter\f[]
+Filters instances by description fields.
+The filter syntax is \f[I]<description field>=<reg ex>\f[].
+Multiple filters can be used and have to be separated by \[aq],\[aq].
+Each description field will be matched against the regular expression.
+Only instances matching all description field will be selected.
+.RS
+.RE
+.PP
+The special description field \f[I]Tags\f[] supports a specialized
+syntax which is \f[I]Tags=<tag name>[=<reg ex>]\f[].
+Multiple tags can be used and have to be separated by \[aq]:\[aq].
+If a tag is specified without a regular expressions, only instances
+bearing that tag will be selected.
+If a tag is specified with a regular expression, only instances bearing
+that tag with a matching value will be selected.
+Instances have to match all tags to be selected.
+.PP
+For example, the filter
+\[aq]InstanceId=i\-.*,Tags=Name:AnsibleHostGroup=batch_.*,State=stopped\[aq]
+will only selected instances with an instance id beginning in
+\[aq]i\-\[aq], the tag \[aq]Name\[aq] set, the tag
+\[aq]AnsibleHostGroup\[aq] with a value starting in \[aq]batch_\[aq] and
+in the state \[aq]stopped\[aq] will be selected.
+.PP
+The available description field to filter against are:
+.IP
+.nf
+\f[C]
+BlockDeviceMappings,\ Hypervisor,\ IamInstanceProfile,\ ImageId,\ InstanceId,\ InstanceType,\ LaunchTime,\ Monitoring,\ Placement,\ PrivateDnsName,\ PrivateIpAddress,\ PublicDnsName,\ PublicIpAddress,\ RootDeviceName,\ RootDeviceType,\ SecurityGroups,\ State,\ StateReason,\ Tags(_),\ VirtualizationType,\ VpcId
+\f[]
+.fi
+.TP
+.B \-o, \-\-output \f[I]output\f[]
+Selects output format.
+The default is \f[I]human\f[].
+Available options are \f[I]human\f[] and \f[I]json\f[].
+.RS
+.RE
+.TP
+.B \-\-output\-options \f[I]output\-options\f[]
+Selects the instance description fields for human output.
+The default is
+\[aq]InstanceId,InstanceType,State,PrivateIpAddress,PublicIpAddress,LaunchTime\[aq].
+The special description field \f[I]Tags\f[] may take a list of concrete
+tags to show.
+The corresponding syntax is similar to the tags filter and is
+\f[I]Tags[=<tag name>]\f[].
+Multiple tags can be used have to separated by \[aq]:\[aq].
+.RS
+.RE
+.PP
+For example, the output options
+\[aq]InstanceId,Tags=Name:AnsibleHostGroup\[aq] outputs the instance id
+and the tags \[aq]Name\[aq] and AnsibleHostGroup\[aq] for all selected
+instances.
+.PP
+The available options are:
+.IP
+.nf
+\f[C]
+BlockDeviceMappings,\ Hypervisor,\ IamInstanceProfile,\ ImageId,\ InstanceId,\ InstanceType,\ LaunchTime,\ Monitoring,\ Placement,\ PrivateDnsName,\ PrivateIpAddress,\ PublicDnsName,\ PublicIpAddress,\ RootDeviceName,\ RootDeviceType,\ SecurityGroups,\ State,\ StateReason,\ Tags(_),\ VirtualizationType,\ VpcId
+\f[]
+.fi
 .SH SHELL COMPLETION
 .TP
 .B completions \-\-shell \f[I]shell\f[]
@@ -23,9 +141,11 @@ bash, fish, and zsh.
 .PP
 \f[I]~/.ceres.conf\f[]
 .SH SEE ALSO
+.PP
+ceres.conf(5)
 .SH COPYRIGHT AND LICENSE
 .PP
 Copyright (c) 2018 Lukas Pustina.
 Licensed under the MIT License.
-See \f[I]https://github.com/lukaspustina/mhost/blob/master/LICENSE\f[]
+See \f[I]https://github.com/lukaspustina/ceres/blob/master/LICENSE\f[]
 for details.
