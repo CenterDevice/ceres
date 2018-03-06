@@ -173,8 +173,8 @@ pub trait TerminateInstances {
 #[derive(Serialize)]
 pub struct StateChange {
     pub instance_id: InstanceId,
-    pub current_state: Option<String>,
-    pub previous_state: Option<String>,
+    pub current_state: String,
+    pub previous_state: String,
 }
 
 error_chain! {

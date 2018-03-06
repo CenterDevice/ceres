@@ -162,8 +162,8 @@ impl OutputStateChanges for TableOutputStatusChanges {
                     vec![
                         Cell::new(&change.instance_id),
                         // TODO: Make unwrap safe or remove Option from StateChange
-                        Cell::new(change.previous_state.as_ref().unwrap()),
-                        Cell::new(change.current_state.as_ref().unwrap()),
+                        Cell::new(&change.previous_state),
+                        Cell::new(&change.current_state),
                     ]
                 )
             );

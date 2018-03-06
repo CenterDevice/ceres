@@ -66,12 +66,19 @@ fn terminate_instances(
         s => config.get_provider_by_profile(s),
     }.chain_err(|| ErrorKind::ModuleFailed(NAME.to_owned()))?;
 
+    let dry = args.is_present("dry");
+
+    // TODO: Make this a log output
+    if dry {
+        println!("Running in dry mode -- no changes will be executed.")
+    }
+
     let instance_ids: Vec<_> = args.values_of("instance_ids")
         .unwrap() // Safe
         .map(|id| String::from(id)).collect();
 
     provider
-        .terminate_instances(args.is_present("dry"), &instance_ids)
+        .terminate_instances(dry, &instance_ids)
         .chain_err(|| ErrorKind::ModuleFailed(String::from(NAME)))
 }
 

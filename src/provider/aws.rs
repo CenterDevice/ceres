@@ -233,14 +233,14 @@ fn destroy(aws: &Aws, dry: bool, instance_ids: &[InstanceId]) -> Result<Vec<Stat
     let client = ec2::Ec2Client::new(default_client, credentials_provider, aws.region.clone());
 
     let request = TerminateInstancesRequest {
-        // TODO: Activate: dry_run: Some(dry),
-        dry_run: Some(true),
+        dry_run: Some(dry),
         instance_ids: instance_ids.iter().map(|x| x.to_owned()).collect::<Vec<_>>(),
     };
     // If run in dry mode, AWS returns an error of type DryRunOperation
     // cf. https://docs.rs/rusoto_ec2/0.31.0/rusoto_ec2/struct.TerminateInstancesRequest.html#structfield.dry_run
     let result = match client.terminate_instances(&request) {
         Err(TerminateInstancesError::Unknown(ref s)) if s.contains("DryRunOperation") => return Ok(create_dry_run_results(instance_ids)),
+        Err(TerminateInstancesError::Unknown(ref s)) if s.contains("UnauthorizedOperation") => return Err(Error::from_kind(ErrorKind::AwsApiResultError("termination is not authorized".to_string()))),
         result => result
     }.chain_err(|| ErrorKind::AwsApiError)?;
     let terminating_instances = result.terminating_instances.ok_or_else(|| {
@@ -262,8 +262,8 @@ fn create_dry_run_results(instance_ids: &[InstanceId]) -> Vec<StateChange> {
         .iter()
         .map(|i| StateChange {
             instance_id: i.to_owned(),
-            previous_state: Some(String::from("- unknown -".to_owned())),
-            current_state: Some(String::from("- unchanged -".to_owned())),
+            previous_state: String::from("- n/a -".to_owned()),
+            current_state: String::from("- n/a -".to_owned()),
         })
         .collect::<Vec<_>>()
 }
@@ -271,10 +271,14 @@ fn create_dry_run_results(instance_ids: &[InstanceId]) -> Vec<StateChange> {
 impl From<ec2::InstanceStateChange> for StateChange {
     fn from(x: ec2::InstanceStateChange) -> Self {
         StateChange {
-            instance_id: x.instance_id.unwrap_or_else(|| String::from("-")),
+            instance_id: x.instance_id.unwrap_or_else(|| String::from("- n/a -")),
             // TODO: Fix me!
-            current_state: Some(String::from("-")),
-            previous_state: Some(String::from("-")),
+            current_state: x.current_state
+                            .map(|x| x.name.unwrap_or_else(|| String::from("- n/a -")))
+                            .unwrap_or_else(|| String::from("- n/a -")),
+            previous_state: x.previous_state
+                            .map(|x| x.name.unwrap_or_else(|| String::from("- n/a -")))
+                            .unwrap_or_else(|| String::from("- n/a -")),
         }
     }
 }
