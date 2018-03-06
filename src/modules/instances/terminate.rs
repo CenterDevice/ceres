@@ -6,6 +6,7 @@ use modules::*;
 use output::OutputStateChanges;
 use output::instances::{JsonOutputStateChanges, OutputType, TableOutputStatusChanges};
 use provider::{TerminateInstances, StateChange};
+use utils::read_for_yes_from_stdin;
 
 pub const NAME: &str = "terminate";
 
@@ -25,6 +26,7 @@ impl Module for Terminate {
                 Arg::with_name("dry")
                     .long("dry")
                     .short("d")
+                    .conflicts_with("yes-i-really-mean-it")
                     .help("Makes a dry run without actually terminating the instances")
             )
             .arg(
@@ -39,6 +41,7 @@ impl Module for Terminate {
             .arg(
                 Arg::with_name("yes")
                     .long("yes-i-really-mean-it")
+                    .conflicts_with("dry")
                     .help("Don't ask me for veryification")
             )
     }
@@ -67,10 +70,20 @@ fn terminate_instances(
     }.chain_err(|| ErrorKind::ModuleFailed(NAME.to_owned()))?;
 
     let dry = args.is_present("dry");
+    let yes = args.is_present("yes-i-really-mean-it");
 
-    // TODO: Make this a log output
-    if dry {
-        println!("Running in dry mode -- no changes will be executed.")
+    match (dry, yes) {
+        (true, _) => {
+            // TODO: Make this a log output
+            println!("Running in dry mode -- no changes will be executed.");
+        },
+        (false, false) => {
+            if !read_for_yes_from_stdin("Type 'yes' to continue").unwrap() {
+                return Err(Error::from_kind(ErrorKind::ModuleFailed(String::from(NAME))))
+            }
+        },
+        (false, true) => {}
+        _ => { Fail }
     }
 
     let instance_ids: Vec<_> = args.values_of("instance_ids")
@@ -78,7 +91,8 @@ fn terminate_instances(
         .map(|id| String::from(id)).collect();
 
     provider
-        .terminate_instances(dry, &instance_ids)
+        //TODO: .terminate_instances(dry, &instance_ids)
+        .terminate_instances(true, &instance_ids)
         .chain_err(|| ErrorKind::ModuleFailed(String::from(NAME)))
 }
 

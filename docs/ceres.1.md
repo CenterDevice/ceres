@@ -77,6 +77,18 @@ The *instances* modules interacts with instances in the environment selected by 
 
     BlockDeviceMappings, Hypervisor, IamInstanceProfile, ImageId, InstanceId, InstanceType, LaunchTime, Monitoring, Placement, PrivateDnsName, PrivateIpAddress, PublicDnsName, PublicIpAddress, RootDeviceName, RootDeviceType, SecurityGroups, State, StateReason, Tags(_), VirtualizationType, VpcId
 
+### instances terminate *INSTANCE_ID ...*
+
+  *instances terminate* terminates instances by instance id and outputs the corresponding state changes. The output can be controlled to allow for human readable format or JSON format for post-processing.
+
+  *INSTANCE_ID ...*
+  : Sets the instance id to terminate. Multiple instance ids may be set.
+
+  -d, --dry
+  : Activates dry run. Permissions and instance ids will be checked by AWS, but no instance will be terminated.
+
+  -o, --output *output*
+  : Selects output format. The default is *human*. Available options are *human* and *json*.
 
 # SHELL COMPLETION
 
