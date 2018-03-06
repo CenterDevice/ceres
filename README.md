@@ -14,9 +14,9 @@ Ceres the goddess of agriculture, grain crops, fertility and motherly relationsh
   - [From Source](#from-source)
 - [Configuration](#configuration)
 - [Use Cases](#use-cases)
-  - [List AWS EC2 instances in one account using "Assume Role" and filter by tags](#list-aws-ec2-instances-in-one-account-using-assume-role-and-filter-by-tags)
+  - [List AWS EC2 instances](#list-aws-ec2-instances)
+  - [Terminate AWS EC2 instances](#terminate-aws-ec2-instances)
 - [Todos](#todos)
-  - [CI/CD](#cicd)
 
 <!-- END doctoc generated TOC please keep comment here to allow auto update -->
 
@@ -46,10 +46,16 @@ cargo install
 
 ## Use Cases
 
-### List AWS EC2 instances in one account using "Assume Role" and filter by tags
+### List AWS EC2 instances
 
 ```bash
 ceres --config ~/.ceres.conf --profile staging@cd instances list -o [humon|json] --output-options=InstanceId,Tags=Name:AnsibleHostGroup,State --filter 'Instance=i-.*,Tags=Name:AnsibleHostGroup=batch_.*,State=stopped'
+```
+
+### Terminate AWS EC2 instances
+
+```bash
+ceres --config ~/.ceres.conf --profile staging@cd instances terminate -o [humon|json] i-123456789 i-123456798
 ```
 
 ## Todos

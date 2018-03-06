@@ -79,7 +79,7 @@ The *instances* modules interacts with instances in the environment selected by 
 
 ### instances terminate *INSTANCE_ID ...*
 
-  *instances terminate* terminates instances by instance id and outputs the corresponding state changes. The output can be controlled to allow for human readable format or JSON format for post-processing.
+  *instances terminate* terminates instances by instance id and outputs the corresponding state changes. A prompt will ask for confirmation before any termination is executed. The output can be controlled to allow for human readable format or JSON format for post-processing.
 
   *INSTANCE_ID ...*
   : Sets the instance id to terminate. Multiple instance ids may be set.
@@ -89,6 +89,9 @@ The *instances* modules interacts with instances in the environment selected by 
 
   -o, --output *output*
   : Selects output format. The default is *human*. Available options are *human* and *json*.
+
+  --yes-i-really-really-mean-it
+  : Don't ask for confirmation and terminate instances immediately.
 
 # SHELL COMPLETION
 

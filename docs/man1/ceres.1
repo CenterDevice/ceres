@@ -130,6 +130,38 @@ The available options are:
 BlockDeviceMappings,\ Hypervisor,\ IamInstanceProfile,\ ImageId,\ InstanceId,\ InstanceType,\ LaunchTime,\ Monitoring,\ Placement,\ PrivateDnsName,\ PrivateIpAddress,\ PublicDnsName,\ PublicIpAddress,\ RootDeviceName,\ RootDeviceType,\ SecurityGroups,\ State,\ StateReason,\ Tags(_),\ VirtualizationType,\ VpcId
 \f[]
 .fi
+.SS instances terminate \f[I]INSTANCE_ID ...\f[]
+.PP
+\f[I]instances terminate\f[] terminates instances by instance id and
+outputs the corresponding state changes.
+A prompt will ask for confirmation before any termination is executed.
+The output can be controlled to allow for human readable format or JSON
+format for post\-processing.
+.TP
+.B \f[I]INSTANCE_ID ...\f[]
+Sets the instance id to terminate.
+Multiple instance ids may be set.
+.RS
+.RE
+.TP
+.B \-d, \-\-dry
+Activates dry run.
+Permissions and instance ids will be checked by AWS, but no instance
+will be terminated.
+.RS
+.RE
+.TP
+.B \-o, \-\-output \f[I]output\f[]
+Selects output format.
+The default is \f[I]human\f[].
+Available options are \f[I]human\f[] and \f[I]json\f[].
+.RS
+.RE
+.TP
+.B \-\-yes\-i\-really\-really\-mean\-it
+Don\[aq]t ask for confirmation and terminate instances immediately.
+.RS
+.RE
 .SH SHELL COMPLETION
 .TP
 .B completions \-\-shell \f[I]shell\f[]
