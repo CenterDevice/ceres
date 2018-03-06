@@ -1,18 +1,18 @@
-use std::io::{self, BufReader, Read};
+use std::io::{self, BufRead, BufReader, Write};
 
-pub fn read_for_yes_from_stdin(prompt: &str) -> Result<bool> {
-    let reader = io::stdin();
-    read_for_yes(&reader, prompt)
+pub fn ask_for_yes_from_stdin(prompt: &str) -> Result<bool> {
+    let mut reader = BufReader::new(io::stdin());
+    ask_for_yes_from_reader(&mut reader, prompt)
 }
 
-fn read_for_yes<T: Read>(reader: &T,prompt: &str) -> Result<bool> {
-    let mut reader = BufReader::new(reader);
+fn ask_for_yes_from_reader<R: BufRead>(reader: &mut R, prompt: &str) -> Result<bool> {
     print!("{}", prompt);
+    let _ = io::stdout().flush();
 
     let mut input = String::new();
     match reader.read_line(&mut input) {
         Ok(_) => {
-            if input.as_slice().lowercase() == "yes" {
+            if input.trim().to_lowercase() == "yes" {
                 Ok(true)
             } else {
                 Ok(false)
