@@ -62,3 +62,5 @@ ceres --config ~/.ceres.conf --profile staging@cd instances terminate -o [humon|
 
 * [ ] Add CLI Logging
 
+* [ ] Test for ask_for_yes: quickcheck as well as fzy
+
