@@ -15,6 +15,9 @@ Ceres the goddess of agriculture, grain crops, fertility and motherly relationsh
 - [Configuration](#configuration)
 - [Use Cases](#use-cases)
   - [List AWS EC2 instances](#list-aws-ec2-instances)
+  - [Ssh to AWS EC2 instances](#ssh-to-aws-ec2-instances)
+    - [Open interactive shell](#open-interactive-shell)
+    - [Run command on instance](#run-command-on-instance)
   - [Terminate AWS EC2 instances](#terminate-aws-ec2-instances)
 - [Todos](#todos)
 
@@ -50,6 +53,18 @@ cargo install
 
 ```bash
 ceres --config ~/.ceres.conf --profile staging@cd instances list -o [humon|json] --output-options=InstanceId,Tags=Name:AnsibleHostGroup,State --filter 'Instance=i-.*,Tags=Name:AnsibleHostGroup=batch_.*,State=stopped'
+```
+
+### Ssh to AWS EC2 instances
+
+#### Open interactive shell
+```bash
+ceres --config ~/.ceres.conf --profile staging@cd instances ssh --public-ip --ssh-opt="-t" i-123456789
+```
+
+#### Run command on instance
+```bash
+ceres --config ~/.ceres.conf --profile staging@cd instances ssh i-123456789 -- ls /
 ```
 
 ### Terminate AWS EC2 instances

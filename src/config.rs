@@ -20,15 +20,15 @@ impl Config {
         parse_toml(&content)
     }
 
-    pub fn get_provider_by_profile(&self, profile_name: &str) -> Result<&Provider> {
+    pub fn get_profile(&self, profile_name: &str) -> Result<&Profile> {
         let profile = self.profiles.get(profile_name)
             .ok_or_else(|| ErrorKind::NoSuchProfile(profile_name.to_owned()))?;
 
-        Ok(&profile.provider)
+        Ok(&profile)
     }
 
-    pub fn get_default_provider(&self) -> Result<&Provider> {
-        self.get_provider_by_profile(&self.default_profile)
+    pub fn get_default_profile(&self) -> Result<&Profile> {
+        self.get_profile(&self.default_profile)
     }
 }
 
@@ -47,6 +47,7 @@ fn parse_toml(content: &str) -> Result<Config> {
 
 #[derive(Debug, Serialize, Deserialize, PartialEq)]
 pub struct Profile {
+    pub ssh_user: Option<String>,
     pub provider: Provider
 }
 
@@ -86,7 +87,7 @@ mod tests {
             region: Region::EuCentral1,
             role_arn: String::from("a_role_arn"),
         };
-        let prod_profile = Profile { provider: Provider::Aws(aws_provider) };
+        let prod_profile = Profile { ssh_user: Some("a_user".to_owned()), provider: Provider::Aws(aws_provider) };
         let mut profiles = HashMap::new();
         profiles.insert("prod@cd".to_owned(), prod_profile);
         let config = Config { default_profile: "prod@cd".to_owned(), profiles };

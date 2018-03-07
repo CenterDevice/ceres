@@ -1,10 +1,14 @@
 # NAME
 
-ceres.conf - configures profiles and others settings for ceres. This configuration file uses TOML syntax.
+ceres.conf - configures profiles and others settings for ceres. This configuration file uses TOML syntax. It may define multiple profiles with different names.
 
 # DESCRIPTION
 
 *default_profile* = "\<profile name\>"
+
+[profiles."\<profile name\>"]
+
+ssh_user = "\<a user name\>"
 
 [profiles."\<profile name\>".provider]
 

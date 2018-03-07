@@ -1,6 +1,6 @@
 use rusoto_core::{default_tls_client, Region};
 use rusoto_credential::StaticProvider;
-use rusoto_ec2::{self as ec2, Ec2, TerminateInstancesRequest, TerminateInstancesError};
+use rusoto_ec2::{self as ec2, DescribeInstancesRequest, Ec2, TerminateInstancesRequest, TerminateInstancesError};
 use rusoto_sts::{StsAssumeRoleSessionCredentialsProvider, StsClient};
 use serde::de::{self, Deserializer, Visitor};
 use serde::ser::Serializer;
@@ -9,7 +9,7 @@ use std::default::Default;
 use std::fmt;
 use std::str::FromStr;
 
-use provider::{Error as ProviderError, ErrorKind as ProviderErrorKind, InstanceDescriptor, InstanceId, DescribeInstances, Result as ProviderResult, StateChange, TerminateInstances};
+use provider::{Error as ProviderError, ErrorKind as ProviderErrorKind, InstanceDescriptor, InstanceId, DescribeInstance, DescribeInstances, Result as ProviderResult, StateChange, TerminateInstances};
 
 const EMPTY: &str = "-";
 
@@ -80,6 +80,54 @@ fn list(aws: &Aws) -> Result<Vec<InstanceDescriptor>> {
 
     Ok(instances)
 }
+
+impl DescribeInstance for Aws {
+    fn describe_instance(&self, instance_id: &str) -> ProviderResult<InstanceDescriptor> {
+        describe(&self, instance_id).map_err(
+            |e| ProviderError::with_chain(e, ProviderErrorKind::ProviderCallFailed(String::from("describe_instance"))))
+    }
+}
+
+fn describe(aws: &Aws, instance_id: &str) -> Result<InstanceDescriptor> {
+    let credentials_provider = assume_role(&aws)?;
+    let default_client = default_tls_client().chain_err(|| ErrorKind::AwsApiError)?;
+    let client = ec2::Ec2Client::new(default_client, credentials_provider, aws.region.clone());
+
+    let request = DescribeInstancesRequest {
+        dry_run: Some(false),
+        filters: None,
+        instance_ids: Some(vec![instance_id.to_string()]),
+        max_results: None,
+        next_token: None,
+    };
+    let result = client
+        .describe_instances(&request)
+        .chain_err(|| ErrorKind::AwsApiError)?;
+    let mut reservations = result.reservations.ok_or_else(|| {
+        Error::from_kind(ErrorKind::AwsApiResultError(
+            "no reservations found".to_string(),
+        ))
+    })?;
+    let first_reservation = reservations.pop().ok_or_else(|| {
+        Error::from_kind(ErrorKind::AwsApiResultError(
+            "no reservations received".to_string(),
+        ))
+    })?;
+    let mut instances = first_reservation.instances.ok_or_else(|| {
+        Error::from_kind(ErrorKind::AwsApiResultError(
+            "no instances in reservation found".to_string(),
+        ))
+    })?;
+    let instance = instances.pop().ok_or_else(|| {
+        Error::from_kind(ErrorKind::AwsApiResultError(
+            "no instances received".to_string(),
+        ))
+    })?;
+
+    Ok(instance.into())
+}
+
+
 
 impl From<ec2::Instance> for InstanceDescriptor {
     fn from(r: ec2::Instance) -> Self {

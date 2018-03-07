@@ -50,7 +50,7 @@ Currently, there is only one module called *instances*.
 
 The *instances* modules interacts with instances in the environment selected by the profile to use. Currently the only command supported is *list*.
 
-### instances list
+### instances list [*options*]
 
   *instances list* shows all currently active instances. Instances can be filtered and the output can be controlled to allow for human readable format or JSON format for post-processing.
 
@@ -77,7 +77,26 @@ The *instances* modules interacts with instances in the environment selected by 
 
     BlockDeviceMappings, Hypervisor, IamInstanceProfile, ImageId, InstanceId, InstanceType, LaunchTime, Monitoring, Placement, PrivateDnsName, PrivateIpAddress, PublicDnsName, PublicIpAddress, RootDeviceName, RootDeviceType, SecurityGroups, State, StateReason, Tags(_), VirtualizationType, VpcId
 
-### instances terminate *INSTANCE_ID ...*
+### instances ssh [*options*] *INSTANCE_ID* [-- *COMMAND_ARGS ...*]
+
+  *instances ssh* connects to an instance and either opens an interactive shell or runs a single command. By default, the instance' private IP address is used. The remote login name is read from the corresponding profile configuration in the configuration file, or set as option, or the local user name is used.
+
+  *INSTANCE_ID*
+  : Sets the instance id to connect to.
+
+  *COMMAND_ARGS ...*
+  : Sets the command and its arguments to execute on the remote instance. These have to be that last argument which requires a prefixing *--*.
+
+  -l, --login-name *login-name*
+  : Sets remote login name
+
+  -p, --public-ip
+  : Use public IP address of instance
+
+  --ssh-opt *ssh-opts* ...
+  : Passes an option to ssh. This may be used multiple times.
+
+### instances terminate [*options*] *INSTANCE_ID ...*
 
   *instances terminate* terminates instances by instance id and outputs the corresponding state changes. A prompt will ask for confirmation before any termination is executed. The output can be controlled to allow for human readable format or JSON format for post-processing.
 

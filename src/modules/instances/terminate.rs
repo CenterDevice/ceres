@@ -64,10 +64,11 @@ fn terminate_instances(
     run_config: &RunConfig,
     config: &Config,
 ) -> Result<Vec<StateChange>> {
-    let &Provider::Aws(ref provider) = match run_config.active_profile.as_ref() {
-        "default" => config.get_default_provider(),
-        s => config.get_provider_by_profile(s),
+    let profile = match run_config.active_profile.as_ref() {
+        "default" => config.get_default_profile(),
+        s => config.get_profile(s),
     }.chain_err(|| ErrorKind::ModuleFailed(NAME.to_owned()))?;
+    let Provider::Aws(ref provider) = profile.provider;
 
     let dry = args.is_present("dry");
     let yes = args.is_present("yes");

@@ -5,6 +5,7 @@ use run_config::RunConfig;
 use modules::*;
 
 mod list;
+mod ssh;
 mod terminate;
 
 pub const NAME: &str = "instances";
@@ -16,6 +17,7 @@ impl Module for Instances {
         SubCommand::with_name(NAME)
             .about("Do stuff with instances")
             .subcommand(list::List::build_sub_cli())
+            .subcommand(ssh::Ssh::build_sub_cli())
             .subcommand(terminate::Terminate::build_sub_cli())
     }
 
@@ -24,6 +26,8 @@ impl Module for Instances {
         let subcommand_name = subcommand.subcommand_name().ok_or_else(|| ErrorKind::NoSubcommandSpecified(NAME.to_string()))?;
         match subcommand_name {
             list::NAME => list::List::call(subcommand.subcommand_matches(subcommand_name), run_config, config)
+                .chain_err(|| ErrorKind::ModuleFailed(NAME.to_string())),
+            ssh::NAME => ssh::Ssh::call(subcommand.subcommand_matches(subcommand_name), run_config, config)
                 .chain_err(|| ErrorKind::ModuleFailed(NAME.to_string())),
             terminate::NAME => terminate::Terminate::call(subcommand.subcommand_matches(subcommand_name), run_config, config)
                 .chain_err(|| ErrorKind::ModuleFailed(NAME.to_string())),

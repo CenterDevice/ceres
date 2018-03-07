@@ -7,6 +7,10 @@ pub trait DescribeInstances {
     fn describe_instances(&self) -> Result<Vec<InstanceDescriptor>>;
 }
 
+pub trait DescribeInstance {
+    fn describe_instance(&self, instance_id: &str) -> Result<InstanceDescriptor>;
+}
+
 pub enum InstanceDescriptorFields {
     BlockDeviceMappings,
     Hypervisor,
