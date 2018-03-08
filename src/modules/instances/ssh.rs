@@ -55,8 +55,10 @@ impl Module for Ssh {
 }
 
 fn do_call(args: &ArgMatches, run_config: &RunConfig, config: &Config) -> Result<()> {
+    info!("Querying description for instance.");
     let instance = describe_instance(args, run_config, config)?;
 
+    info!("Executing ssh.");
     ssh_to_instance(args, run_config, config, instance)
 }
 
@@ -72,6 +74,7 @@ fn describe_instance(
     let Provider::Aws(ref provider) = profile.provider;
 
     let instance_id = args.value_of("instance_id").unwrap();  // safe
+
     provider
         .describe_instance(instance_id)
         .chain_err(|| ErrorKind::ModuleFailed(String::from(NAME)))
@@ -83,7 +86,8 @@ fn ssh_to_instance(
     config: &Config,
     instance: InstanceDescriptor,
 ) -> Result<()> {
-     let profile = match run_config.active_profile.as_ref() {
+
+    let profile = match run_config.active_profile.as_ref() {
         "default" => config.get_default_profile(),
         s => config.get_profile(s),
     }.chain_err(|| ErrorKind::ModuleFailed(NAME.to_owned()))?;

@@ -1,6 +1,8 @@
 extern crate ceres;
 extern crate clap;
-extern crate env_logger;
+#[macro_use]
+extern crate log;
+extern crate loggerv;
 #[macro_use]
 extern crate error_chain;
 
@@ -17,9 +19,17 @@ const DEFAULT_CONFIG_FILE_NAME: &str = "ceres.conf";
 quick_main!(run);
 
 fn run() -> Result<()> {
-    let _ = env_logger::try_init();
-
     let args = build_cli().get_matches();
+    // Set verbosity level to at least 1.
+    let verbosity_level = args.occurrences_of("verbosity");
+    loggerv::Logger::new()
+        .base_level(log::Level::Error)
+        .verbosity(verbosity_level)
+        .init()
+        .unwrap();
+
+    info!("{} version {}", env!("CARGO_PKG_NAME"), env!("CARGO_PKG_VERSION"));
+
     if let Some(subcommand_name) = args.subcommand_name() {
         if subcommand_name == "completions" {
             return generate_completion(args.subcommand_matches(subcommand_name).unwrap()); // Safe unwrap
@@ -57,6 +67,12 @@ fn build_cli() -> App<'static, 'static> {
                 .takes_value(true)
                 .default_value("default")
                 .help("Sets profile to use")
+        )
+        .arg(
+            Arg::with_name("verbosity")
+                .short("v")
+                .multiple(true)
+                .help("Sets the level of verbosity")
         )
         .subcommand(
             SubCommand::with_name("completions").arg(

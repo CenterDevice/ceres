@@ -49,8 +49,13 @@ impl Module for List {
 }
 
 fn do_call(args: &ArgMatches, run_config: &RunConfig, config: &Config) -> Result<()> {
+    info!("Querying description for instances.");
     let instances = list_instances(args, run_config, config)?;
+
+    info!("Filtering instance descriptions");
     let instances = filter_instances(args, run_config, config, instances)?;
+
+    info!("Outputting instance descriptions");
     let _ = output_instances(args, run_config, config, &instances)?;
 
     Ok(())

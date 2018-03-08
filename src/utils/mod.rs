@@ -42,7 +42,7 @@ pub fn ssh_to_ip_address<T: Into<IpAddr>>(ip: T, command: Option<&str>, ssh_opts
     } else {
         ssh_options
     };
-    println!("{:#?}", &ssh_command);
+    debug!("Executing '{:#?}'", &ssh_command);
 
     let err = ssh_command.exec();
     Err(Error::with_chain(err, ErrorKind::FailedToExecuteSsh))

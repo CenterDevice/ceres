@@ -53,7 +53,10 @@ impl Module for Terminate {
 }
 
 fn do_call(args: &ArgMatches, run_config: &RunConfig, config: &Config) -> Result<()> {
+    info!("Terminating instances.");
     let changes = terminate_instances(args, run_config, config)?;
+
+    info!("Outputting instance state changes.");
     let _ = output_changes(args, run_config, config, &changes)?;
 
     Ok(())

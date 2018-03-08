@@ -1,6 +1,8 @@
 extern crate clap;
 #[macro_use]
 extern crate error_chain;
+#[macro_use]
+extern crate log;
 extern crate prettytable;
 extern crate regex;
 extern crate rusoto_core;
