@@ -59,3 +59,52 @@ error_chain! {
     }
 }
 
+#[cfg(test)]
+mod tests {
+    use super::*;
+
+    use quickcheck::{TestResult, quickcheck};
+    use spectral::prelude::*;
+
+    #[test]
+    fn ask_for_yes_from_reader_okay_lowercase() {
+        let answer = "yes".to_owned();
+        let mut buf = BufReader::new(answer.as_bytes());
+        let res = ask_for_yes_from_reader(&mut buf, "This is just a test prompt: ");
+
+        assert_that(&res).is_ok().is_true();
+    }
+
+    #[test]
+    fn ask_for_yes_from_reader_okay_uppercase() {
+        let answer = "YES".to_owned();
+        let mut buf = BufReader::new(answer.as_bytes());
+        let res = ask_for_yes_from_reader(&mut buf, "This is just a test prompt: ");
+
+        assert_that(&res).is_ok().is_true();
+    }
+
+    #[test]
+    fn ask_for_yes_from_reader_okay_mixedcase() {
+        let answer = "YeS".to_owned();
+        let mut buf = BufReader::new(answer.as_bytes());
+        let res = ask_for_yes_from_reader(&mut buf, "This is just a test prompt: ");
+
+        assert_that(&res).is_ok().is_true();
+    }
+
+    #[test]
+    fn ask_for_yes_from_reader_quick() {
+        fn prop(x: String) -> TestResult {
+            if x.len() > 3 || x.to_lowercase() == "yes" {
+                return TestResult::discard()
+            }
+
+            let mut buf = BufReader::new(x.as_bytes());
+            let res = ask_for_yes_from_reader(&mut buf, "This is just a test prompt: ").unwrap();
+            TestResult::from_bool(res == false)
+        }
+
+        quickcheck(prop as fn(String) -> TestResult);
+    }
+}

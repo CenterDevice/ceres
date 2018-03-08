@@ -13,9 +13,12 @@ extern crate serde;
 #[macro_use]
 extern crate serde_derive;
 extern crate serde_json;
+extern crate toml;
+
 #[cfg(test)]
 extern crate spectral;
-extern crate toml;
+#[cfg(test)]
+extern crate quickcheck;
 
 pub mod config;
 pub mod modules;
