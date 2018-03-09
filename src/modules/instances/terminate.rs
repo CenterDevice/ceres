@@ -5,7 +5,7 @@ use run_config::RunConfig;
 use modules::*;
 use output::OutputStateChanges;
 use output::instances::{JsonOutputStateChanges, OutputType, TableOutputStatusChanges};
-use provider::{TerminateInstances, StateChange};
+use provider::{StateChange, TerminateInstances};
 use utils::ask_for_yes_from_stdin;
 
 pub const NAME: &str = "terminate";
@@ -20,14 +20,14 @@ impl Module for Terminate {
                 Arg::with_name("instance_ids")
                     .multiple(true)
                     .required(true)
-                    .help("Instance Ids to terminate")
+                    .help("Instance Ids to terminate"),
             )
             .arg(
                 Arg::with_name("dry")
                     .long("dry")
                     .short("d")
                     .conflicts_with("yes")
-                    .help("Makes a dry run without actually terminating the instances")
+                    .help("Makes a dry run without actually terminating the instances"),
             )
             .arg(
                 Arg::with_name("output")
@@ -36,13 +36,13 @@ impl Module for Terminate {
                     .takes_value(true)
                     .default_value("human")
                     .possible_values(&["human", "json"])
-                    .help("Selects output format")
+                    .help("Selects output format"),
             )
             .arg(
                 Arg::with_name("yes")
                     .long("yes-i-really-really-mean-it")
                     .conflicts_with("dry")
-                    .help("Don't ask me for veryification")
+                    .help("Don't ask me for veryification"),
             )
     }
 
@@ -80,12 +80,17 @@ fn terminate_instances(
         (true, _) => {
             // TODO: Make this a log output
             println!("Running in dry mode -- no changes will be executed.");
-        },
+        }
         (false, false) => {
-            if !ask_for_yes_from_stdin("Going to terminate instances. Please type 'yes' to continue: ").unwrap() {
-                return Err(Error::from_kind(ErrorKind::ModuleFailed(String::from(NAME))))
+            if !ask_for_yes_from_stdin(
+                "Going to terminate instances. Please type 'yes' to continue: ",
+            ).unwrap()
+            {
+                return Err(Error::from_kind(ErrorKind::ModuleFailed(String::from(
+                    NAME,
+                ))));
             }
-        },
+        }
         (false, true) => {}
     }
 
@@ -126,4 +131,3 @@ fn output_changes(
         }
     }
 }
-

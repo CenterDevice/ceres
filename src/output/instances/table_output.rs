@@ -32,10 +32,12 @@ impl OutputInstances for TableOutputInstances {
         let mut table = Table::new();
         table.set_format(*format::consts::FORMAT_NO_LINESEP_WITH_TITLE);
 
-        table.set_titles(
-            Row::new(
-                self.fields.iter().map(|f| Cell::new(header_for_field(f))).collect::<Vec<_>>()
-            ));
+        table.set_titles(Row::new(
+            self.fields
+                .iter()
+                .map(|f| Cell::new(header_for_field(f)))
+                .collect::<Vec<_>>(),
+        ));
 
         // We have to create / allocate the Strings first since `Table` only accepts `&str` and some
         // `InstanceDescriptorFields` need to allocate representations first, e.g., `InstanceDescriptorFields::Tags`
@@ -48,10 +50,9 @@ impl OutputInstances for TableOutputInstances {
             rows.push(row);
         }
         for r in rows {
-            table.add_row(
-                Row::new(
-                    r.iter().map(|cell| Cell::new(cell)).collect::<Vec<_>>()
-                ));
+            table.add_row(Row::new(
+                r.iter().map(|cell| Cell::new(cell)).collect::<Vec<_>>(),
+            ));
         }
 
         table.print(writer).chain_err(|| ErrorKind::OutputFailed)
@@ -86,8 +87,10 @@ fn header_for_field(field: &InstanceDescriptorFields) -> &str {
 
 fn value_for_field(field: &InstanceDescriptorFields, instance: &InstanceDescriptor) -> String {
     match *field {
-        InstanceDescriptorFields::BlockDeviceMappings =>
-            instance.block_device_mappings.as_ref().map(|bdms| bdms.join("\n")),
+        InstanceDescriptorFields::BlockDeviceMappings => instance
+            .block_device_mappings
+            .as_ref()
+            .map(|bdms| bdms.join("\n")),
         InstanceDescriptorFields::Hypervisor => instance.hypervisor.clone(),
         InstanceDescriptorFields::IamInstanceProfile => instance.iam_instance_profile.clone(),
         InstanceDescriptorFields::ImageId => instance.image_id.clone(),
@@ -102,13 +105,15 @@ fn value_for_field(field: &InstanceDescriptorFields, instance: &InstanceDescript
         InstanceDescriptorFields::PublicIpAddress => instance.public_ip_address.clone(),
         InstanceDescriptorFields::RootDeviceName => instance.root_device_name.clone(),
         InstanceDescriptorFields::RootDeviceType => instance.root_device_type.clone(),
-        InstanceDescriptorFields::SecurityGroups =>
-            instance.security_groups.as_ref().map(|sgs| sgs.join("\n")),
+        InstanceDescriptorFields::SecurityGroups => {
+            instance.security_groups.as_ref().map(|sgs| sgs.join("\n"))
+        }
         InstanceDescriptorFields::State => instance.state.clone(),
         InstanceDescriptorFields::StateReason => instance.state_reason.clone(),
-        InstanceDescriptorFields::Tags(ref tags_filter) => {
-            Some(format_tags(instance.tags.as_ref().unwrap(), tags_filter.as_ref().map(|x| x.as_slice())))
-        },
+        InstanceDescriptorFields::Tags(ref tags_filter) => Some(format_tags(
+            instance.tags.as_ref().unwrap(),
+            tags_filter.as_ref().map(|x| x.as_slice()),
+        )),
         InstanceDescriptorFields::VirtualizationType => instance.virtualization_type.clone(),
         InstanceDescriptorFields::VpcId => instance.vpc_id.clone(),
     }.unwrap_or_else(|| String::from("-"))
@@ -120,10 +125,7 @@ fn format_tags(tags: &HashMap<String, Option<String>>, tags_filter: Option<&[Str
     let mut concat = String::new();
 
     let mut keys: Vec<_> = if let Some(tags_filter) = tags_filter {
-        tags
-            .keys()
-            .filter(|&k| tags_filter.contains(k))
-            .collect()
+        tags.keys().filter(|&k| tags_filter.contains(k)).collect()
     } else {
         tags.keys().collect()
     };
@@ -151,22 +153,20 @@ impl OutputStateChanges for TableOutputStatusChanges {
         let mut table = Table::new();
         table.set_format(*format::consts::FORMAT_NO_LINESEP_WITH_TITLE);
 
-        table.set_titles(
-            Row::new(
-                ["Instance Id", "Previous State", "Current State"].iter().map(|x| Cell::new(x)).collect::<Vec<_>>()
-            ));
+        table.set_titles(Row::new(
+            ["Instance Id", "Previous State", "Current State"]
+                .iter()
+                .map(|x| Cell::new(x))
+                .collect::<Vec<_>>(),
+        ));
 
         for change in state_changes {
-            table.add_row(
-                Row::new(
-                    vec![
-                        Cell::new(&change.instance_id),
-                        // TODO: Make unwrap safe or remove Option from StateChange
-                        Cell::new(&change.previous_state),
-                        Cell::new(&change.current_state),
-                    ]
-                )
-            );
+            table.add_row(Row::new(vec![
+                Cell::new(&change.instance_id),
+                // TODO: Make unwrap safe or remove Option from StateChange
+                Cell::new(&change.previous_state),
+                Cell::new(&change.current_state),
+            ]));
         }
 
         table.print(writer).chain_err(|| ErrorKind::OutputFailed)
@@ -211,7 +211,6 @@ mod tests {
         let expected = String::from("key1=value1, key2=, key3=value3");
         assert_that(&res).is_equal_to(&expected);
     }
-
 
     #[test]
     fn format_tags_multiple_kv_with_filter() {

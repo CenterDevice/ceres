@@ -18,7 +18,9 @@ impl FromStr for OutputType {
         match s.to_owned().to_uppercase().as_ref() {
             "JSON" => Ok(OutputType::Json),
             "HUMAN" => Ok(OutputType::Human),
-            _ => Err(Error::from_kind(ErrorKind::OutputParsingFailed(s.to_owned()))),
+            _ => Err(Error::from_kind(ErrorKind::OutputParsingFailed(
+                s.to_owned(),
+            ))),
         }
     }
 }

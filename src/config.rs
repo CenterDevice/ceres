@@ -10,7 +10,7 @@ use provider;
 pub struct Config {
     pub default_profile: String,
     pub logging: Logging,
-    pub profiles: HashMap<String, Profile>
+    pub profiles: HashMap<String, Profile>,
 }
 
 impl Config {
@@ -22,7 +22,8 @@ impl Config {
     }
 
     pub fn get_profile(&self, profile_name: &str) -> Result<&Profile> {
-        let profile = self.profiles.get(profile_name)
+        let profile = self.profiles
+            .get(profile_name)
             .ok_or_else(|| ErrorKind::NoSuchProfile(profile_name.to_owned()))?;
 
         Ok(profile)
@@ -55,14 +56,14 @@ pub struct Logging {
 #[derive(Debug, Serialize, Deserialize, PartialEq)]
 pub struct Profile {
     pub ssh_user: Option<String>,
-    pub provider: Provider
+    pub provider: Provider,
 }
 
 #[derive(Debug, Serialize, Deserialize, PartialEq)]
 #[serde(tag = "type")]
 pub enum Provider {
     #[serde(rename = "aws")]
-    Aws(provider::aws::Aws)
+    Aws(provider::aws::Aws),
 }
 
 error_chain! {
@@ -94,11 +95,21 @@ mod tests {
             region: Region::EuCentral1,
             role_arn: String::from("a_role_arn"),
         };
-        let prod_profile = Profile { ssh_user: Some("a_user".to_owned()), provider: Provider::Aws(aws_provider) };
+        let prod_profile = Profile {
+            ssh_user: Some("a_user".to_owned()),
+            provider: Provider::Aws(aws_provider),
+        };
         let mut profiles = HashMap::new();
         profiles.insert("prod@cd".to_owned(), prod_profile);
-        let logging = Logging { default: "warn".to_owned(), ceres: "info".to_owned() };
-        let config = Config { default_profile: "prod@cd".to_owned(), logging, profiles };
+        let logging = Logging {
+            default: "warn".to_owned(),
+            ceres: "info".to_owned(),
+        };
+        let config = Config {
+            default_profile: "prod@cd".to_owned(),
+            logging,
+            profiles,
+        };
         let toml = toml::to_string(&config).unwrap();
 
         let re_config: Config = toml::from_str(&toml).unwrap();

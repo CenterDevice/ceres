@@ -17,9 +17,9 @@ extern crate serde_json;
 extern crate toml;
 
 #[cfg(test)]
-extern crate spectral;
-#[cfg(test)]
 extern crate quickcheck;
+#[cfg(test)]
+extern crate spectral;
 
 pub mod config;
 pub mod modules;

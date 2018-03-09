@@ -14,11 +14,15 @@ pub fn build_sub_cli(app: App<'static, 'static>) -> App<'static, 'static> {
 }
 
 pub fn call(cli_args: &ArgMatches, run_config: &RunConfig, config: &Config) -> Result<()> {
-    let subcommand_name = cli_args.subcommand_name().ok_or(ErrorKind::NoCommandSpecified)?;
+    let subcommand_name = cli_args
+        .subcommand_name()
+        .ok_or(ErrorKind::NoCommandSpecified)?;
     let subcommand_args = cli_args.subcommand_matches(subcommand_name);
     match subcommand_name {
         instances::NAME => instances::Instances::call(subcommand_args, run_config, config),
-        _ => Err(Error::from_kind(ErrorKind::NoSuchCommand(String::from(subcommand_name))))
+        _ => Err(Error::from_kind(ErrorKind::NoSuchCommand(String::from(
+            subcommand_name,
+        )))),
     }
 }
 

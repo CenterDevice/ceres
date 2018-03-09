@@ -18,19 +18,19 @@ impl Module for Ssh {
             .arg(
                 Arg::with_name("instance_id")
                     .required(true)
-                    .help("Connects to the instance with this instance id")
+                    .help("Connects to the instance with this instance id"),
             )
             .arg(
                 Arg::with_name("command_args")
                     .multiple(true)
                     .last(true)
-                    .help("Executes a command with args on the intance")
+                    .help("Executes a command with args on the intance"),
             )
             .arg(
                 Arg::with_name("public-ip")
                     .short("p")
                     .long("public-ip")
-                    .help("Uses public IP address of instance for connection")
+                    .help("Uses public IP address of instance for connection"),
             )
             .arg(
                 Arg::with_name("ssh-opts")
@@ -73,7 +73,7 @@ fn describe_instance(
     }.chain_err(|| ErrorKind::ModuleFailed(NAME.to_owned()))?;
     let Provider::Aws(ref provider) = profile.provider;
 
-    let instance_id = args.value_of("instance_id").unwrap();  // safe
+    let instance_id = args.value_of("instance_id").unwrap(); // safe
 
     provider
         .describe_instance(instance_id)
@@ -86,7 +86,6 @@ fn ssh_to_instance(
     config: &Config,
     instance: InstanceDescriptor,
 ) -> Result<()> {
-
     let profile = match run_config.active_profile.as_ref() {
         "default" => config.get_default_profile(),
         s => config.get_profile(s),
@@ -98,9 +97,12 @@ fn ssh_to_instance(
         instance.private_ip_address
     };
 
-    let command = args.values_of("command_args").map(|x| x.collect::<Vec<_>>().join(" "));
+    let command = args.values_of("command_args")
+        .map(|x| x.collect::<Vec<_>>().join(" "));
     let login_name_str: String; // Borrow checker
-    let mut ssh_opts: Vec<_> = args.values_of("ssh-opts").map(|x| x.collect::<Vec<_>>()).unwrap_or_else(Vec::new);
+    let mut ssh_opts: Vec<_> = args.values_of("ssh-opts")
+        .map(|x| x.collect::<Vec<_>>())
+        .unwrap_or_else(Vec::new);
 
     if let Some(ref login_name) = profile.ssh_user {
         login_name_str = format!("-l {}", login_name);
@@ -111,10 +113,14 @@ fn ssh_to_instance(
     if let Some(ip) = ip {
         let ip_addr: IpAddr = ip.parse()
             .chain_err(|| ErrorKind::ModuleFailed(String::from(NAME)))?;
-        utils::ssh_to_ip_address(ip_addr, command.as_ref().map(|x| x.as_str()), Some(&ssh_opts_str))
-            .chain_err(|| ErrorKind::ModuleFailed(String::from(NAME)))
+        utils::ssh_to_ip_address(
+            ip_addr,
+            command.as_ref().map(|x| x.as_str()),
+            Some(&ssh_opts_str),
+        ).chain_err(|| ErrorKind::ModuleFailed(String::from(NAME)))
     } else {
-        Err(Error::from_kind(ErrorKind::ModuleFailed(String::from(NAME))))
+        Err(Error::from_kind(ErrorKind::ModuleFailed(String::from(
+            NAME,
+        ))))
     }
 }
-

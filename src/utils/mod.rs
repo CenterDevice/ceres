@@ -24,7 +24,7 @@ fn ask_for_yes_from_reader<R: BufRead>(reader: &mut R, prompt: &str) -> Result<b
                 Ok(false)
             }
         }
-        Err(e) => Err(Error::with_chain(e, ErrorKind::FailedToReadFromStdin))
+        Err(e) => Err(Error::with_chain(e, ErrorKind::FailedToReadFromStdin)),
     }
 }
 
@@ -65,7 +65,11 @@ pub fn int_to_log_level(n: u64) -> log::LevelFilter {
     }
 }
 
-pub fn ssh_to_ip_address<T: Into<IpAddr>>(ip: T, command: Option<&str>, ssh_opts: Option<&str>) -> Result<()> {
+pub fn ssh_to_ip_address<T: Into<IpAddr>>(
+    ip: T,
+    command: Option<&str>,
+    ssh_opts: Option<&str>,
+) -> Result<()> {
     let ip_addr: IpAddr = ip.into();
 
     let mut ssh_command = Command::new("ssh");
@@ -107,7 +111,7 @@ error_chain! {
 mod tests {
     use super::*;
 
-    use quickcheck::{TestResult, quickcheck};
+    use quickcheck::{quickcheck, TestResult};
     use spectral::prelude::*;
 
     #[test]
@@ -141,7 +145,7 @@ mod tests {
     fn ask_for_yes_from_reader_quick() {
         fn prop(x: String) -> TestResult {
             if x.len() > 3 || x.to_lowercase() == "yes" {
-                return TestResult::discard()
+                return TestResult::discard();
             }
 
             let mut buf = BufReader::new(x.as_bytes());

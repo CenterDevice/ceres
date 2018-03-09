@@ -1,6 +1,7 @@
 use rusoto_core::{default_tls_client, Region};
 use rusoto_credential::StaticProvider;
-use rusoto_ec2::{self as ec2, DescribeInstancesRequest, Ec2, TerminateInstancesRequest, TerminateInstancesError};
+use rusoto_ec2::{self as ec2, DescribeInstancesRequest, Ec2, TerminateInstancesError,
+                 TerminateInstancesRequest};
 use rusoto_sts::{StsAssumeRoleSessionCredentialsProvider, StsClient};
 use serde::de::{self, Deserializer, Visitor};
 use serde::ser::Serializer;
@@ -9,7 +10,9 @@ use std::default::Default;
 use std::fmt;
 use std::str::FromStr;
 
-use provider::{Error as ProviderError, ErrorKind as ProviderErrorKind, InstanceDescriptor, InstanceId, DescribeInstance, DescribeInstances, Result as ProviderResult, StateChange, TerminateInstances};
+use provider::{DescribeInstance, DescribeInstances, Error as ProviderError,
+               ErrorKind as ProviderErrorKind, InstanceDescriptor, InstanceId,
+               Result as ProviderResult, StateChange, TerminateInstances};
 
 const EMPTY: &str = "-";
 
@@ -22,11 +25,17 @@ pub struct Aws {
     pub role_arn: String,
 }
 
-fn ser_region<S>(region: &Region, serializer: S) -> ::std::result::Result<S::Ok, S::Error> where S: Serializer {
+fn ser_region<S>(region: &Region, serializer: S) -> ::std::result::Result<S::Ok, S::Error>
+where
+    S: Serializer,
+{
     serializer.serialize_str(region.name())
 }
 
-fn de_ser_region<'de, D>(deserializer: D) -> ::std::result::Result<Region, D::Error> where D: Deserializer<'de> {
+fn de_ser_region<'de, D>(deserializer: D) -> ::std::result::Result<Region, D::Error>
+where
+    D: Deserializer<'de>,
+{
     struct RegionVisitor;
 
     impl<'a> Visitor<'a> for RegionVisitor {
@@ -36,10 +45,12 @@ fn de_ser_region<'de, D>(deserializer: D) -> ::std::result::Result<Region, D::Er
             formatter.write_str("valid AWS region string")
         }
 
-        fn visit_str<E>(self, s: &str) -> ::std::result::Result<Self::Value, E> where E: de::Error {
+        fn visit_str<E>(self, s: &str) -> ::std::result::Result<Self::Value, E>
+        where
+            E: de::Error,
+        {
             let region = Region::from_str(s)
-                .map_err(|_| de::Error::custom(
-                    format!("invalid region string '{}'", s)))?;
+                .map_err(|_| de::Error::custom(format!("invalid region string '{}'", s)))?;
             Ok(region)
         }
     }
@@ -49,8 +60,12 @@ fn de_ser_region<'de, D>(deserializer: D) -> ::std::result::Result<Region, D::Er
 
 impl DescribeInstances for Aws {
     fn describe_instances(&self) -> ProviderResult<Vec<InstanceDescriptor>> {
-        list(self).map_err(
-            |e| ProviderError::with_chain(e, ProviderErrorKind::ProviderCallFailed(String::from("describe_instance"))))
+        list(self).map_err(|e| {
+            ProviderError::with_chain(
+                e,
+                ProviderErrorKind::ProviderCallFailed(String::from("describe_instance")),
+            )
+        })
     }
 }
 
@@ -83,8 +98,12 @@ fn list(aws: &Aws) -> Result<Vec<InstanceDescriptor>> {
 
 impl DescribeInstance for Aws {
     fn describe_instance(&self, instance_id: &str) -> ProviderResult<InstanceDescriptor> {
-        describe(self, instance_id).map_err(
-            |e| ProviderError::with_chain(e, ProviderErrorKind::ProviderCallFailed(String::from("describe_instance"))))
+        describe(self, instance_id).map_err(|e| {
+            ProviderError::with_chain(
+                e,
+                ProviderErrorKind::ProviderCallFailed(String::from("describe_instance")),
+            )
+        })
     }
 }
 
@@ -127,24 +146,21 @@ fn describe(aws: &Aws, instance_id: &str) -> Result<InstanceDescriptor> {
     Ok(instance.into())
 }
 
-
-
 impl From<ec2::Instance> for InstanceDescriptor {
     fn from(r: ec2::Instance) -> Self {
         InstanceDescriptor {
             ami_launch_index: r.ami_launch_index,
             architecture: r.architecture,
             block_device_mappings: r.block_device_mappings
-                .map(|bdms| bdms
-                    .iter()
-                    .map(block_device_mapping_to_string).collect()
-                ),
+                .map(|bdms| bdms.iter().map(block_device_mapping_to_string).collect()),
             client_token: r.client_token,
             ebs_optimized: r.ebs_optimized,
             //elastic_gpu_associations: r.elastic_gpu_associations,
             ena_support: r.ena_support,
             hypervisor: r.hypervisor,
-            iam_instance_profile: r.iam_instance_profile.as_ref().map(iam_instance_profile_to_string),
+            iam_instance_profile: r.iam_instance_profile
+                .as_ref()
+                .map(iam_instance_profile_to_string),
             image_id: r.image_id,
             instance_id: r.instance_id,
             instance_lifecycle: r.instance_lifecycle,
@@ -165,10 +181,7 @@ impl From<ec2::Instance> for InstanceDescriptor {
             root_device_name: r.root_device_name,
             root_device_type: r.root_device_type,
             security_groups: r.security_groups
-                .map(|bdms| bdms
-                    .iter()
-                    .map(group_identifier_to_string).collect()
-                ),
+                .map(|bdms| bdms.iter().map(group_identifier_to_string).collect()),
             source_dest_check: r.source_dest_check,
             spot_instance_request_id: r.spot_instance_request_id,
             sriov_net_support: r.sriov_net_support,
@@ -176,7 +189,11 @@ impl From<ec2::Instance> for InstanceDescriptor {
             state_reason: r.state_reason.as_ref().map(state_reason_to_string),
             state_transition_reason: r.state_transition_reason,
             subnet_id: r.subnet_id,
-            tags: if let Some(tags) = r.tags { Some(vec_tags_to_hashmap(tags)) } else { None },
+            tags: if let Some(tags) = r.tags {
+                Some(vec_tags_to_hashmap(tags))
+            } else {
+                None
+            },
             virtualization_type: r.virtualization_type,
             vpc_id: r.vpc_id,
         }
@@ -185,17 +202,24 @@ impl From<ec2::Instance> for InstanceDescriptor {
 
 fn block_device_mapping_to_string(bdm: &ec2::InstanceBlockDeviceMapping) -> String {
     let empty = String::from(EMPTY);
-    format!("dev={}, id={}",
-            bdm.device_name.as_ref().unwrap_or(&empty),
-            bdm.ebs.as_ref().unwrap().volume_id.as_ref().unwrap_or(&empty),
+    format!(
+        "dev={}, id={}",
+        bdm.device_name.as_ref().unwrap_or(&empty),
+        bdm.ebs
+            .as_ref()
+            .unwrap()
+            .volume_id
+            .as_ref()
+            .unwrap_or(&empty),
     )
 }
 
 fn iam_instance_profile_to_string(iip: &ec2::IamInstanceProfile) -> String {
     let empty = String::from(EMPTY);
-    format!("id={}, arn={}",
-            iip.id.as_ref().unwrap_or(&empty),
-            iip.arn.as_ref().unwrap_or(&empty),
+    format!(
+        "id={}, arn={}",
+        iip.id.as_ref().unwrap_or(&empty),
+        iip.arn.as_ref().unwrap_or(&empty),
     )
 }
 
@@ -206,20 +230,22 @@ fn monitoring_to_string(m: &ec2::Monitoring) -> String {
 
 fn placement_to_string(p: &ec2::Placement) -> String {
     let empty = String::from(EMPTY);
-    format!("affinity={}, AZ={}, group={}, host={}, tenancy={}",
-            p.affinity.as_ref().unwrap_or(&empty),
-            p.availability_zone.as_ref().unwrap_or(&empty),
-            p.group_name.as_ref().unwrap_or(&empty),
-            p.host_id.as_ref().unwrap_or(&empty),
-            p.tenancy.as_ref().unwrap_or(&empty),
+    format!(
+        "affinity={}, AZ={}, group={}, host={}, tenancy={}",
+        p.affinity.as_ref().unwrap_or(&empty),
+        p.availability_zone.as_ref().unwrap_or(&empty),
+        p.group_name.as_ref().unwrap_or(&empty),
+        p.host_id.as_ref().unwrap_or(&empty),
+        p.tenancy.as_ref().unwrap_or(&empty),
     )
 }
 
 fn group_identifier_to_string(sg: &ec2::GroupIdentifier) -> String {
     let empty = String::from(EMPTY);
-    format!("id={}, name={}",
-            sg.group_id.as_ref().unwrap_or(&empty),
-            sg.group_name.as_ref().unwrap_or(&empty),
+    format!(
+        "id={}, name={}",
+        sg.group_id.as_ref().unwrap_or(&empty),
+        sg.group_name.as_ref().unwrap_or(&empty),
     )
 }
 
@@ -269,9 +295,17 @@ fn assume_role(aws: &Aws) -> Result<StsAssumeRoleSessionCredentialsProvider> {
 }
 
 impl TerminateInstances for Aws {
-    fn terminate_instances(&self, dry: bool, instance_ids: &[InstanceId]) -> ProviderResult<Vec<StateChange>> {
-        destroy(self, dry, instance_ids).map_err(
-            |e| ProviderError::with_chain(e, ProviderErrorKind::ProviderCallFailed(String::from("terminate_instances"))))
+    fn terminate_instances(
+        &self,
+        dry: bool,
+        instance_ids: &[InstanceId],
+    ) -> ProviderResult<Vec<StateChange>> {
+        destroy(self, dry, instance_ids).map_err(|e| {
+            ProviderError::with_chain(
+                e,
+                ProviderErrorKind::ProviderCallFailed(String::from("terminate_instances")),
+            )
+        })
     }
 }
 
@@ -282,14 +316,23 @@ fn destroy(aws: &Aws, dry: bool, instance_ids: &[InstanceId]) -> Result<Vec<Stat
 
     let request = TerminateInstancesRequest {
         dry_run: Some(dry),
-        instance_ids: instance_ids.iter().map(|x| x.to_owned()).collect::<Vec<_>>(),
+        instance_ids: instance_ids
+            .iter()
+            .map(|x| x.to_owned())
+            .collect::<Vec<_>>(),
     };
     // If run in dry mode, AWS returns an error of type DryRunOperation
     // cf. https://docs.rs/rusoto_ec2/0.31.0/rusoto_ec2/struct.TerminateInstancesRequest.html#structfield.dry_run
     let result = match client.terminate_instances(&request) {
-        Err(TerminateInstancesError::Unknown(ref s)) if s.contains("DryRunOperation") => return Ok(create_dry_run_results(instance_ids)),
-        Err(TerminateInstancesError::Unknown(ref s)) if s.contains("UnauthorizedOperation") => return Err(Error::from_kind(ErrorKind::AwsApiResultError("termination is not authorized".to_string()))),
-        result => result
+        Err(TerminateInstancesError::Unknown(ref s)) if s.contains("DryRunOperation") => {
+            return Ok(create_dry_run_results(instance_ids))
+        }
+        Err(TerminateInstancesError::Unknown(ref s)) if s.contains("UnauthorizedOperation") => {
+            return Err(Error::from_kind(ErrorKind::AwsApiResultError(
+                "termination is not authorized".to_string(),
+            )))
+        }
+        result => result,
     }.chain_err(|| ErrorKind::AwsApiError)?;
     let terminating_instances = result.terminating_instances.ok_or_else(|| {
         Error::from_kind(ErrorKind::AwsApiResultError(
@@ -322,11 +365,11 @@ impl From<ec2::InstanceStateChange> for StateChange {
             instance_id: x.instance_id.unwrap_or_else(|| String::from("- n/a -")),
             // TODO: Fix me!
             current_state: x.current_state
-                            .map(|x| x.name.unwrap_or_else(|| String::from("- n/a -")))
-                            .unwrap_or_else(|| String::from("- n/a -")),
+                .map(|x| x.name.unwrap_or_else(|| String::from("- n/a -")))
+                .unwrap_or_else(|| String::from("- n/a -")),
             previous_state: x.previous_state
-                            .map(|x| x.name.unwrap_or_else(|| String::from("- n/a -")))
-                            .unwrap_or_else(|| String::from("- n/a -")),
+                .map(|x| x.name.unwrap_or_else(|| String::from("- n/a -")))
+                .unwrap_or_else(|| String::from("- n/a -")),
         }
     }
 }

@@ -64,13 +64,17 @@ impl FromStr for InstanceDescriptorFields {
             }
             "VirtualizationType" => Ok(InstanceDescriptorFields::VirtualizationType),
             "VpcId" => Ok(InstanceDescriptorFields::VpcId),
-            _ => Err(Error::from_kind(ErrorKind::InstanceDescriptorFieldsParsingFailed(s.to_owned())))
+            _ => Err(Error::from_kind(
+                ErrorKind::InstanceDescriptorFieldsParsingFailed(s.to_owned()),
+            )),
         }
     }
 }
 
 fn extract_tags_filter(tags_str: &str) -> Option<Vec<String>> {
-    if tags_str.len() < 5 { return None };
+    if tags_str.len() < 5 {
+        return None;
+    };
     let tags = &tags_str[5..]; // Safe because we call this function only when the prefix 'Tags:' has been seen
     let tags_filter: Vec<_> = tags.split(':').map(String::from).collect();
 
@@ -163,7 +167,6 @@ impl Default for InstanceDescriptor {
             tags: None,
             virtualization_type: None,
             vpc_id: None,
-
         }
     }
 }
@@ -171,7 +174,11 @@ impl Default for InstanceDescriptor {
 pub type InstanceId = String;
 
 pub trait TerminateInstances {
-    fn terminate_instances(&self, dry: bool, instance_ids: &[InstanceId]) -> Result<Vec<StateChange>>;
+    fn terminate_instances(
+        &self,
+        dry: bool,
+        instance_ids: &[InstanceId],
+    ) -> Result<Vec<StateChange>>;
 }
 
 #[derive(Serialize)]
@@ -215,7 +222,9 @@ mod tests {
 
         let res = extract_tags_filter(&tag_str);
 
-        assert_that(&res).is_some().is_equal_to(vec!["Name".to_owned()]);
+        assert_that(&res)
+            .is_some()
+            .is_equal_to(vec!["Name".to_owned()]);
     }
 
     #[test]
@@ -224,6 +233,8 @@ mod tests {
 
         let res = extract_tags_filter(&tag_str);
 
-        assert_that(&res).is_some().is_equal_to(vec!["Name".to_owned(), "SomeOtherTag".to_owned()]);
+        assert_that(&res)
+            .is_some()
+            .is_equal_to(vec!["Name".to_owned(), "SomeOtherTag".to_owned()]);
     }
 }

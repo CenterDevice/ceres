@@ -83,11 +83,14 @@ fn filter_instances(
     _: &Config,
     instances: Vec<InstanceDescriptor>,
 ) -> Result<Vec<InstanceDescriptor>> {
-
     let instances = if let Some(filter_str) = args.value_of("filter") {
-        let filter = filter_str.parse::<filter::Filter>()
+        let filter = filter_str
+            .parse::<filter::Filter>()
             .chain_err(|| ErrorKind::ModuleFailed(NAME.to_owned()))?;
-        instances.into_iter().filter(|i| filter.filter(i)).collect::<Vec<_>>()
+        instances
+            .into_iter()
+            .filter(|i| filter.filter(i))
+            .collect::<Vec<_>>()
     } else {
         instances
     };
@@ -195,7 +198,7 @@ mod filter {
                         } else {
                             None
                         },
-                           
+
                         security_groups: if let Some(re) = self.security_groups {
                             Some(Regex::new(re)
                                 .chain_err(|| ErrorKind::FilterRegexError(re.to_owned(), "security_groups".to_owned()))?)
@@ -298,7 +301,10 @@ mod filter {
                 match splits.len() {
                     2 => Ok((splits.remove(0), Some(splits.remove(0)))),
                     1 => Ok((splits.remove(0), None)),
-                    _ => Err(Error::from_kind(ErrorKind::FilterParsingFailed(s.to_owned(), "splitting fields failed".to_owned()))),
+                    _ => Err(Error::from_kind(ErrorKind::FilterParsingFailed(
+                        s.to_owned(),
+                        "splitting fields failed".to_owned(),
+                    ))),
                 }
             }).collect();
             let kvs = kvs?;
@@ -306,35 +312,83 @@ mod filter {
             let mut f_builder = FilterBuilder::new();
             for (key, value) in kvs {
                 if let Some(v) = value {
-                    match key.parse::<InstanceDescriptorFields>()
-                    .chain_err(|| Error::from_kind(ErrorKind::FilterParsingFailed(s.to_owned(), "parsing instance descriptor field failed".to_owned())))? {
-                        InstanceDescriptorFields::BlockDeviceMappings => { f_builder = f_builder.block_device_mappings(v) },
-                        InstanceDescriptorFields::Hypervisor => { f_builder = f_builder.hypervisor(v) },
-                        InstanceDescriptorFields::IamInstanceProfile => { f_builder = f_builder.iam_instance_profile(v); },
-                        InstanceDescriptorFields::ImageId => { f_builder = f_builder.image_id(v); },
-                        InstanceDescriptorFields::InstanceId => { f_builder = f_builder.instance_id(v); },
-                        InstanceDescriptorFields::InstanceType => { f_builder = f_builder.instance_type(v); },
-                        InstanceDescriptorFields::LaunchTime => { /* A string based time matcher does not make sense */ },
-                        InstanceDescriptorFields::Monitoring => { f_builder = f_builder.monitoring(v); },
-                        InstanceDescriptorFields::Placement => { f_builder = f_builder.placement(v); },
-                        InstanceDescriptorFields::PrivateDnsName => { f_builder = f_builder.private_dns_name(v); },
-                        InstanceDescriptorFields::PrivateIpAddress => { f_builder = f_builder.private_ip_address(v); },
-                        InstanceDescriptorFields::PublicDnsName => { f_builder = f_builder.public_dns_name(v); },
-                        InstanceDescriptorFields::PublicIpAddress => { f_builder = f_builder.public_ip_address(v); },
-                        InstanceDescriptorFields::RootDeviceName => { f_builder = f_builder.root_device_name(v); },
-                        InstanceDescriptorFields::RootDeviceType => { f_builder = f_builder.root_device_type(v); },
-                        InstanceDescriptorFields::SecurityGroups => { f_builder = f_builder.security_groups(v);  },
-                        InstanceDescriptorFields::State => { f_builder = f_builder.state(v); },
-                        InstanceDescriptorFields::StateReason => { f_builder = f_builder.state_reason(v); },
-                        InstanceDescriptorFields::Tags(_) => { f_builder = f_builder.tags(parse_tags_filter_to_hash(v)?);  },
-                        InstanceDescriptorFields::VirtualizationType => { f_builder = f_builder.virtualization_type(v); },
-                        InstanceDescriptorFields::VpcId => { f_builder = f_builder.vpc_id(v); },
+                    match key.parse::<InstanceDescriptorFields>().chain_err(|| {
+                        Error::from_kind(ErrorKind::FilterParsingFailed(
+                            s.to_owned(),
+                            "parsing instance descriptor field failed".to_owned(),
+                        ))
+                    })? {
+                        InstanceDescriptorFields::BlockDeviceMappings => {
+                            f_builder = f_builder.block_device_mappings(v)
+                        }
+                        InstanceDescriptorFields::Hypervisor => f_builder = f_builder.hypervisor(v),
+                        InstanceDescriptorFields::IamInstanceProfile => {
+                            f_builder = f_builder.iam_instance_profile(v);
+                        }
+                        InstanceDescriptorFields::ImageId => {
+                            f_builder = f_builder.image_id(v);
+                        }
+                        InstanceDescriptorFields::InstanceId => {
+                            f_builder = f_builder.instance_id(v);
+                        }
+                        InstanceDescriptorFields::InstanceType => {
+                            f_builder = f_builder.instance_type(v);
+                        }
+                        InstanceDescriptorFields::LaunchTime => {
+                            /* A string based time matcher does not make sense */
+                        }
+                        InstanceDescriptorFields::Monitoring => {
+                            f_builder = f_builder.monitoring(v);
+                        }
+                        InstanceDescriptorFields::Placement => {
+                            f_builder = f_builder.placement(v);
+                        }
+                        InstanceDescriptorFields::PrivateDnsName => {
+                            f_builder = f_builder.private_dns_name(v);
+                        }
+                        InstanceDescriptorFields::PrivateIpAddress => {
+                            f_builder = f_builder.private_ip_address(v);
+                        }
+                        InstanceDescriptorFields::PublicDnsName => {
+                            f_builder = f_builder.public_dns_name(v);
+                        }
+                        InstanceDescriptorFields::PublicIpAddress => {
+                            f_builder = f_builder.public_ip_address(v);
+                        }
+                        InstanceDescriptorFields::RootDeviceName => {
+                            f_builder = f_builder.root_device_name(v);
+                        }
+                        InstanceDescriptorFields::RootDeviceType => {
+                            f_builder = f_builder.root_device_type(v);
+                        }
+                        InstanceDescriptorFields::SecurityGroups => {
+                            f_builder = f_builder.security_groups(v);
+                        }
+                        InstanceDescriptorFields::State => {
+                            f_builder = f_builder.state(v);
+                        }
+                        InstanceDescriptorFields::StateReason => {
+                            f_builder = f_builder.state_reason(v);
+                        }
+                        InstanceDescriptorFields::Tags(_) => {
+                            f_builder = f_builder.tags(parse_tags_filter_to_hash(v)?);
+                        }
+                        InstanceDescriptorFields::VirtualizationType => {
+                            f_builder = f_builder.virtualization_type(v);
+                        }
+                        InstanceDescriptorFields::VpcId => {
+                            f_builder = f_builder.vpc_id(v);
+                        }
                     }
                 }
             }
 
-            f_builder.build().chain_err(||
-                Error::from_kind(ErrorKind::FilterParsingFailed(s.to_owned(), "building filter failed".to_owned())))
+            f_builder.build().chain_err(|| {
+                Error::from_kind(ErrorKind::FilterParsingFailed(
+                    s.to_owned(),
+                    "building filter failed".to_owned(),
+                ))
+            })
         }
     }
 
@@ -345,7 +399,12 @@ mod filter {
             match kv.len() {
                 2 => hm.insert(kv.remove(0).to_owned(), Some(kv.remove(0))),
                 1 => hm.insert(kv.remove(0).to_owned(), None),
-                _ => return Err(Error::from_kind(ErrorKind::FilterParsingFailed(tags_filter.to_owned(), "splitting fields failed".to_owned()))),
+                _ => {
+                    return Err(Error::from_kind(ErrorKind::FilterParsingFailed(
+                        tags_filter.to_owned(),
+                        "splitting fields failed".to_owned(),
+                    )))
+                }
             };
         }
 
@@ -390,8 +449,12 @@ mod filter {
 
             let hm = parse_tags_filter_to_hash(tags_filter);
 
-            assert_that(&hm).is_ok().contains_entry("Name".to_owned(), None);
-            assert_that(&hm).is_ok().contains_entry("AnsibleHostGroup".to_owned(), Some("batch_.*"));
+            assert_that(&hm)
+                .is_ok()
+                .contains_entry("Name".to_owned(), None);
+            assert_that(&hm)
+                .is_ok()
+                .contains_entry("AnsibleHostGroup".to_owned(), Some("batch_.*"));
         }
 
         #[test]
