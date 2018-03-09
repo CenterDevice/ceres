@@ -10,10 +10,10 @@ codecov = { repository = "lukaspustina/ceres", branch = "master", service = "git
 [dependencies]
 clap = "^2.30"
 error-chain = "^0.11"
-log = "0.4"
-loggerv = "0.7"
+log = "^0.4"
+fern = { version = "^0.5", features = ["colored"] }
 prettytable-rs = "^0.6"
-regex = "0.2"
+regex = "^0.2"
 rusoto_core = "0.31.0"
 rusoto_credential = "0.10.0"
 rusoto_ec2 = "0.31.0"

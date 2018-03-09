@@ -6,6 +6,12 @@ ceres.conf - configures profiles and others settings for ceres. This configurati
 
 *default_profile* = "\<profile name\>"
 
+[logging]
+
+default = "warn"
+
+ceres = "info"
+
 [profiles."\<profile name\>"]
 
 ssh_user = "\<a user name\>"

@@ -1,3 +1,6 @@
+use log;
+use fern;
+use fern::colors::{Color, ColoredLevelConfig};
 use std::io::{self, BufRead, BufReader, Write};
 use std::net::IpAddr;
 use std::process::Command;
@@ -25,6 +28,43 @@ fn ask_for_yes_from_reader<R: BufRead>(reader: &mut R, prompt: &str) -> Result<b
     }
 }
 
+pub fn init_logging(ceres: log::LevelFilter, default: log::LevelFilter) -> Result<()> {
+    let colors = ColoredLevelConfig::new()
+        .info(Color::Green)
+        .debug(Color::Blue);
+    fern::Dispatch::new()
+        .format(move |out, message, record| {
+            let level = format!("{}", record.level());
+            out.finish(format_args!(
+                "{}{:padding$}{}: {}",
+                colors.color(record.level()),
+                " ",
+                record.target(),
+                message,
+                padding = 6 - level.len(),
+            ))
+        })
+        .chain(
+            fern::Dispatch::new()
+                .level(default)
+                .level_for("ceres", ceres)
+                .chain(io::stderr()),
+        )
+        .apply()
+        .map_err(|e| Error::with_chain(e, ErrorKind::FailedToInitLogging))?;
+
+    Ok(())
+}
+
+pub fn int_to_log_level(n: u64) -> log::LevelFilter {
+    match n {
+        0 => log::LevelFilter::Warn,
+        1 => log::LevelFilter::Info,
+        2 => log::LevelFilter::Debug,
+        _ => log::LevelFilter::Trace,
+    }
+}
+
 pub fn ssh_to_ip_address<T: Into<IpAddr>>(ip: T, command: Option<&str>, ssh_opts: Option<&str>) -> Result<()> {
     let ip_addr: IpAddr = ip.into();
 
@@ -42,9 +82,10 @@ pub fn ssh_to_ip_address<T: Into<IpAddr>>(ip: T, command: Option<&str>, ssh_opts
     } else {
         ssh_options
     };
-    debug!("Executing '{:#?}'", &ssh_command);
 
+    debug!("Exec '{:#?}'; replacing ceres now.", &ssh_command);
     let err = ssh_command.exec();
+
     Err(Error::with_chain(err, ErrorKind::FailedToExecuteSsh))
 }
 
@@ -55,6 +96,9 @@ error_chain! {
         }
         FailedToExecuteSsh {
             description("Failed to execute ssh")
+        }
+        FailedToInitLogging {
+            description("Failed to init logging framework")
         }
     }
 }

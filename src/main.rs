@@ -2,7 +2,6 @@ extern crate ceres;
 extern crate clap;
 #[macro_use]
 extern crate log;
-extern crate loggerv;
 #[macro_use]
 extern crate error_chain;
 
@@ -13,22 +12,28 @@ use std::path::Path;
 use ceres::modules::{self, Module};
 use ceres::config::Config;
 use ceres::run_config::RunConfig;
+use ceres::utils;
 
 const DEFAULT_CONFIG_FILE_NAME: &str = "ceres.conf";
 
-quick_main!(run);
+fn main() {
+    if let Err(ref e) = run() {
+        if log_enabled!(log::Level::Error) { error!("error: {}", e); } else { eprintln!("error: {}", e); }
+
+        for e in e.iter().skip(1) {
+            if log_enabled!(log::Level::Error) { error!("caused by: {}", e); } else { eprintln!("caused by: {}", e); }
+        }
+
+        if let Some(backtrace) = e.backtrace() {
+            if log_enabled!(log::Level::Error) { error!("backtrace: {:?}", backtrace); } else { eprintln!("backtrace: {:?}", backtrace); }
+        }
+
+        ::std::process::exit(1);
+    }
+}
 
 fn run() -> Result<()> {
     let args = build_cli().get_matches();
-    // Set verbosity level to at least 1.
-    let verbosity_level = args.occurrences_of("verbosity");
-    loggerv::Logger::new()
-        .base_level(log::Level::Error)
-        .verbosity(verbosity_level)
-        .init()
-        .unwrap();
-
-    info!("{} version {}", env!("CARGO_PKG_NAME"), env!("CARGO_PKG_VERSION"));
 
     if let Some(subcommand_name) = args.subcommand_name() {
         if subcommand_name == "completions" {
@@ -37,8 +42,23 @@ fn run() -> Result<()> {
     }
 
     let default_config_file_name = format!("{}/.{}", env::home_dir().unwrap().display(), DEFAULT_CONFIG_FILE_NAME);
-    let config = load_config(
-        args.value_of("config").unwrap_or(&default_config_file_name))?;
+    let config_file_name = args.value_of("config").unwrap_or(&default_config_file_name);
+    let config = load_config(&config_file_name)?;
+
+    let _ = init_logging(&args, &config)?;
+
+    fn init_logging(args: &ArgMatches, config: &Config) -> Result<()> {
+        let verbosity_level = utils::int_to_log_level(args.occurrences_of("verbosity"));
+        let default_level: log::LevelFilter = config.logging.default.parse().map_err(|e| Error::with_chain(e, ErrorKind::FailedToInitLogging))?;
+        let ceres_level: log::LevelFilter = config.logging.ceres.parse().map_err(|e| Error::with_chain(e, ErrorKind::FailedToInitLogging))?;
+        let ceres_level = ::std::cmp::max(ceres_level, verbosity_level);
+        let _ = utils::init_logging(ceres_level, default_level)?;
+
+        Ok(())
+    }
+
+    info!("{} version {}, log level={}", env!("CARGO_PKG_NAME"), env!("CARGO_PKG_VERSION"), log::max_level());
+
     let run_config = RunConfig {
         active_profile: args.value_of("profile").unwrap().to_owned(), // Safe unwrap
     };
@@ -121,8 +141,12 @@ error_chain! {
             description("Failed to load config file")
             display("Failed to load config file '{}'", file)
         }
+        FailedToInitLogging {
+            description("Failed to init logging framework")
+        }
     }
     links {
         Module(ceres::modules::Error, ceres::modules::ErrorKind);
+        Utils(ceres::utils::Error, ceres::utils::ErrorKind);
     }
 }

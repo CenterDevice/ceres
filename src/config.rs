@@ -9,6 +9,7 @@ use provider;
 #[derive(Debug, Default, Serialize, Deserialize, PartialEq)]
 pub struct Config {
     pub default_profile: String,
+    pub logging: Logging,
     pub profiles: HashMap<String, Profile>
 }
 
@@ -43,6 +44,12 @@ fn parse_toml(content: &str) -> Result<Config> {
     let config: Config = toml::from_str(content)?;
 
     Ok(config)
+}
+
+#[derive(Debug, Default, Serialize, Deserialize, PartialEq)]
+pub struct Logging {
+    pub default: String,
+    pub ceres: String,
 }
 
 #[derive(Debug, Serialize, Deserialize, PartialEq)]
@@ -90,7 +97,8 @@ mod tests {
         let prod_profile = Profile { ssh_user: Some("a_user".to_owned()), provider: Provider::Aws(aws_provider) };
         let mut profiles = HashMap::new();
         profiles.insert("prod@cd".to_owned(), prod_profile);
-        let config = Config { default_profile: "prod@cd".to_owned(), profiles };
+        let logging = Logging { default: "warn".to_owned(), ceres: "info".to_owned() };
+        let config = Config { default_profile: "prod@cd".to_owned(), logging, profiles };
         let toml = toml::to_string(&config).unwrap();
 
         let re_config: Config = toml::from_str(&toml).unwrap();
