@@ -25,7 +25,7 @@ impl Config {
         let profile = self.profiles.get(profile_name)
             .ok_or_else(|| ErrorKind::NoSuchProfile(profile_name.to_owned()))?;
 
-        Ok(&profile)
+        Ok(profile)
     }
 
     pub fn get_default_profile(&self) -> Result<&Profile> {

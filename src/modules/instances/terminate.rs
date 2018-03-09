@@ -57,7 +57,7 @@ fn do_call(args: &ArgMatches, run_config: &RunConfig, config: &Config) -> Result
     let changes = terminate_instances(args, run_config, config)?;
 
     info!("Outputting instance state changes.");
-    let _ = output_changes(args, run_config, config, &changes)?;
+    output_changes(args, run_config, config, &changes)?;
 
     Ok(())
 }
@@ -91,7 +91,7 @@ fn terminate_instances(
 
     let instance_ids: Vec<_> = args.values_of("instance_ids")
         .unwrap() // Safe
-        .map(|id| String::from(id)).collect();
+        .map(String::from).collect();
 
     provider
         .terminate_instances(dry, &instance_ids)

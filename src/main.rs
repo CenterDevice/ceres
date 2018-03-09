@@ -45,14 +45,14 @@ fn run() -> Result<()> {
     let config_file_name = args.value_of("config").unwrap_or(&default_config_file_name);
     let config = load_config(&config_file_name)?;
 
-    let _ = init_logging(&args, &config)?;
+    init_logging(&args, &config)?;
 
     fn init_logging(args: &ArgMatches, config: &Config) -> Result<()> {
         let verbosity_level = utils::int_to_log_level(args.occurrences_of("verbosity"));
         let default_level: log::LevelFilter = config.logging.default.parse().map_err(|e| Error::with_chain(e, ErrorKind::FailedToInitLogging))?;
         let ceres_level: log::LevelFilter = config.logging.ceres.parse().map_err(|e| Error::with_chain(e, ErrorKind::FailedToInitLogging))?;
         let ceres_level = ::std::cmp::max(ceres_level, verbosity_level);
-        let _ = utils::init_logging(ceres_level, default_level)?;
+        utils::init_logging(ceres_level, default_level)?;
 
         Ok(())
     }

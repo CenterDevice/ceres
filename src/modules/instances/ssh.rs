@@ -100,7 +100,7 @@ fn ssh_to_instance(
 
     let command = args.values_of("command_args").map(|x| x.collect::<Vec<_>>().join(" "));
     let login_name_str: String; // Borrow checker
-    let mut ssh_opts: Vec<_> = args.values_of("ssh-opts").map(|x| x.collect::<Vec<_>>()).unwrap_or_else(|| Vec::new());
+    let mut ssh_opts: Vec<_> = args.values_of("ssh-opts").map(|x| x.collect::<Vec<_>>()).unwrap_or_else(Vec::new);
 
     if let Some(ref login_name) = profile.ssh_user {
         login_name_str = format!("-l {}", login_name);

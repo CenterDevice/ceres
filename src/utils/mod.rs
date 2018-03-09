@@ -72,7 +72,7 @@ pub fn ssh_to_ip_address<T: Into<IpAddr>>(ip: T, command: Option<&str>, ssh_opts
     let ssh_ip = ssh_command.arg(ip_addr.to_string());
 
     let ssh_options = if let Some(opts) = ssh_opts {
-        ssh_ip.args(opts.split(" "))
+        ssh_ip.args(opts.split(' '))
     } else {
         ssh_ip
     };

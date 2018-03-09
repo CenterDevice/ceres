@@ -49,13 +49,13 @@ fn de_ser_region<'de, D>(deserializer: D) -> ::std::result::Result<Region, D::Er
 
 impl DescribeInstances for Aws {
     fn describe_instances(&self) -> ProviderResult<Vec<InstanceDescriptor>> {
-        list(&self).map_err(
+        list(self).map_err(
             |e| ProviderError::with_chain(e, ProviderErrorKind::ProviderCallFailed(String::from("describe_instance"))))
     }
 }
 
 fn list(aws: &Aws) -> Result<Vec<InstanceDescriptor>> {
-    let credentials_provider = assume_role(&aws)?;
+    let credentials_provider = assume_role(aws)?;
     let default_client = default_tls_client().chain_err(|| ErrorKind::AwsApiError)?;
     let client = ec2::Ec2Client::new(default_client, credentials_provider, aws.region.clone());
 
@@ -83,13 +83,13 @@ fn list(aws: &Aws) -> Result<Vec<InstanceDescriptor>> {
 
 impl DescribeInstance for Aws {
     fn describe_instance(&self, instance_id: &str) -> ProviderResult<InstanceDescriptor> {
-        describe(&self, instance_id).map_err(
+        describe(self, instance_id).map_err(
             |e| ProviderError::with_chain(e, ProviderErrorKind::ProviderCallFailed(String::from("describe_instance"))))
     }
 }
 
 fn describe(aws: &Aws, instance_id: &str) -> Result<InstanceDescriptor> {
-    let credentials_provider = assume_role(&aws)?;
+    let credentials_provider = assume_role(aws)?;
     let default_client = default_tls_client().chain_err(|| ErrorKind::AwsApiError)?;
     let client = ec2::Ec2Client::new(default_client, credentials_provider, aws.region.clone());
 
@@ -270,13 +270,13 @@ fn assume_role(aws: &Aws) -> Result<StsAssumeRoleSessionCredentialsProvider> {
 
 impl TerminateInstances for Aws {
     fn terminate_instances(&self, dry: bool, instance_ids: &[InstanceId]) -> ProviderResult<Vec<StateChange>> {
-        destroy(&self, dry, instance_ids).map_err(
+        destroy(self, dry, instance_ids).map_err(
             |e| ProviderError::with_chain(e, ProviderErrorKind::ProviderCallFailed(String::from("terminate_instances"))))
     }
 }
 
 fn destroy(aws: &Aws, dry: bool, instance_ids: &[InstanceId]) -> Result<Vec<StateChange>> {
-    let credentials_provider = assume_role(&aws)?;
+    let credentials_provider = assume_role(aws)?;
     let default_client = default_tls_client().chain_err(|| ErrorKind::AwsApiError)?;
     let client = ec2::Ec2Client::new(default_client, credentials_provider, aws.region.clone());
 
@@ -310,8 +310,8 @@ fn create_dry_run_results(instance_ids: &[InstanceId]) -> Vec<StateChange> {
         .iter()
         .map(|i| StateChange {
             instance_id: i.to_owned(),
-            previous_state: String::from("- n/a -".to_owned()),
-            current_state: String::from("- n/a -".to_owned()),
+            previous_state: "- n/a -".to_owned(),
+            current_state: "- n/a -".to_owned(),
         })
         .collect::<Vec<_>>()
 }

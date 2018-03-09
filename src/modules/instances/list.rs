@@ -56,7 +56,7 @@ fn do_call(args: &ArgMatches, run_config: &RunConfig, config: &Config) -> Result
     let instances = filter_instances(args, run_config, config, instances)?;
 
     info!("Outputting instance descriptions");
-    let _ = output_instances(args, run_config, config, &instances)?;
+    output_instances(args, run_config, config, &instances)?;
 
     Ok(())
 }
@@ -87,7 +87,7 @@ fn filter_instances(
     let instances = if let Some(filter_str) = args.value_of("filter") {
         let filter = filter_str.parse::<filter::Filter>()
             .chain_err(|| ErrorKind::ModuleFailed(NAME.to_owned()))?;
-        instances.into_iter().filter(|i| filter.filter(&i)).collect::<Vec<_>>()
+        instances.into_iter().filter(|i| filter.filter(i)).collect::<Vec<_>>()
     } else {
         instances
     };
