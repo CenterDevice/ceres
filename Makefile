@@ -44,3 +44,6 @@ _update-clippy_n_fmt:
 	rustup run nightly cargo install clippy --force
 	rustup component add rustfmt-preview --toolchain=nightly
 
+_cargo_install:
+	cargo install -f cargo-tree
+	cargo install -f cargo-bump
