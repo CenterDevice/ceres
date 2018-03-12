@@ -28,7 +28,7 @@ release: release-bump all docs
 	git tag v$$(cargo read-manifest | jq -r .version)
 
 release-bump:
-	cargo-bump
+	cargo bump
 
 clippy:
 	rustup run nightly cargo clippy
