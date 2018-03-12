@@ -23,6 +23,13 @@ doctoc: README.md
 man:
 	$(MAKE) -C docs
 
+release: release-bump all docs
+	git commit -am "Bump to version $$(cargo read-manifest | jq .version)"
+	git tag v$$(cargo read-manifest | jq -r .version)
+
+release-bump:
+	cargo-bump
+
 clippy:
 	rustup run nightly cargo clippy
 
