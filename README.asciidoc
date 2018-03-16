@@ -1,12 +1,10 @@
 = CEnteRdEvice Sre (ceres)
-
+:toc: macro
 Ceres the goddess of agriculture, grain crops, fertility and motherly relationships.
 
 image:https://travis-ci.org/lukaspustina/ceres.svg?branch=master[link="https://travis-ci.org/lukaspustina/ceres"] image:https://codecov.io/gh/lukaspustina/ceres/branch/master/graph/badge.svg[link="https://codecov.io/gh/lukaspustina/ceres"] image:https://img.shields.io/github/release/lukaspustina/ceres.svg[link="https://github.com/lukaspustina/ceres/releases"] image:https://img.shields.io/crates/v/ceres.svg[link="https://crates.io/crates/ceres"] image:https://img.shields.io/badge/license-MIT-blue.svg?label=License[link="./LICENSE]
 
-*Table of Contents*
-
-:toc:
+toc::[]
 
 == Installation
 
