@@ -1,0 +1,77 @@
+= CEnteRdEvice Sre (ceres)
+
+Ceres the goddess of agriculture, grain crops, fertility and motherly relationships.
+
+image:https://travis-ci.org/lukaspustina/ceres.svg?branch=master[link="https://travis-ci.org/lukaspustina/ceres"] image:https://codecov.io/gh/lukaspustina/ceres/branch/master/graph/badge.svg[link="https://codecov.io/gh/lukaspustina/ceres"] image:https://img.shields.io/github/release/lukaspustina/ceres.svg[link="https://github.com/lukaspustina/ceres/releases"] image:https://img.shields.io/crates/v/ceres.svg[link="https://crates.io/crates/ceres"] image:https://img.shields.io/badge/license-MIT-blue.svg?label=License[link="./LICENSE]
+
+== Installation
+
+== Brew
+
+`brew install lukaspustina/os/ceres --HEAD`
+
+=== Cargo
+
+`cargo install ceres --git https://github.com/lukaspustina/ceres`
+
+=== From Source
+
+[source,bash]
+----
+git clone https://github.com/lukaspustina/ceres
+cd ceres
+cargo install
+----
+
+
+== Configuration
+
+`ceres` requires a configuration file in order to load profiles. By default, `ceres` tries to read `~/.ceres.conf`. See [example](examples/ceres.conf) for an example configuration.
+
+
+== Use Cases
+
+=== Run Remote Command
+
+The difference of this command compared to <<ssh>> command is that this command logs all output to separate files instead of printing to all output to the console.
+
+[source,bash]
+----
+ceres --config ~/.ceres.conf --profile staging@cd instances run --terminal --[no]-progress --log log-dir i-123456789 i-987654321 -- ls /
+----
+
+=== List AWS EC2 instances
+
+[source,bash]
+----
+ceres --config ~/.ceres.conf --profile staging@cd instances list -o [humon|json] --output-options=InstanceId,Tags=Name:AnsibleHostGroup,State --filter 'Instance=i-.*,Tags=Name:AnsibleHostGroup=batch_.*,State=stopped'
+----
+
+=== Ssh to AWS EC2 instances
+
+==== Open interactive shell
+
+[source,bash]
+----
+ceres --config ~/.ceres.conf --profile staging@cd instances ssh --public-ip --ssh-opt="-t" i-123456789
+----
+
+==== Run command on instance
+[[ssh]]
+
+[source,bash]
+----
+ceres --config ~/.ceres.conf --profile staging@cd instances ssh i-123456789 -- ls /
+----
+
+=== Terminate AWS EC2 instances
+
+[source,bash]
+----
+ceres --config ~/.ceres.conf --profile staging@cd instances terminate -o [humon|json] i-123456789 i-123456798
+----
+
+== Todos
+
+* [ ] Add Changelog
+
