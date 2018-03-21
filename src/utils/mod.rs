@@ -1,10 +1,14 @@
 use log;
 use fern;
 use fern::colors::{Color, ColoredLevelConfig};
+use std::time::Duration;
+use std::ffi::OsStr;
+use std::fs::File;
 use std::io::{self, BufRead, BufReader, Write};
 use std::net::IpAddr;
 use std::process::Command;
 use std::os::unix::process::CommandExt;
+use subprocess::{Exec, ExitStatus, Redirection};
 
 pub fn ask_for_yes_from_stdin(prompt: &str) -> Result<bool> {
     let mut reader = BufReader::new(io::stdin());
@@ -93,6 +97,41 @@ pub fn ssh_to_ip_address<T: Into<IpAddr>>(
     Err(Error::with_chain(err, ErrorKind::FailedToExecuteSsh))
 }
 
+pub fn run_commmand<T: AsRef<OsStr>>(
+    cmd: &str,
+    args: Option<&[T]>,
+    log: File,
+    timeout: Option<u64>)
+-> Result<ExitStatus> {
+    let mut p = if let Some(args) = args {
+        Exec::cmd(cmd)
+        .args(args)
+    } else {
+        Exec::cmd(cmd)
+    }
+        .stdout(log)
+        .stderr(Redirection::Merge)
+        .popen()
+        .chain_err(|| ErrorKind::FailedToRunCommand(cmd.to_owned()))?;
+
+    let res = if let Some(timeout) = timeout {
+        if let Some(status) = p.wait_timeout(Duration::new(timeout, 0))
+                .chain_err(|| ErrorKind::FailedToRunCommand(cmd.to_owned()))? {
+            println!("process finished as {:?}", status);
+            status
+        } else {
+            p.kill().chain_err(|| ErrorKind::FailedToRunCommand(cmd.to_owned()))?;
+            let res = p.wait().chain_err(|| ErrorKind::FailedToRunCommand(cmd.to_owned()))?;
+            println!("process killed");
+            res
+        }
+    } else {
+        p.wait().chain_err(|| ErrorKind::FailedToRunCommand(cmd.to_owned()))?
+    };
+
+    Ok(res)
+}
+
 error_chain! {
     errors {
         FailedToReadFromStdin {
@@ -104,6 +143,10 @@ error_chain! {
         FailedToInitLogging {
             description("Failed to init logging framework")
         }
+        FailedToRunCommand(cmd: String) {
+            description("Failed to run command")
+            display("Failed to run command '{}'", cmd)
+        }
     }
 }
 
@@ -112,7 +155,9 @@ mod tests {
     use super::*;
 
     use quickcheck::{quickcheck, TestResult};
+    use std::io::BufReader;
     use spectral::prelude::*;
+    use tempfile::{self, NamedTempFile};
 
     #[test]
     fn ask_for_yes_from_reader_okay_lowercase() {
@@ -154,5 +199,35 @@ mod tests {
         }
 
         quickcheck(prop as fn(String) -> TestResult);
+    }
+
+    #[test]
+    fn run_non_existing_command() {
+        let tmpfile: File = tempfile::tempfile().unwrap();
+
+        let res = run_commmand("this_command_does_not_exists", None::<&[&str]>, tmpfile, None);
+
+        assert_that(&res).is_err();
+    }
+
+    #[test]
+    fn run_command_successfully() {
+        let tmpfile: File = tempfile::tempfile().unwrap();
+
+        let res = run_commmand("/bin/ls", None::<&[&str]>, tmpfile, None);
+
+        assert_that(&res).is_ok();
+    }
+
+    #[test]
+    fn run_command_successfully_and_check_log_file() {
+        let tmpfile = NamedTempFile::new().unwrap();
+
+        let res = run_commmand("/bin/ls", Some(&["-l", "LICENSE", "Makefile"]), tmpfile.reopen().unwrap(), None);
+
+        assert_that(&res).is_ok();
+
+        let output = BufReader::new(&tmpfile);
+        assert_that(&output.lines().count()).is_equal_to(2);
     }
 }

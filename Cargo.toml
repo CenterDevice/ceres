@@ -21,8 +21,10 @@ rusoto_sts = "0.31.0"
 serde = "^1.0"
 serde_derive = "^1.0"
 serde_json = "^1.0"
+subprocess = "^0.1"
 toml = "^0.4"
 
 [dev-dependencies]
-spectral = "^0.6"
 quickcheck = "^0.6"
+spectral = "^0.6"
+tempfile = "^2"
