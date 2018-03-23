@@ -1,14 +1,10 @@
 use log;
 use fern;
 use fern::colors::{Color, ColoredLevelConfig};
-use std::time::Duration;
-use std::ffi::OsStr;
-use std::fs::File;
 use std::io::{self, BufRead, BufReader, Write};
 use std::net::IpAddr;
 use std::process::Command;
 use std::os::unix::process::CommandExt;
-use subprocess::{Exec, ExitStatus, Redirection};
 
 pub fn ask_for_yes_from_stdin(prompt: &str) -> Result<bool> {
     let mut reader = BufReader::new(io::stdin());
@@ -97,39 +93,54 @@ pub fn ssh_to_ip_address<T: Into<IpAddr>>(
     Err(Error::with_chain(err, ErrorKind::FailedToExecuteSsh))
 }
 
-pub fn run_commmand<T: AsRef<OsStr>>(
-    cmd: &str,
-    args: Option<&[T]>,
-    log: File,
-    timeout: Option<u64>)
--> Result<ExitStatus> {
-    let mut p = if let Some(args) = args {
-        Exec::cmd(cmd)
-        .args(args)
-    } else {
-        Exec::cmd(cmd)
+pub mod command {
+    use super::*;
+
+    use std::time::Duration;
+    use std::ffi::OsStr;
+    use std::fs::File;
+    use subprocess::{Exec, ExitStatus, Redirection};
+
+    pub struct Command<'a, T: AsRef<OsStr> + 'a> {
+        pub cmd: &'a str,
+        pub args: Option<&'a [T]>,
+        pub log: File,
+        pub timeout: Option<u64>,
+        pub progress: Option<()>,
     }
-        .stdout(log)
-        .stderr(Redirection::Merge)
-        .popen()
-        .chain_err(|| ErrorKind::FailedToRunCommand(cmd.to_owned()))?;
 
-    let res = if let Some(timeout) = timeout {
-        if let Some(status) = p.wait_timeout(Duration::new(timeout, 0))
-                .chain_err(|| ErrorKind::FailedToRunCommand(cmd.to_owned()))? {
-            println!("process finished as {:?}", status);
-            status
-        } else {
-            p.kill().chain_err(|| ErrorKind::FailedToRunCommand(cmd.to_owned()))?;
-            let res = p.wait().chain_err(|| ErrorKind::FailedToRunCommand(cmd.to_owned()))?;
-            println!("process killed");
-            res
+    impl<'a, T: AsRef<OsStr> + 'a> Command<'a, T>  {
+        pub fn run(self) -> Result<ExitStatus> {
+            let cmd = self.cmd;
+            let mut p = if let Some(args) = self.args {
+                Exec::cmd(cmd)
+                .args(args)
+            } else {
+                Exec::cmd(cmd)
+            }
+                .stdout(self.log)
+                .stderr(Redirection::Merge)
+                .popen()
+                .chain_err(|| ErrorKind::FailedToRunCommand(cmd.to_owned()))?;
+
+            let res = if let Some(timeout) = self.timeout {
+                if let Some(status) = p.wait_timeout(Duration::new(timeout, 0))
+                        .chain_err(|| ErrorKind::FailedToRunCommand(cmd.to_owned()))? {
+                    println!("process finished as {:?}", status);
+                    status
+                } else {
+                    p.kill().chain_err(|| ErrorKind::FailedToRunCommand(cmd.to_owned()))?;
+                    let res = p.wait().chain_err(|| ErrorKind::FailedToRunCommand(cmd.to_owned()))?;
+                    println!("process killed");
+                    res
+                }
+            } else {
+                p.wait().chain_err(|| ErrorKind::FailedToRunCommand(cmd.to_owned()))?
+            };
+
+            Ok(res)
         }
-    } else {
-        p.wait().chain_err(|| ErrorKind::FailedToRunCommand(cmd.to_owned()))?
-    };
-
-    Ok(res)
+    }
 }
 
 error_chain! {
@@ -155,6 +166,7 @@ mod tests {
     use super::*;
 
     use quickcheck::{quickcheck, TestResult};
+    use std::fs::File;
     use std::io::BufReader;
     use spectral::prelude::*;
     use tempfile::{self, NamedTempFile};
@@ -205,7 +217,15 @@ mod tests {
     fn run_non_existing_command() {
         let tmpfile: File = tempfile::tempfile().unwrap();
 
-        let res = run_commmand("this_command_does_not_exists", None::<&[&str]>, tmpfile, None);
+        let cmd = command::Command {
+            cmd: "this_command_does_not_exists",
+            args: None::<&[&str]>,
+            log: tmpfile,
+            timeout: None,
+            progress: None,
+
+        };
+        let res = cmd.run();
 
         assert_that(&res).is_err();
     }
@@ -214,7 +234,15 @@ mod tests {
     fn run_command_successfully() {
         let tmpfile: File = tempfile::tempfile().unwrap();
 
-        let res = run_commmand("/bin/ls", None::<&[&str]>, tmpfile, None);
+        let cmd = command::Command {
+            cmd: "/bin/ls",
+            args: None::<&[&str]>,
+            log: tmpfile,
+            timeout: None,
+            progress: None,
+
+        };
+        let res = cmd.run();
 
         assert_that(&res).is_ok();
     }
@@ -223,7 +251,15 @@ mod tests {
     fn run_command_successfully_and_check_log_file() {
         let tmpfile = NamedTempFile::new().unwrap();
 
-        let res = run_commmand("/bin/ls", Some(&["-l", "LICENSE", "Makefile"]), tmpfile.reopen().unwrap(), None);
+        let cmd = command::Command {
+            cmd: "/bin/ls",
+            args: Some(&["-l", "LICENSE", "Makefile"]),
+            log: tmpfile.reopen().unwrap(),
+            timeout: None,
+            progress: None,
+
+        };
+        let res = cmd.run();
 
         assert_that(&res).is_ok();
 
