@@ -4,9 +4,11 @@ use prettytable::format;
 use prettytable::row::Row;
 use std::collections::HashMap;
 use std::io::Write;
+use utils::command::ExitStatus;
 
 use provider::{InstanceDescriptor, InstanceDescriptorFields, StateChange};
 use output::*;
+use utils::command::CommandResult;
 
 pub struct TableOutputInstances {
     pub fields: Vec<InstanceDescriptorFields>,
@@ -163,13 +165,56 @@ impl OutputStateChanges for TableOutputStatusChanges {
         for change in state_changes {
             table.add_row(Row::new(vec![
                 Cell::new(&change.instance_id),
-                // TODO: Make unwrap safe or remove Option from StateChange
                 Cell::new(&change.previous_state),
                 Cell::new(&change.current_state),
             ]));
         }
 
         table.print(writer).chain_err(|| ErrorKind::OutputFailed)
+    }
+}
+
+pub struct TableOutputCommandResults {
+    pub show_all: bool,
+}
+
+impl OutputCommandResults for TableOutputCommandResults {
+    fn output<T: Write>(&self, writer: &mut T, results: &[CommandResult]) -> Result<()> {
+
+        let results = TableOutputCommandResults::filter_results(results, self.show_all);
+        if results.is_empty() { return Ok(()) };
+
+        let mut table = Table::new();
+        table.set_format(*format::consts::FORMAT_NO_LINESEP_WITH_TITLE);
+
+        table.set_titles(Row::new(
+            ["Command Id", "Exit Status", "Log File"]
+                .iter()
+                .map(|x| Cell::new(x))
+                .collect::<Vec<_>>(),
+        ));
+
+        for r in results {
+            table.add_row(Row::new(vec![
+                Cell::new(&r.id),
+                Cell::new(&format!("{:?}", r.exit_status)),
+                Cell::new(&format!("{}", r.log.to_str().unwrap_or_else(|| "- n/a -"))),
+            ]));
+        }
+
+        table.print(writer).chain_err(|| ErrorKind::OutputFailed)
+    }
+}
+
+impl TableOutputCommandResults {
+    fn filter_results<'a>(results: &'a[CommandResult], show_all: bool) -> Vec<&CommandResult> {
+        if show_all {
+            info!("Outputting all result.");
+            results.iter().filter(|_| true).collect()
+        } else {
+            info!("Outputting only failed result.");
+            results.iter().filter(|x| x.exit_status != ExitStatus::Exited(0)).collect()
+        }
     }
 }
 

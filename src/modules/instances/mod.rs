@@ -5,6 +5,7 @@ use run_config::RunConfig;
 use modules::*;
 
 mod list;
+mod run;
 mod ssh;
 mod terminate;
 
@@ -17,6 +18,7 @@ impl Module for Instances {
         SubCommand::with_name(NAME)
             .about("Do stuff with instances")
             .subcommand(list::List::build_sub_cli())
+            .subcommand(run::Run::build_sub_cli())
             .subcommand(ssh::Ssh::build_sub_cli())
             .subcommand(terminate::Terminate::build_sub_cli())
     }
@@ -28,6 +30,11 @@ impl Module for Instances {
             .ok_or_else(|| ErrorKind::NoSubcommandSpecified(NAME.to_string()))?;
         match subcommand_name {
             list::NAME => list::List::call(
+                subcommand.subcommand_matches(subcommand_name),
+                run_config,
+                config,
+            ).chain_err(|| ErrorKind::ModuleFailed(NAME.to_string())),
+            run::NAME => run::Run::call(
                 subcommand.subcommand_matches(subcommand_name),
                 run_config,
                 config,

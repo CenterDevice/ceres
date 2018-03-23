@@ -77,6 +77,34 @@ The *instances* modules interacts with instances in the environment selected by 
 
     BlockDeviceMappings, Hypervisor, IamInstanceProfile, ImageId, InstanceId, InstanceType, LaunchTime, Monitoring, Placement, PrivateDnsName, PrivateIpAddress, PublicDnsName, PublicIpAddress, RootDeviceName, RootDeviceType, SecurityGroups, State, StateReason, Tags(_), VirtualizationType, VpcId
 
+### instances run [*options*] *INSTANCE_ID* ... [-- *COMMAND_ARGS ...*]
+
+  *instances run* connects to multiple instance and runs a single command on each instance. By default, the instances' private IP addresses are used. The remote login name is read from the corresponding profile configuration in the configuration file, or set as option, or the local user name is used. The difference of this command compared to *instances ssh* is that this command logs all output to separate files instead of printing to all output to the console.
+
+  *INSTANCE_ID ...*
+  : Sets the instance ids to connect to.
+
+  *COMMAND_ARGS ...*
+  : Sets the command and its arguments to execute on the remote instance. These have to be that last argument which requires a prefixing *--*.
+
+  -l, --login-name *login-name*
+  : Sets remote login name
+
+  --no-progress-bar
+  : Do not show progress bar during command execution. This is useful for non-interactive sessions.
+
+  -p, --public-ip
+  : Use public IP address of instance
+
+  --show-all
+  : Show all command results. By default show only results of failed commands.
+
+  --ssh-opt *ssh-opts* ...
+  : Passes an option to ssh. This may be used multiple times.
+
+  --timeout *timeout*
+  : Sets the timeout in sec for command to finish. Default is 300 sec.
+
 ### instances ssh [*options*] *INSTANCE_ID* [-- *COMMAND_ARGS ...*]
 
   *instances ssh* connects to an instance and either opens an interactive shell or runs a single command. By default, the instance' private IP address is used. The remote login name is read from the corresponding profile configuration in the configuration file, or set as option, or the local user name is used.

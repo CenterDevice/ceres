@@ -3,8 +3,8 @@ use std::str::FromStr;
 pub mod json_output;
 pub mod table_output;
 
-pub use self::json_output::{JsonOutputInstances, JsonOutputStateChanges};
-pub use self::table_output::{TableOutputInstances, TableOutputStatusChanges};
+pub use self::json_output::{JsonOutputCommandResults, JsonOutputInstances, JsonOutputStateChanges};
+pub use self::table_output::{TableOutputCommandResults, TableOutputInstances, TableOutputStatusChanges};
 
 pub enum OutputType {
     Json,

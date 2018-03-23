@@ -1,7 +1,9 @@
 extern crate clap;
+extern crate colored;
 #[macro_use]
 extern crate error_chain;
 extern crate fern;
+extern crate indicatif;
 #[macro_use]
 extern crate log;
 extern crate prettytable;
@@ -15,14 +17,14 @@ extern crate serde;
 extern crate serde_derive;
 extern crate serde_json;
 extern crate subprocess;
+extern crate tail;
+extern crate tempfile;
 extern crate toml;
 
 #[cfg(test)]
 extern crate quickcheck;
 #[cfg(test)]
 extern crate spectral;
-#[cfg(test)]
-extern crate tempfile;
 
 pub mod config;
 pub mod modules;
