@@ -1,4 +1,5 @@
 use clap::{App, Arg, ArgMatches, SubCommand};
+use colored::Colorize;
 
 use config::{Config, Provider};
 use run_config::RunConfig;
@@ -78,8 +79,7 @@ fn terminate_instances(
 
     match (dry, yes) {
         (true, _) => {
-            // TODO: Make this a log output
-            println!("Running in dry mode -- no changes will be executed.");
+            println!("{}", "Running in dry mode -- no changes will be executed.".yellow());
         }
         (false, false) => {
             if !ask_for_yes_from_stdin(
