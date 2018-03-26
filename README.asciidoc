@@ -33,20 +33,20 @@ cargo install
 
 == Use Cases
 
+=== List AWS EC2 instances
+
+[source,bash]
+----
+ceres --config ~/.ceres.conf --profile staging@cd instances list -o [humon|json] --output-options=InstanceId,Tags=Name:AnsibleHostGroup,State --filter 'Instance=i-.*,Tags=Name:AnsibleHostGroup=batch_.*,State=stopped'
+----
+
 === Run Remote Command
 
 The difference of this command compared to <<ssh>> command is that this command logs all output to separate files instead of printing to all output to the console.
 
 [source,bash]
 ----
-ceres --config ~/.ceres.conf --profile staging@cd instances run --terminal --[no]-progress --log log-dir i-123456789 i-987654321 -- ls /
-----
-
-=== List AWS EC2 instances
-
-[source,bash]
-----
-ceres --config ~/.ceres.conf --profile staging@cd instances list -o [humon|json] --output-options=InstanceId,Tags=Name:AnsibleHostGroup,State --filter 'Instance=i-.*,Tags=Name:AnsibleHostGroup=batch_.*,State=stopped'
+ceres --config ~/.ceres.conf --profile staging@cd instances run --show-all --public-ip ssh-opt="-t" --no-progress-bar i-123456789 i-987654321 -- ls /
 ----
 
 === Ssh to AWS EC2 instances
