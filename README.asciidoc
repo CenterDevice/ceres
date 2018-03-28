@@ -33,14 +33,16 @@ cargo install
 
 == Use Cases
 
-=== List AWS EC2 instances
+=== Instances
+
+==== List AWS EC2 instances
 
 [source,bash]
 ----
 ceres --config ~/.ceres.conf --profile staging@cd instances list -o [humon|json] --output-options=InstanceId,Tags=Name:AnsibleHostGroup,State --filter 'Instance=i-.*,Tags=Name:AnsibleHostGroup=batch_.*,State=stopped'
 ----
 
-=== Run Remote Command
+==== Run Remote Command
 
 The difference of this command compared to <<ssh>> command is that this command logs all output to separate files instead of printing to all output to the console.
 
@@ -49,16 +51,16 @@ The difference of this command compared to <<ssh>> command is that this command 
 ceres --config ~/.ceres.conf --profile staging@cd instances run --show-all --public-ip ssh-opt="-t" --no-progress-bar i-123456789 i-987654321 -- ls /
 ----
 
-=== Ssh to AWS EC2 instances
+==== Ssh to AWS EC2 instances
 
-==== Open interactive shell
+===== Open interactive shell
 
 [source,bash]
 ----
 ceres --config ~/.ceres.conf --profile staging@cd instances ssh --public-ip --ssh-opt="-t" i-123456789
 ----
 
-==== Run command on instance
+===== Run command on instance
 [[ssh]]
 
 [source,bash]
@@ -66,11 +68,27 @@ ceres --config ~/.ceres.conf --profile staging@cd instances ssh --public-ip --ss
 ceres --config ~/.ceres.conf --profile staging@cd instances ssh i-123456789 -- ls /
 ----
 
-=== Terminate AWS EC2 instances
+==== Terminate AWS EC2 instances
 
 [source,bash]
 ----
 ceres --config ~/.ceres.conf --profile staging@cd instances terminate -o [humon|json] i-123456789 i-123456798
+----
+
+== Ops
+
+=== Create Ops Issue
+
+[source,bash]
+----
+ceres --config ~/.ceres.conf --profile staging@cd ops issues create --interactive -f ops_issue.md
+----
+
+=== Open Ops Issues in Webbrowser
+
+[source,bash]
+----
+ceres --config ~/.ceres.conf --profile staging@cd ops issues browse
 ----
 
 == Todos
