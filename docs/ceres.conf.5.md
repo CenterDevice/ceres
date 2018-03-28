@@ -40,6 +40,11 @@ project_number = "\<number of corresponding github project\>"
 
 *role_arn* = "\<role arn/>"
 
+[profiles."\<profile name\>".consul]
+
+urls = ["\<URL to your consul server or agent\>", ...]
+
+
 
 # SEE ALSO
   ceres(1)

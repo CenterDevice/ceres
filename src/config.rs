@@ -64,6 +64,7 @@ pub struct Profile {
     pub ssh_user: Option<String>,
     pub issue_tracker: IssueTracker,
     pub provider: Provider,
+    pub consul: Consul,
 }
 
 #[derive(Debug, Serialize, Deserialize, PartialEq)]
@@ -79,6 +80,11 @@ pub struct IssueTracker {
 pub enum Provider {
     #[serde(rename = "aws")]
     Aws(provider::aws::Aws),
+}
+
+#[derive(Debug, Serialize, Deserialize, PartialEq)]
+pub struct Consul {
+    pub urls: Vec<String>,
 }
 
 error_chain! {
@@ -116,10 +122,14 @@ mod tests {
             project_number: 1,
             default_issue_template: "some markdown file.md".to_owned(),
         };
+        let consul = Consul {
+            urls: vec!["http://localhost:8500".to_owned(), "http://127.0.0.1:8500".to_owned()],
+        };
         let prod_profile = Profile {
             ssh_user: Some("a_user".to_owned()),
             issue_tracker,
             provider: Provider::Aws(aws_provider),
+            consul,
         };
         let mut profiles = HashMap::new();
         profiles.insert("prod".to_owned(), prod_profile);
@@ -137,6 +147,7 @@ mod tests {
             profiles,
         };
         let toml = toml::to_string(&config).unwrap();
+        eprintln!("toml = {}", toml);
 
         let re_config: Config = toml::from_str(&toml).unwrap();
 

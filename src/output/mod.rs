@@ -1,5 +1,6 @@
 use std::str::FromStr;
 
+pub mod consul;
 pub mod instances;
 
 pub enum OutputType {
