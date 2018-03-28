@@ -10,8 +10,8 @@ use tempfile;
 
 use config::{Config, Provider};
 use modules::*;
-use output::OutputCommandResults;
-use output::instances::{JsonOutputCommandResults, OutputType, TableOutputCommandResults};
+use output::OutputType;
+use output::instances::{JsonOutputCommandResults, OutputCommandResults, TableOutputCommandResults};
 use provider::{DescribeInstance, InstanceDescriptor};
 use run_config::RunConfig;
 use utils::FileExt;

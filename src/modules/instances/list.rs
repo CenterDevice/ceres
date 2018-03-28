@@ -3,8 +3,8 @@ use clap::{App, Arg, ArgMatches, SubCommand};
 use config::{Config, Provider};
 use run_config::RunConfig;
 use modules::*;
-use output::OutputInstances;
-use output::instances::{JsonOutputInstances, OutputType, TableOutputInstances};
+use output::OutputType;
+use output::instances::{JsonOutputInstances, OutputInstances, TableOutputInstances};
 use provider::{DescribeInstances, InstanceDescriptor, InstanceDescriptorFields};
 
 pub const NAME: &str = "list";

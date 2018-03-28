@@ -7,7 +7,7 @@ use std::io::Write;
 use utils::command::ExitStatus;
 
 use provider::{InstanceDescriptor, InstanceDescriptorFields, StateChange};
-use output::*;
+use output::instances::*;
 use utils::command::CommandResult;
 
 pub struct TableOutputInstances {

@@ -1,6 +1,6 @@
 use serde_json;
 
-use output::*;
+use output::instances::*;
 use provider::{InstanceDescriptor, StateChange};
 use utils::command::CommandResult;
 

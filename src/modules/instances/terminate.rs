@@ -4,8 +4,8 @@ use colored::Colorize;
 use config::{Config, Provider};
 use run_config::RunConfig;
 use modules::*;
-use output::OutputStateChanges;
-use output::instances::{JsonOutputStateChanges, OutputType, TableOutputStatusChanges};
+use output::OutputType;
+use output::instances::{JsonOutputStateChanges, OutputStateChanges, TableOutputStatusChanges};
 use provider::{StateChange, TerminateInstances};
 use utils::ask_for_yes_from_stdin;
 

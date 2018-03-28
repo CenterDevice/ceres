@@ -1,4 +1,8 @@
-use std::str::FromStr;
+use std::io::Write;
+
+use provider::{InstanceDescriptor, StateChange};
+use output::*;
+use utils::command::CommandResult;
 
 pub mod json_output;
 pub mod table_output;
@@ -6,30 +10,15 @@ pub mod table_output;
 pub use self::json_output::{JsonOutputCommandResults, JsonOutputInstances, JsonOutputStateChanges};
 pub use self::table_output::{TableOutputCommandResults, TableOutputInstances, TableOutputStatusChanges};
 
-pub enum OutputType {
-    Json,
-    Human,
+pub trait OutputInstances {
+    fn output<T: Write>(&self, writer: &mut T, instances: &[InstanceDescriptor]) -> Result<()>;
 }
 
-impl FromStr for OutputType {
-    type Err = Error;
-
-    fn from_str(s: &str) -> ::std::result::Result<Self, Self::Err> {
-        match s.to_owned().to_uppercase().as_ref() {
-            "JSON" => Ok(OutputType::Json),
-            "HUMAN" => Ok(OutputType::Human),
-            _ => Err(Error::from_kind(ErrorKind::OutputParsingFailed(
-                s.to_owned(),
-            ))),
-        }
-    }
+pub trait OutputStateChanges {
+    fn output<T: Write>(&self, writer: &mut T, state_changes: &[StateChange]) -> Result<()>;
 }
 
-error_chain! {
-    errors {
-        OutputParsingFailed(s: String) {
-            description("Failed to parse Output from String.")
-            display("Failed to parse Output from String '{}'.", s)
-        }
-    }
+pub trait OutputCommandResults {
+    fn output<T: Write>(&self, writer: &mut T, results: &[CommandResult]) -> Result<()>;
 }
+
