@@ -33,6 +33,13 @@ cargo install
 
 == Use Cases
 
+=== Consul
+
+[source,bash]
+----
+ceres --config ~/.ceres.conf --profile staging@cd consul list -o [humon|json] --output-options=Meta:ec2_instance_id --service mongo-config,mongo --tags centerdevice
+----
+
 === Instances
 
 ==== List AWS EC2 instances
@@ -93,5 +100,8 @@ ceres --config ~/.ceres.conf --profile staging@cd ops issues browse [--project]
 
 == Todos
 
-* [ ] Add Changelog
+* [ ] Add Changelog.
+* [ ] Add reason field to ModuleFailed error.
+* [ ] Move logic out of Modules into testable modules, e.g., ops issues create.
+* [ ] Generalize modules with macro to reduce boilerplate code.
 
