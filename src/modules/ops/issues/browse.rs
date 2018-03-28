@@ -47,4 +47,3 @@ fn do_call(args: &ArgMatches, run_config: &RunConfig, config: &Config) -> Result
 
     Ok(())
 }
-

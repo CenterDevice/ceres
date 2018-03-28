@@ -81,14 +81,14 @@ ceres --config ~/.ceres.conf --profile staging@cd instances terminate -o [humon|
 
 [source,bash]
 ----
-ceres --config ~/.ceres.conf --profile staging@cd ops issues create --interactive -f ops_issue.md
+ceres --config ~/.ceres.conf --profile staging@cd ops issues create --interactive --template ops_issue.md --filename ops_issue.md --label aws,cluster_b --show-in-browser -t "This is an issue"
 ----
 
 === Open Ops Issues in Webbrowser
 
 [source,bash]
 ----
-ceres --config ~/.ceres.conf --profile staging@cd ops issues browse
+ceres --config ~/.ceres.conf --profile staging@cd ops issues browse [--project]
 ----
 
 == Todos

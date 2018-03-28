@@ -12,6 +12,10 @@ default = "warn"
 
 ceres = "info"
 
+[github]
+
+token = "\< your github token \>"
+
 [profiles."\<profile name\>"]
 
 ssh_user = "\<a user name\>"

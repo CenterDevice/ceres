@@ -9,6 +9,7 @@ use provider;
 #[derive(Debug, Default, Serialize, Deserialize, PartialEq)]
 pub struct Config {
     pub default_profile: String,
+    pub github: GitHub,
     pub logging: Logging,
     pub profiles: HashMap<String, Profile>,
 }
@@ -53,6 +54,11 @@ pub struct Logging {
     pub ceres: String,
 }
 
+#[derive(Debug, Default, Serialize, Deserialize, PartialEq)]
+pub struct GitHub {
+    pub token: String,
+}
+
 #[derive(Debug, Serialize, Deserialize, PartialEq)]
 pub struct Profile {
     pub ssh_user: Option<String>,
@@ -65,6 +71,7 @@ pub struct IssueTracker {
     pub github_org: String,
     pub github_repo: String,
     pub project_number: u64,
+    pub default_issue_template: String,
 }
 
 #[derive(Debug, Serialize, Deserialize, PartialEq)]
@@ -107,6 +114,7 @@ mod tests {
             github_org: "MyOrg".to_owned(),
             github_repo: "MyRepo".to_owned(),
             project_number: 1,
+            default_issue_template: "some markdown file.md".to_owned(),
         };
         let prod_profile = Profile {
             ssh_user: Some("a_user".to_owned()),
@@ -119,9 +127,13 @@ mod tests {
             default: "warn".to_owned(),
             ceres: "info".to_owned(),
         };
+        let github = GitHub {
+            token: "a github token".to_owned()
+        };
         let config = Config {
             default_profile: "prod".to_owned(),
             logging,
+            github,
             profiles,
         };
         let toml = toml::to_string(&config).unwrap();

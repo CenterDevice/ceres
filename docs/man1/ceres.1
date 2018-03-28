@@ -268,6 +268,44 @@ browser.
 Opens the corresponding ops issues project instead of the issues list.
 .RS
 .RE
+.SS ops issues create [\f[I]options\f[]]
+.PP
+\f[I]ops issues create\f[] creates a new ops issue either from a file or
+using your default \f[I]$EDITOR\f[] pre\-filled from a template.
+.TP
+.B \-i, \[en]interactive
+Opens $EDITOR to write issue contents using \f[I]template\f[] from
+config setting or set via \f[I]\[en]template\f[].
+This setting conflicts with \f[I]\-f\f[].
+.RS
+.RE
+.TP
+.B \[en]show\-in\-browser
+Opens newly created issue in web browser.
+.RS
+.RE
+.TP
+.B \-f, \[en]filename \f[I]filename\f[]
+Sets file name of markdown file to fill issue with.
+This option conflicts with \f[I]\-i\f[].
+.RS
+.RE
+.TP
+.B \-l, \[en]label \f[I]label\f[] \&...
+Sets labels for new issue.
+.RS
+.RE
+.TP
+.B \[en]template \f[I]template\f[]
+Uses this template to pre\-fill editor; defaults to config setting.
+This option conflicts with \f[I]\-f\f[].
+.RS
+.RE
+.TP
+.B \-t, \[en]title \f[I]title\f[]
+Sets title for issue.
+.RS
+.RE
 .SH SHELL COMPLETION
 .TP
 .B completions \[en]shell \f[I]shell\f[]

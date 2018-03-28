@@ -153,6 +153,29 @@ The *ops* modules include various ops related commands to ease regular ops tasks
   : Opens the corresponding ops issues project instead of the issues list.
 
 
+### ops issues create [*options*]
+
+  *ops issues create* creates a new ops issue either from a file or using your default *$EDITOR* pre-filled from a template.
+
+  -i, --interactive
+  : Opens $EDITOR to write issue contents using *template* from config setting or set via *--template*. This setting conflicts with *-f*.
+
+  --show-in-browser
+  : Opens newly created issue in web browser.
+
+  -f, --filename *filename*
+  : Sets file name of markdown file to fill issue with. This option conflicts with *-i*.
+
+  -l, --label *label* ...
+  : Sets labels for new issue.
+
+  --template *template*
+  : Uses this template to pre-fill editor; defaults to config setting. This option conflicts with *-f*.
+
+  -t, --title *title*
+  : Sets title for issue.
+
+
 # SHELL COMPLETION
 
 completions --shell *shell*

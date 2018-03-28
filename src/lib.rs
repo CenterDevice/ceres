@@ -3,6 +3,7 @@ extern crate colored;
 #[macro_use]
 extern crate error_chain;
 extern crate fern;
+extern crate hubcaps;
 extern crate indicatif;
 #[macro_use]
 extern crate log;
@@ -19,6 +20,7 @@ extern crate serde_json;
 extern crate subprocess;
 extern crate tail;
 extern crate tempfile;
+extern crate tokio_core;
 extern crate toml;
 extern crate webbrowser;
 
