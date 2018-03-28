@@ -16,6 +16,14 @@ ceres = "info"
 
 ssh_user = "\<a user name\>"
 
+[profiles."\<profile name\>".issue_tracker]
+
+github_org = "\<your github org\>"
+
+github_repo = "\<your github repo\>"
+
+project_number = "\<number of corresponding github project\>"
+
 [profiles."\<profile name\>".provider]
 
 *type* = "aws"

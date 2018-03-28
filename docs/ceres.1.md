@@ -140,6 +140,19 @@ The *instances* modules interacts with instances in the environment selected by 
   --yes-i-really-really-mean-it
   : Don't ask for confirmation and terminate instances immediately.
 
+## OPS
+
+The *ops* modules include various ops related commands to ease regular ops tasks.
+
+
+### ops issues browse [*options*]
+
+  *ops issues browse* opens the GitHub ops issues your default web browser.
+
+  -p, --project
+  : Opens the corresponding ops issues project instead of the issues list.
+
+
 # SHELL COMPLETION
 
 completions --shell *shell*

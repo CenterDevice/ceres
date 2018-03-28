@@ -9,8 +9,8 @@ use clap::{App, AppSettings, Arg, ArgMatches, Shell, SubCommand};
 use std::env;
 use std::path::Path;
 
-use ceres::modules::{self, Module};
 use ceres::config::Config;
+use ceres::modules;
 use ceres::run_config::RunConfig;
 use ceres::utils;
 
@@ -84,7 +84,7 @@ fn build_cli() -> App<'static, 'static> {
     let version = env!("CARGO_PKG_VERSION");
     let about = env!("CARGO_PKG_DESCRIPTION");
 
-    App::new(name)
+    let general = App::new(name)
         .setting(AppSettings::SubcommandRequired)
         .version(version)
         .about(about)
@@ -117,8 +117,9 @@ fn build_cli() -> App<'static, 'static> {
                     .hidden(true)
                     .help("The shell to generate the script for"),
             ),
-        )
-        .subcommand(modules::instances::Instances::build_sub_cli())
+        );
+
+    modules::build_sub_cli(general)
 }
 
 fn load_config<T: AsRef<Path>>(file_path: T) -> Result<Config> {

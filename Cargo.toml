@@ -27,6 +27,7 @@ subprocess = "^0.1"
 tail = "^0.3"
 tempfile = "^2"
 toml = "^0.4"
+webbrowser = "^0.2"
 
 [dev-dependencies]
 quickcheck = "^0.6"

@@ -20,6 +20,7 @@ extern crate subprocess;
 extern crate tail;
 extern crate tempfile;
 extern crate toml;
+extern crate webbrowser;
 
 #[cfg(test)]
 extern crate quickcheck;

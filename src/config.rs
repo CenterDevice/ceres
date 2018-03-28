@@ -56,7 +56,15 @@ pub struct Logging {
 #[derive(Debug, Serialize, Deserialize, PartialEq)]
 pub struct Profile {
     pub ssh_user: Option<String>,
+    pub issue_tracker: IssueTracker,
     pub provider: Provider,
+}
+
+#[derive(Debug, Serialize, Deserialize, PartialEq)]
+pub struct IssueTracker {
+    pub github_org: String,
+    pub github_repo: String,
+    pub project_number: u64,
 }
 
 #[derive(Debug, Serialize, Deserialize, PartialEq)]
@@ -95,18 +103,24 @@ mod tests {
             region: Region::EuCentral1,
             role_arn: String::from("a_role_arn"),
         };
+        let issue_tracker = IssueTracker {
+            github_org: "MyOrg".to_owned(),
+            github_repo: "MyRepo".to_owned(),
+            project_number: 1,
+        };
         let prod_profile = Profile {
             ssh_user: Some("a_user".to_owned()),
+            issue_tracker,
             provider: Provider::Aws(aws_provider),
         };
         let mut profiles = HashMap::new();
-        profiles.insert("prod@cd".to_owned(), prod_profile);
+        profiles.insert("prod".to_owned(), prod_profile);
         let logging = Logging {
             default: "warn".to_owned(),
             ceres: "info".to_owned(),
         };
         let config = Config {
-            default_profile: "prod@cd".to_owned(),
+            default_profile: "prod".to_owned(),
             logging,
             profiles,
         };
