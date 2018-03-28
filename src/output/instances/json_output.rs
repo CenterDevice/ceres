@@ -2,6 +2,7 @@ use serde_json;
 
 use output::*;
 use provider::{InstanceDescriptor, StateChange};
+use utils::command::CommandResult;
 
 pub struct JsonOutputInstances;
 
@@ -16,5 +17,13 @@ pub struct JsonOutputStateChanges;
 impl OutputStateChanges for JsonOutputStateChanges {
     fn output<T: Write>(&self, writer: &mut T, state_changes: &[StateChange]) -> Result<()> {
         serde_json::to_writer_pretty(writer, state_changes).chain_err(|| ErrorKind::OutputFailed)
+    }
+}
+
+pub struct JsonOutputCommandResults;
+
+impl OutputCommandResults for JsonOutputCommandResults {
+    fn output<T: Write>(&self, writer: &mut T, results: &[CommandResult]) -> Result<()> {
+        serde_json::to_writer_pretty(writer, results).chain_err(|| ErrorKind::OutputFailed)
     }
 }

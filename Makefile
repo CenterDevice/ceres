@@ -15,11 +15,8 @@ test:
 use_case_tests: use_cases
 	make -C $<
 
-docs: doctoc man
+docs: man
 	
-doctoc: README.md
-	doctoc $<
-
 man:
 	$(MAKE) -C docs
 

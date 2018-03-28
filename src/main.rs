@@ -73,6 +73,8 @@ fn run() -> Result<()> {
     let run_config = RunConfig {
         active_profile: args.value_of("profile").unwrap().to_owned(), // Safe unwrap
     };
+    info!("Active profile={}, default profile={}",
+          run_config.active_profile, config.default_profile);
 
     modules::call(&args, &run_config, &config).map_err(|e| e.into())
 }

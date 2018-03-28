@@ -128,6 +128,64 @@ The available options are:
 BlockDeviceMappings,\ Hypervisor,\ IamInstanceProfile,\ ImageId,\ InstanceId,\ InstanceType,\ LaunchTime,\ Monitoring,\ Placement,\ PrivateDnsName,\ PrivateIpAddress,\ PublicDnsName,\ PublicIpAddress,\ RootDeviceName,\ RootDeviceType,\ SecurityGroups,\ State,\ StateReason,\ Tags(_),\ VirtualizationType,\ VpcId
 \f[]
 .fi
+.SS instances run [\f[I]options\f[]] \f[I]INSTANCE_ID\f[] \&... [\[en]
+\f[I]COMMAND_ARGS \&...\f[]]
+.PP
+\f[I]instances run\f[] connects to multiple instance and runs a single
+command on each instance.
+By default, the instances' private IP addresses are used.
+The remote login name is read from the corresponding profile
+configuration in the configuration file, or set as option, or the local
+user name is used.
+The difference of this command compared to \f[I]instances ssh\f[] is
+that this command logs all output to separate files instead of printing
+to all output to the console.
+.TP
+.B \f[I]INSTANCE_ID \&...\f[]
+Sets the instance ids to connect to.
+.RS
+.RE
+.TP
+.B \f[I]COMMAND_ARGS \&...\f[]
+Sets the command and its arguments to execute on the remote instance.
+These have to be that last argument which requires a prefixing
+\f[I]\[en]\f[].
+.RS
+.RE
+.TP
+.B \-l, \[en]login\-name \f[I]login\-name\f[]
+Sets remote login name
+.RS
+.RE
+.TP
+.B \[en]no\-progress\-bar
+Do not show progress bar during command execution.
+This is useful for non\-interactive sessions.
+.RS
+.RE
+.TP
+.B \-p, \[en]public\-ip
+Use public IP address of instance
+.RS
+.RE
+.TP
+.B \[en]show\-all
+Show all command results.
+By default show only results of failed commands.
+.RS
+.RE
+.TP
+.B \[en]ssh\-opt \f[I]ssh\-opts\f[] \&...
+Passes an option to ssh.
+This may be used multiple times.
+.RS
+.RE
+.TP
+.B \[en]timeout \f[I]timeout\f[]
+Sets the timeout in sec for command to finish.
+Default is 300 sec.
+.RS
+.RE
 .SS instances ssh [\f[I]options\f[]] \f[I]INSTANCE_ID\f[] [\[en]
 \f[I]COMMAND_ARGS \&...\f[]]
 .PP
