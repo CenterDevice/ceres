@@ -121,13 +121,16 @@ fn output_changes(
             output
                 .output(&mut stdout, state_changes)
                 .chain_err(|| ErrorKind::ModuleFailed(String::from(NAME)))
-        }
+        },
         OutputType::Json => {
             let output = JsonOutputStateChanges;
 
             output
                 .output(&mut stdout, state_changes)
                 .chain_err(|| ErrorKind::ModuleFailed(String::from(NAME)))
+        },
+        OutputType::Plain => {
+            unimplemented!("'Plain' output is not supported for this module");
         }
     }
 }

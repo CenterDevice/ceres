@@ -314,6 +314,9 @@ fn output_results(
             output
                 .output(&mut stdout, results)
                 .chain_err(|| ErrorKind::ModuleFailed(String::from(NAME)))
+        },
+        OutputType::Plain => {
+            unimplemented!("'Plain' output is not supported for this module");
         }
     }
 }

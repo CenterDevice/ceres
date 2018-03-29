@@ -122,13 +122,16 @@ fn output_instances(
             output
                 .output(&mut stdout, instances)
                 .chain_err(|| ErrorKind::ModuleFailed(String::from(NAME)))
-        }
+        },
         OutputType::Json => {
             let output = JsonOutputInstances;
 
             output
                 .output(&mut stdout, instances)
                 .chain_err(|| ErrorKind::ModuleFailed(String::from(NAME)))
+        },
+        OutputType::Plain => {
+            unimplemented!("'Plain' output is not supported for this module");
         }
     }
 }

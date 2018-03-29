@@ -4,8 +4,9 @@ pub mod consul;
 pub mod instances;
 
 pub enum OutputType {
-    Json,
     Human,
+    Json,
+    Plain,
 }
 
 impl FromStr for OutputType {
@@ -13,8 +14,9 @@ impl FromStr for OutputType {
 
     fn from_str(s: &str) -> ::std::result::Result<Self, Self::Err> {
         match s.to_owned().to_uppercase().as_ref() {
-            "JSON" => Ok(OutputType::Json),
             "HUMAN" => Ok(OutputType::Human),
+            "JSON" => Ok(OutputType::Json),
+            "PLAIN" => Ok(OutputType::Plain),
             _ => Err(Error::from_kind(ErrorKind::OutputParsingFailed(
                 s.to_owned(),
             ))),
