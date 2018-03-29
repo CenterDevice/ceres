@@ -1,7 +1,7 @@
 all: check build test
 
 todos:
-	rg -g '!Makefile' -i todo 
+	rg --vimgrep -g '!Makefile' -i todo 
 
 check:
 	cargo check
