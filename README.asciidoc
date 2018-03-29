@@ -28,7 +28,7 @@ cargo install
 
 == Configuration
 
-`ceres` requires a configuration file in order to load profiles. By default, `ceres` tries to read `~/.ceres.conf`. See [example](examples/ceres.conf) for an example configuration.
+`ceres` requires a configuration file in order to load profiles. By default, `ceres` tries to read `~/.ceres.conf`. See this link:examples/ceres.conf[example] for an example configuration.
 
 
 == Use Cases
