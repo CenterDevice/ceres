@@ -4,8 +4,9 @@ use service_world::consul::{Consul, Catalog};
 use config::Config;
 use run_config::RunConfig;
 use modules::*;
+use modules::consul::NodeField;
 use output::OutputType;
-use output::consul::{JsonOutputCatalogResult, OutputCatalogResult};
+use output::consul::{JsonOutputCatalogResult, OutputCatalogResult, TableOutputCatalogResult};
 
 pub const NAME: &str = "list";
 
@@ -102,8 +103,23 @@ fn output_instances(
 
     match output_type {
         OutputType::Human => {
-            eprintln!("{:?}", catalog);
-            unimplemented!();
+            let opts = args.value_of("output-options").unwrap(); // Safe unwrap
+            let output = if opts.contains("all") {
+                Default::default()
+            } else {
+                let fields: ::std::result::Result<Vec<_>, _> = args.value_of("output-options").unwrap() // Safe unwrap
+                    .split(',')
+                    .map(|s| s.parse::<NodeField>())
+                    .collect();
+                let fields =
+                    fields.map_err(|e| Error::with_chain(e, ErrorKind::ModuleFailed(NAME.to_owned())))?;
+                TableOutputCatalogResult { fields }
+            };
+            debug!("output = {:?}", output.fields);
+
+            output
+                .output(&mut stdout, catalog)
+                .chain_err(|| ErrorKind::ModuleFailed(String::from(NAME)))
         }
         OutputType::Json => {
             let output = JsonOutputCatalogResult;
