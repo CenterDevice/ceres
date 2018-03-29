@@ -12,7 +12,11 @@ toc::[]
 
 `brew install lukaspustina/os/ceres --HEAD`
 
+Attention: Due to a incompatibility between Rust and brew, this installation method currently does not work reliably. If you encounter a compiler error, please use cargo to install ceres.
+
 === Cargo
+
+First install https://www.rustup.rs[Rustup] to install a Rust compiler.
 
 `cargo install ceres --git https://github.com/lukaspustina/ceres`
 
