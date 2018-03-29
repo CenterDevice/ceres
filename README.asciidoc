@@ -37,7 +37,7 @@ cargo install
 
 [source,bash]
 ----
-ceres --config ~/.ceres.conf --profile staging@cd consul list -o [humon|json] --output-options=Meta:ec2_instance_id --service mongo-config,mongo --tags centerdevice
+ceres --config ~/.ceres.conf --profile staging@cd consul list -o [humon|json|plain] --output-options=MetaData:ec2_instance_id --service mongo-config,mongo --tags centerdevice
 ----
 
 === Instances

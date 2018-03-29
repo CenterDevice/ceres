@@ -46,9 +46,36 @@ The project home page currently *https://github.com/lukaspustina/ceres*.
 Currently, there is only one module called *instances*.
 
 
+## CONSUL
+
+The *consul* modules interacts with the consul cluster in the environment selected by the profile to use.
+
+### consul list [*options*]
+
+  *consul list* shows all currently active nodes and their services. Nodes can be filtered by service names and service tags. The output can be controlled to allow for human readable format as well as plain or JSON format for post-processing.
+
+  -o, --output *output*
+  : Selects output format. The default is *human* and the possible values are: 
+    
+    human, json, plain
+
+  --output-options *output-options*
+  : Selects the nodes description fields for human and plain output. The special description field *MetaData* may take a list of concrete meta data tags to show. The corresponding syntax is the same as for *instance list* output option's Tag. There is a shortcut to select all fields by using the field *all*.
+
+  The available description fields are:
+
+    Id, Name, MetaData(_), Address, ServicePort, ServiceTags, ServiceId, ServiceName, Healthy
+
+  -s, --services *services*...
+  : Filters services for specific service names.
+
+  -t, --tags *tags*...
+  : Filters services for specific tags.
+
+
 ## INSTANCES 
 
-The *instances* modules interacts with instances in the environment selected by the profile to use. Currently the only command supported is *list*.
+The *instances* modules interacts with instances in the environment selected by the profile to use.
 
 ### instances list [*options*]
 

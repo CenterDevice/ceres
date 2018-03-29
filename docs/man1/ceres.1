@@ -55,11 +55,58 @@ Prints version information.
 .SH MODULES
 .PP
 Currently, there is only one module called \f[I]instances\f[].
+.SS CONSUL
+.PP
+The \f[I]consul\f[] modules interacts with the consul cluster in the
+environment selected by the profile to use.
+.SS consul list [\f[I]options\f[]]
+.PP
+\f[I]consul list\f[] shows all currently active nodes and their
+services.
+Nodes can be filtered by service names and service tags.
+The output can be controlled to allow for human readable format as well
+as plain or JSON format for post\-processing.
+.TP
+.B \-o, \[en]output \f[I]output\f[]
+Selects output format.
+The default is \f[I]human\f[] and the possible values are:
+.RS
+.PP
+human, json, plain
+.RE
+.TP
+.B \[en]output\-options \f[I]output\-options\f[]
+Selects the nodes description fields for human and plain output.
+The special description field \f[I]MetaData\f[] may take a list of
+concrete meta data tags to show.
+The corresponding syntax is the same as for \f[I]instance list\f[]
+output option's Tag.
+There is a shortcut to select all fields by using the field
+\f[I]all\f[].
+.RS
+.RE
+.PP
+The available description fields are:
+.IP
+.nf
+\f[C]
+Id,\ Name,\ MetaData(_),\ Address,\ ServicePort,\ ServiceTags,\ ServiceId,\ ServiceName,\ Healthy
+\f[]
+.fi
+.TP
+.B \-s, \[en]services \f[I]services\f[]\&...
+Filters services for specific service names.
+.RS
+.RE
+.TP
+.B \-t, \[en]tags \f[I]tags\f[]\&...
+Filters services for specific tags.
+.RS
+.RE
 .SS INSTANCES
 .PP
 The \f[I]instances\f[] modules interacts with instances in the
 environment selected by the profile to use.
-Currently the only command supported is \f[I]list\f[].
 .SS instances list [\f[I]options\f[]]
 .PP
 \f[I]instances list\f[] shows all currently active instances.
