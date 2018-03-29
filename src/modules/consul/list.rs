@@ -47,7 +47,7 @@ impl Module for List {
                 Arg::with_name("output-options")
                     .long("output-options")
                     .takes_value(true)
-                    .default_value("all")
+                    .default_value("Name,Address,MetaData:ec2_instance_id,ServicePort,ServiceTags,ServiceName,Healthy")
                     .help("Selects the nodes description fields for human output"),
             )
     }

@@ -41,6 +41,7 @@ pub enum NodeField {
     ServiceTags,
     ServiceId,
     ServiceName,
+    Healthy,
 }
 
 
@@ -60,6 +61,7 @@ impl FromStr for NodeField {
             "ServiceTags" => Ok(NodeField::ServiceTags),
             "ServiceId" => Ok(NodeField::ServiceTags),
             "ServiceName" => Ok(NodeField::ServiceName),
+            "Healthy" => Ok(NodeField::Healthy),
             _ => Err(Error::from_kind(ErrorKind::ModuleFailed(NAME.to_owned())))
         }
     }

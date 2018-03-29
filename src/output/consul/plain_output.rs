@@ -19,6 +19,7 @@ impl Default for PlainOutputCatalogResult {
                 NodeField::ServiceTags,
                 NodeField::ServiceId,
                 NodeField::ServiceName,
+                NodeField::Healthy,
             ]
         }
     }
@@ -32,11 +33,21 @@ impl OutputCatalogResult for PlainOutputCatalogResult {
         for service in catalog.services() {
             if let Some(nodes) = catalog.nodes_by_service(service) {
                 for node in nodes {
-                    let row = self.fields
-                        .iter()
-                        .map(|f| value_for_field(f, node))
-                        .collect::<Vec<_>>();
-                    rows.push(row);
+                    match self.fields.as_slice() {
+                        // cf. https://github.com/rust-lang/rust/issues/23121
+                        /*
+                        [NodeField::MetaData(Some(ref mdf))] if mdf.len() == 1 && mdf.first().unwrap() == "ec2_instance_id" => {
+                            rows.push( node.metadata.get("ec2_instance_id").unwrap_or("n/a"));
+                        },
+                        */
+                        _ => {
+                            let row = self.fields
+                                .iter()
+                                .map(|f| value_for_field(f, catalog, node))
+                                .collect::<Vec<_>>();
+                            rows.push(row);
+                        }
+                    }
                 }
             }
         }

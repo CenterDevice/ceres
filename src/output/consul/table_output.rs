@@ -24,6 +24,7 @@ impl Default for TableOutputCatalogResult {
                 NodeField::ServiceTags,
                 NodeField::ServiceId,
                 NodeField::ServiceName,
+                NodeField::Healthy,
             ]
         }
     }
@@ -50,7 +51,7 @@ impl OutputCatalogResult for TableOutputCatalogResult {
                 for node in nodes {
                     let row = self.fields
                         .iter()
-                        .map(|f| value_for_field(f, node))
+                        .map(|f| value_for_field(f, catalog, node))
                         .collect::<Vec<_>>();
                     rows.push(row);
                 }
@@ -68,14 +69,15 @@ impl OutputCatalogResult for TableOutputCatalogResult {
 
 fn header_for_field(field: &NodeField) -> &str {
     match *field {
-        NodeField::Id => "Id",
-        NodeField::Name => "Name",
+        NodeField::Id => "Node Id",
+        NodeField::Name => "Node Name",
         NodeField::MetaData(_) => "Meta Data",
-        NodeField::Address => "Address",
+        NodeField::Address => "Node Address",
         NodeField::ServicePort => "Service Port",
         NodeField::ServiceTags => "Service Tags",
         NodeField::ServiceId => "Service Id",
         NodeField::ServiceName => "Service Name",
+        NodeField::Healthy => "Healthy",
     }
 }
 
