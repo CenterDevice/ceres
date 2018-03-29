@@ -7,7 +7,6 @@ and this project adheres to [Semantic Versioning](http://semver.org/spec/v2.0.0.
 ## [Unreleased]
 
 ## [0.0.5] - 2018-03-29
-
 ### Added
 - `consul list` module: List nodes from consul cluster filtered by service names and service tags.
 - plain output variant: Currently only available for consul list
