@@ -100,7 +100,6 @@ ceres --config ~/.ceres.conf --profile staging@cd ops issues browse [--project]
 
 == Todos
 
-* [ ] Add Changelog.
 * [ ] Add reason field to ModuleFailed error.
 * [ ] Move logic out of Modules into testable modules, e.g., ops issues create.
 * [ ] Generalize modules with macro to reduce boilerplate code.
