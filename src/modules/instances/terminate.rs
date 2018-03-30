@@ -10,9 +10,9 @@ use utils::ask_for_yes_from_stdin;
 
 pub const NAME: &str = "terminate";
 
-pub struct Terminate;
+pub struct SubModule;
 
-impl Module for Terminate {
+impl Module for SubModule {
     fn build_sub_cli() -> App<'static, 'static> {
         SubCommand::with_name(NAME)
             .about("terminate instances")

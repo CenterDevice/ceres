@@ -10,9 +10,9 @@ use output::consul::{JsonOutputCatalogResult, OutputCatalogResult, PlainOutputCa
 
 pub const NAME: &str = "list";
 
-pub struct List;
+pub struct SubModule;
 
-impl Module for List {
+impl Module for SubModule {
     fn build_sub_cli() -> App<'static, 'static> {
         SubCommand::with_name(NAME)
             .about("Query Consul")

@@ -19,9 +19,9 @@ use utils::command::{Command, CommandResult, ExitStatus};
 
 pub const NAME: &str = "run";
 
-pub struct Run;
+pub struct SubModule;
 
-impl Module for Run {
+impl Module for SubModule {
     fn build_sub_cli() -> App<'static, 'static> {
         SubCommand::with_name(NAME)
             .about("run command on instances")

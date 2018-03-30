@@ -2,34 +2,12 @@ use clap::{App, ArgMatches};
 use config::Config;
 use run_config::RunConfig;
 
-pub mod consul;
-pub mod instances;
-pub mod ops;
-
 pub trait Module {
     fn build_sub_cli() -> App<'static, 'static>;
     fn call(cli_args: Option<&ArgMatches>, run_config: &RunConfig, config: &Config) -> Result<()>;
 }
 
-pub fn build_sub_cli(app: App<'static, 'static>) -> App<'static, 'static> {
-    app
-        .subcommand(consul::Consul::build_sub_cli())
-        .subcommand(instances::Instances::build_sub_cli())
-        .subcommand(ops::Ops::build_sub_cli())
-}
-
-pub fn call(cli_args: &ArgMatches, run_config: &RunConfig, config: &Config) -> Result<()> {
-    let subcommand_name = cli_args
-        .subcommand_name()
-        .ok_or(ErrorKind::NoCommandSpecified)?;
-    let subcommand_args = cli_args.subcommand_matches(subcommand_name);
-    match subcommand_name {
-        consul::NAME => consul::Consul::call(subcommand_args, run_config, config),
-        instances::NAME => instances::Instances::call(subcommand_args, run_config, config),
-        ops::NAME => ops::Ops::call(subcommand_args, run_config, config),
-        _ => Err(Error::from_kind(ErrorKind::NoSuchCommand(String::from(subcommand_name)))),
-    }
-}
+main_module!(consul, instances, ops);
 
 error_chain! {
     errors {

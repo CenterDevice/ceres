@@ -9,9 +9,9 @@ use utils;
 
 pub const NAME: &str = "ssh";
 
-pub struct Ssh;
+pub struct SubModule;
 
-impl Module for Ssh {
+impl Module for SubModule {
     fn build_sub_cli() -> App<'static, 'static> {
         SubCommand::with_name(NAME)
             .about("SSH to an instance")

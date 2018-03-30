@@ -17,9 +17,9 @@ use modules::*;
 
 pub const NAME: &str = "create";
 
-pub struct Create;
+pub struct SubModule;
 
-impl Module for Create {
+impl Module for SubModule {
     fn build_sub_cli() -> App<'static, 'static> {
         SubCommand::with_name(NAME)
             .about("Create ops issue")

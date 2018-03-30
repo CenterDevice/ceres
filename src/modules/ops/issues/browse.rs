@@ -7,9 +7,9 @@ use modules::*;
 
 pub const NAME: &str = "browse";
 
-pub struct Browse;
+pub struct SubModule;
 
-impl Module for Browse {
+impl Module for SubModule {
     fn build_sub_cli() -> App<'static, 'static> {
         SubCommand::with_name(NAME)
             .about("Open ops issues in web browser")
