@@ -1,5 +1,5 @@
 use clap::{App, ArgMatches};
-use config::Config;
+use config::CeresConfig as Config;
 use run_config::RunConfig;
 
 pub trait Module {

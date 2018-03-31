@@ -1,7 +1,7 @@
 use clap::{App, Arg, ArgMatches, SubCommand};
 use webbrowser;
 
-use config::Config;
+use config::CeresConfig as Config;
 use run_config::RunConfig;
 use modules::*;
 

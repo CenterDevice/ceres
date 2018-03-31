@@ -1,3 +1,6 @@
+extern crate clams;
+#[macro_use]
+extern crate clams_derive;
 extern crate clap;
 extern crate colored;
 #[macro_use]
@@ -34,7 +37,7 @@ macro_rules! sub_module {
     ($name:tt,$desciption:tt,$($submodule:tt),+) => {
         use clap::{App, ArgMatches, SubCommand};
 
-        use config::Config;
+        use config::CeresConfig as Config;
         use run_config::RunConfig;
         use modules::*;
 

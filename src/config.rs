@@ -1,27 +1,17 @@
+use clams::config::{Config, ConfigResult};
 use std::collections::HashMap;
-use std::fs::File;
-use std::io::Read;
-use std::path::Path;
-use toml;
 
 use provider;
 
-#[derive(Debug, Default, Serialize, Deserialize, PartialEq)]
-pub struct Config {
+#[derive(Config, Debug, Default, Serialize, Deserialize, PartialEq)]
+pub struct CeresConfig {
     pub default_profile: String,
     pub github: GitHub,
     pub logging: Logging,
     pub profiles: HashMap<String, Profile>,
 }
 
-impl Config {
-    pub fn from_file<T: AsRef<Path>>(file_path: T) -> Result<Config> {
-        let mut file = File::open(file_path)?;
-        let content = read_to_string(&mut file)?;
-
-        parse_toml(&content)
-    }
-
+impl CeresConfig {
     pub fn get_profile(&self, profile_name: &str) -> Result<&Profile> {
         let profile = self.profiles
             .get(profile_name)
@@ -33,19 +23,6 @@ impl Config {
     pub fn get_default_profile(&self) -> Result<&Profile> {
         self.get_profile(&self.default_profile)
     }
-}
-
-fn read_to_string(file: &mut File) -> Result<String> {
-    let mut content = String::new();
-    file.read_to_string(&mut content)?;
-
-    Ok(content)
-}
-
-fn parse_toml(content: &str) -> Result<Config> {
-    let config: Config = toml::from_str(content)?;
-
-    Ok(config)
 }
 
 #[derive(Debug, Default, Serialize, Deserialize, PartialEq)]
@@ -95,8 +72,7 @@ error_chain! {
         }
     }
     foreign_links {
-        CouldNotRead(::std::io::Error);
-        CouldNotParse(::toml::de::Error);
+        CouldNotLoad(::clams::config::ConfigError);
     }
 }
 
@@ -140,7 +116,7 @@ mod tests {
         let github = GitHub {
             token: "a github token".to_owned()
         };
-        let config = Config {
+        let config = CeresConfig {
             default_profile: "prod".to_owned(),
             logging,
             github,
@@ -149,14 +125,14 @@ mod tests {
         let toml = toml::to_string(&config).unwrap();
         eprintln!("toml = {}", toml);
 
-        let re_config: Config = toml::from_str(&toml).unwrap();
+        let re_config: CeresConfig = toml::from_str(&toml).unwrap();
 
         assert_that(&re_config).is_equal_to(&config);
     }
 
     #[test]
     fn load_from_file() {
-        let config = Config::from_file("examples/ceres.conf").unwrap();
+        let config = CeresConfig::from_file("examples/ceres.conf").unwrap();
 
         assert_that(&config.default_profile).is_equal_to("prod".to_owned());
 

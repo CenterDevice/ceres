@@ -8,7 +8,7 @@ use std::sync::mpsc::channel;
 use std::thread;
 use tempfile;
 
-use config::{Config, Provider};
+use config::{CeresConfig as Config, Provider};
 use modules::*;
 use output::OutputType;
 use output::instances::{JsonOutputCommandResults, OutputCommandResults, TableOutputCommandResults};

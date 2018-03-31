@@ -11,7 +11,7 @@ use tempfile::NamedTempFile;
 use tokio_core::reactor::Core;
 use webbrowser;
 
-use config::Config;
+use config::CeresConfig as Config;
 use run_config::RunConfig;
 use modules::*;
 

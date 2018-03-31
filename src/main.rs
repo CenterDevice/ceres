@@ -1,3 +1,4 @@
+extern crate clams;
 extern crate ceres;
 extern crate clap;
 #[macro_use]
@@ -9,7 +10,8 @@ use clap::{App, AppSettings, Arg, ArgMatches, Shell, SubCommand};
 use std::env;
 use std::path::Path;
 
-use ceres::config::Config;
+use clams::config::Config;
+use ceres::config::CeresConfig;
 use ceres::modules;
 use ceres::run_config::RunConfig;
 use ceres::utils;
@@ -122,8 +124,8 @@ fn build_cli() -> App<'static, 'static> {
     modules::build_sub_cli(general)
 }
 
-fn load_config<T: AsRef<Path>>(file_path: T) -> Result<Config> {
-    let config = Config::from_file(&file_path)
+fn load_config<T: AsRef<Path>>(file_path: T) -> Result<CeresConfig> {
+    let config = CeresConfig::from_file(&file_path)
         .chain_err(|| ErrorKind::FailedToLoadConfigFile(format!("{:#?}", file_path.as_ref())))?;
 
     Ok(config)
@@ -144,7 +146,7 @@ fn generate_completion(args: &ArgMatches) -> Result<()> {
     Ok(())
 }
 
-fn init_logging(args: &ArgMatches, config: &Config) -> Result<()> {
+fn init_logging(args: &ArgMatches, config: &CeresConfig) -> Result<()> {
     let verbosity_level = utils::int_to_log_level(args.occurrences_of("verbosity"));
     let default_level: log::LevelFilter = config
         .logging

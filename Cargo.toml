@@ -8,6 +8,8 @@ travis-ci = { repository = "lukaspustina/ceres", branch = "master" }
 codecov = { repository = "lukaspustina/ceres", branch = "master", service = "github" }
 
 [dependencies]
+clams = "^0.0.5"
+clams-derive = "^0.0.3"
 clap = "^2.30"
 colored = "^1.6"
 error-chain = "^0.11"

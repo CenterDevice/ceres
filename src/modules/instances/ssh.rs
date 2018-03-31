@@ -1,7 +1,7 @@
 use clap::{App, Arg, ArgMatches, SubCommand};
 use std::net::IpAddr;
 
-use config::{Config, Provider};
+use config::{CeresConfig as Config, Provider};
 use run_config::RunConfig;
 use modules::*;
 use provider::{DescribeInstance, InstanceDescriptor};

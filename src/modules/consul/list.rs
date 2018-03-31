@@ -1,7 +1,7 @@
 use clap::{App, Arg, ArgMatches, SubCommand};
 use service_world::consul::{Consul, Catalog};
 
-use config::Config;
+use config::CeresConfig as Config;
 use run_config::RunConfig;
 use modules::*;
 use modules::consul::NodeField;

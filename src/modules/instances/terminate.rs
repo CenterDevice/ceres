@@ -1,6 +1,6 @@
 use clap::{App, Arg, ArgMatches, SubCommand};
 
-use config::{Config, Provider};
+use config::{CeresConfig as Config, Provider};
 use run_config::RunConfig;
 use modules::*;
 use output::OutputType;
