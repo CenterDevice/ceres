@@ -22,7 +22,6 @@ extern crate serde_derive;
 extern crate serde_json;
 extern crate service_world;
 extern crate subprocess;
-extern crate tail;
 extern crate tempfile;
 extern crate tokio_core;
 extern crate toml;

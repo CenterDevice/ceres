@@ -1,3 +1,5 @@
+use clams::fs::FileExt;
+use clams::progress::ProgressStyleExt;
 use clap::{App, Arg, ArgMatches, SubCommand};
 use colored::Colorize;
 use indicatif::{ProgressBar, ProgressStyle, MultiProgress};
@@ -14,7 +16,6 @@ use output::OutputType;
 use output::instances::{JsonOutputCommandResults, OutputCommandResults, TableOutputCommandResults};
 use provider::{DescribeInstance, InstanceDescriptor};
 use run_config::RunConfig;
-use utils::FileExt;
 use utils::command::{Command, CommandResult, ExitStatus};
 
 pub const NAME: &str = "run";
@@ -247,8 +248,7 @@ fn run_with_progress(commands: Vec<Command>) -> Result<Vec<CommandResult>> {
         let (sender, receiver) = channel();
         results.push(receiver);
 
-        let spinner_style = ProgressStyle::default_spinner()
-            .template("{prefix:.bold.dim} [{elapsed}] {spinner} {wide_msg}");
+        let spinner_style = ProgressStyle::default_clams_spinner();
         let pb = m.add(ProgressBar::new_spinner());
         pb.set_style(spinner_style);
         pb.set_prefix(&format!("{}", &cmd.id));

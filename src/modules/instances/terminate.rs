@@ -1,3 +1,4 @@
+use clams::console::ask_for_confirmation;
 use clap::{App, Arg, ArgMatches, SubCommand};
 
 use config::{CeresConfig as Config, Provider};
@@ -6,7 +7,6 @@ use modules::*;
 use output::OutputType;
 use output::instances::{JsonOutputStateChanges, OutputStateChanges, TableOutputStatusChanges};
 use provider::{StateChange, TerminateInstances};
-use utils::ask_for_yes_from_stdin;
 
 pub const NAME: &str = "terminate";
 
@@ -81,9 +81,7 @@ fn terminate_instances(
             warn!("Running in dry mode -- no changes will be executed.");
         }
         (false, false) => {
-            if !ask_for_yes_from_stdin(
-                "Going to terminate instances. Please type 'yes' to continue: ",
-            ).unwrap()
+            if !ask_for_confirmation( "Going to terminate instances. Please type 'yes' to continue: ", "yes").unwrap()
             {
                 return Err(Error::from_kind(ErrorKind::ModuleFailed(String::from(
                     NAME,

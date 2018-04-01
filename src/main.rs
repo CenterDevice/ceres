@@ -6,15 +6,16 @@ extern crate error_chain;
 #[macro_use]
 extern crate log;
 
+use clams::config::Config;
+use clams::logging::{Level, ModLevel, init_logging};
 use clap::{App, AppSettings, Arg, ArgMatches, Shell, SubCommand};
 use std::env;
+use std::io;
 use std::path::Path;
 
-use clams::config::Config;
 use ceres::config::CeresConfig;
 use ceres::modules;
 use ceres::run_config::RunConfig;
-use ceres::utils;
 
 const DEFAULT_CONFIG_FILE_NAME: &str = "ceres.conf";
 
@@ -63,7 +64,7 @@ fn run() -> Result<()> {
     let config_file_name = args.value_of("config").unwrap_or(&default_config_file_name);
     let config = load_config(&config_file_name)?;
 
-    init_logging(&args, &config)?;
+    start_logging(&args, &config)?;
 
     info!(
         "{} version {}, log level={}",
@@ -146,20 +147,30 @@ fn generate_completion(args: &ArgMatches) -> Result<()> {
     Ok(())
 }
 
-fn init_logging(args: &ArgMatches, config: &CeresConfig) -> Result<()> {
-    let verbosity_level = utils::int_to_log_level(args.occurrences_of("verbosity"));
+fn start_logging(args: &ArgMatches, config: &CeresConfig) -> Result<()> {
+    let verbosity: Level = args.occurrences_of("verbosity").into();
+
     let default_level: log::LevelFilter = config
         .logging
         .default
         .parse()
         .map_err(|e| Error::with_chain(e, ErrorKind::FailedToInitLogging))?;
+    let default = Level(default_level);
+
     let ceres_level: log::LevelFilter = config
         .logging
         .ceres
         .parse()
         .map_err(|e| Error::with_chain(e, ErrorKind::FailedToInitLogging))?;
-    let ceres_level = ::std::cmp::max(ceres_level, verbosity_level);
-    utils::init_logging(ceres_level, default_level)?;
+    let ceres = Level(ceres_level);
+
+    let ceres = ::std::cmp::max(ceres, verbosity);
+
+    init_logging(
+        io::stderr(),
+        default,
+        vec![ModLevel { module: "ceres".to_owned(), level: ceres }]
+    ).chain_err(|| ErrorKind::FailedToInitLogging)?;
 
     Ok(())
 }

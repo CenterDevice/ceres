@@ -1,72 +1,7 @@
-use log;
-use fern;
-use fern::colors::{Color, ColoredLevelConfig};
-use std::fs::File;
-use std::io::{self, BufRead, BufReader, BufWriter, Write};
 use std::net::IpAddr;
 use std::path::PathBuf;
 use std::process::Command;
 use std::os::unix::process::CommandExt;
-use tail;
-
-pub fn ask_for_yes_from_stdin(prompt: &str) -> Result<bool> {
-    let mut reader = BufReader::new(io::stdin());
-    ask_for_yes_from_reader(&mut reader, prompt)
-}
-
-fn ask_for_yes_from_reader<R: BufRead>(reader: &mut R, prompt: &str) -> Result<bool> {
-    print!("{}", prompt);
-    let _ = io::stdout().flush();
-
-    let mut input = String::new();
-    match reader.read_line(&mut input) {
-        Ok(_) => {
-            if input.trim().to_lowercase() == "yes" {
-                Ok(true)
-            } else {
-                Ok(false)
-            }
-        }
-        Err(e) => Err(Error::with_chain(e, ErrorKind::FailedToReadFromStdin)),
-    }
-}
-
-pub fn init_logging(ceres: log::LevelFilter, default: log::LevelFilter) -> Result<()> {
-    let colors = ColoredLevelConfig::new()
-        .info(Color::Green)
-        .debug(Color::Blue);
-    fern::Dispatch::new()
-        .format(move |out, message, record| {
-            let level = format!("{}", record.level());
-            out.finish(format_args!(
-                "{}{:padding$}{}: {}",
-                colors.color(record.level()),
-                " ",
-                record.target(),
-                message,
-                padding = 6 - level.len(),
-            ))
-        })
-        .chain(
-            fern::Dispatch::new()
-                .level(default)
-                .level_for("ceres", ceres)
-                .chain(io::stderr()),
-        )
-        .apply()
-        .map_err(|e| Error::with_chain(e, ErrorKind::FailedToInitLogging))?;
-
-    Ok(())
-}
-
-pub fn int_to_log_level(n: u64) -> log::LevelFilter {
-    match n {
-        0 => log::LevelFilter::Warn,
-        1 => log::LevelFilter::Info,
-        2 => log::LevelFilter::Debug,
-        _ => log::LevelFilter::Trace,
-    }
-}
 
 pub fn ssh_to_ip_address<T: Into<IpAddr>>(
     ip: T,
@@ -181,33 +116,8 @@ pub mod command {
     }
 }
 
-pub trait FileExt {
-    fn read_last_line(self) -> ::std::io::Result<String>;
-}
-
-impl FileExt for File {
-    fn read_last_line(self) -> ::std::io::Result<String> {
-        let mut fd = BufReader::new(self);
-        let mut reader = tail::BackwardsReader::new(10, &mut fd);
-        let mut buffer = String::new();
-        {
-            let mut writer = BufWriter::new(
-                unsafe {
-                    buffer.as_mut_vec()
-                }
-            );
-            reader.read_all(&mut writer);
-        }
-        let line = buffer.lines().last().map(|s| s.to_owned()).unwrap_or_else(|| String::new());
-        Ok(line)
-    }
-}
-
 error_chain! {
     errors {
-        FailedToReadFromStdin {
-            description("Failed to read from stdin")
-        }
         FailedToExecuteSsh {
             description("Failed to execute ssh")
         }
@@ -225,53 +135,10 @@ error_chain! {
 mod tests {
     use super::*;
 
-    use quickcheck::{quickcheck, TestResult};
     use std::fs::File;
-    use std::io::BufReader;
+    use std::io::{BufRead, BufReader};
     use spectral::prelude::*;
     use tempfile::NamedTempFile;
-
-    #[test]
-    fn ask_for_yes_from_reader_okay_lowercase() {
-        let answer = "yes".to_owned();
-        let mut buf = BufReader::new(answer.as_bytes());
-        let res = ask_for_yes_from_reader(&mut buf, "This is just a test prompt: ");
-
-        assert_that(&res).is_ok().is_true();
-    }
-
-    #[test]
-    fn ask_for_yes_from_reader_okay_uppercase() {
-        let answer = "YES".to_owned();
-        let mut buf = BufReader::new(answer.as_bytes());
-        let res = ask_for_yes_from_reader(&mut buf, "This is just a test prompt: ");
-
-        assert_that(&res).is_ok().is_true();
-    }
-
-    #[test]
-    fn ask_for_yes_from_reader_okay_mixedcase() {
-        let answer = "YeS".to_owned();
-        let mut buf = BufReader::new(answer.as_bytes());
-        let res = ask_for_yes_from_reader(&mut buf, "This is just a test prompt: ");
-
-        assert_that(&res).is_ok().is_true();
-    }
-
-    #[test]
-    fn ask_for_yes_from_reader_quick() {
-        fn prop(x: String) -> TestResult {
-            if x.len() > 3 || x.to_lowercase() == "yes" {
-                return TestResult::discard();
-            }
-
-            let mut buf = BufReader::new(x.as_bytes());
-            let res = ask_for_yes_from_reader(&mut buf, "This is just a test prompt: ").unwrap();
-            TestResult::from_bool(res == false)
-        }
-
-        quickcheck(prop as fn(String) -> TestResult);
-    }
 
     #[test]
     fn run_non_existing_command() {
