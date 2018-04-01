@@ -6,6 +6,11 @@ and this project adheres to [Semantic Versioning](http://semver.org/spec/v2.0.0.
 
 ## [Unreleased]
 
+## [0.0.6] - 2018-04-01
+
+### Changed
+- Use utils from `clams` instead of reinventing the wheel and maintaining all the general purpose utils.
+
 ## [0.0.5] - 2018-03-29
 
 ### Added
@@ -15,6 +20,7 @@ and this project adheres to [Semantic Versioning](http://semver.org/spec/v2.0.0.
 ### Changed
 - `instances terminate` uses `warn!` macro instead of yellow `println!` to output warning in case of active dry mode.
 
-[Unreleased]: https://github.com/lukaspustina/ceres/compare/v0.0.5...HEAD
+[Unreleased]: https://github.com/lukaspustina/ceres/compare/v0.0.6...HEAD
+[0.0.6]: https://github.com/lukaspustina/ceres/compare/v0.0.5...v0.0.6
 [0.0.5]: https://github.com/lukaspustina/ceres/compare/v0.0.4...v0.0.5
 
