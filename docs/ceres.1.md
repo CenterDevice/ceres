@@ -28,6 +28,9 @@ The project home page currently *https://github.com/lukaspustina/ceres*.
 --config *config*
 : Sets config file to use. Default is *~/.ceres.conf*
 
+--no-color
+: Turns off colorful output. Helpful for non-tty usage.
+
 --profile *profile*
 : Sets profile to use. Default it to use the *default* profile.
 

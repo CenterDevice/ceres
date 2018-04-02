@@ -6,6 +6,10 @@ and this project adheres to [Semantic Versioning](http://semver.org/spec/v2.0.0.
 
 ## [Unreleased]
 
+## Added
+- Arg `no-color` to turn off colorful output -- helpful for non-tty usage
+- Use `smart_load` from `clams` to load configuration
+
 ## [0.0.6] - 2018-04-01
 
 ### Changed

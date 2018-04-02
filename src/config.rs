@@ -1,4 +1,4 @@
-use clams::config::{Config, ConfigResult};
+use clams::config::{Config, ConfigError, ConfigErrorKind, ConfigResult};
 use std::collections::HashMap;
 
 use provider;
@@ -70,9 +70,6 @@ error_chain! {
             description("No such profile")
             display("No such profile '{}'", profile)
         }
-    }
-    foreign_links {
-        CouldNotLoad(::clams::config::ConfigError);
     }
 }
 
