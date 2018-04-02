@@ -6,10 +6,18 @@ and this project adheres to [Semantic Versioning](http://semver.org/spec/v2.0.0.
 
 ## [Unreleased]
 
-## Added
+### Added
 - Arg `no-color` to turn off colorful output -- helpful for non-tty usage.
 - Use `smart_load` from `clams` to load configuration.
 - Use `clams::prelude`.
+
+### Removed
+- Broken use case tests
+
+## [0.0.7] - 2018-04-06
+
+### Add
+- show-example-config module to echo an example configuration.
 
 ## [0.0.6] - 2018-04-01
 
@@ -25,7 +33,8 @@ and this project adheres to [Semantic Versioning](http://semver.org/spec/v2.0.0.
 ### Changed
 - `instances terminate` uses `warn!` macro instead of yellow `println!` to output warning in case of active dry mode.
 
-[Unreleased]: https://github.com/lukaspustina/ceres/compare/v0.0.6...HEAD
+[Unreleased]: https://github.com/lukaspustina/ceres/compare/v0.0.7...HEAD
+[0.0.7]: https://github.com/lukaspustina/ceres/compare/v0.0.6...v0.0.7
 [0.0.6]: https://github.com/lukaspustina/ceres/compare/v0.0.5...v0.0.6
 [0.0.5]: https://github.com/lukaspustina/ceres/compare/v0.0.4...v0.0.5
 
