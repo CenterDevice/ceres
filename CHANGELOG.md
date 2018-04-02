@@ -7,8 +7,9 @@ and this project adheres to [Semantic Versioning](http://semver.org/spec/v2.0.0.
 ## [Unreleased]
 
 ## Added
-- Arg `no-color` to turn off colorful output -- helpful for non-tty usage
-- Use `smart_load` from `clams` to load configuration
+- Arg `no-color` to turn off colorful output -- helpful for non-tty usage.
+- Use `smart_load` from `clams` to load configuration.
+- Use `clams::prelude`.
 
 ## [0.0.6] - 2018-04-01
 

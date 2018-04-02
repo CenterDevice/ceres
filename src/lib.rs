@@ -2,12 +2,9 @@ extern crate clams;
 #[macro_use]
 extern crate clams_derive;
 extern crate clap;
-extern crate colored;
 #[macro_use]
 extern crate error_chain;
-extern crate fern;
 extern crate hubcaps;
-extern crate indicatif;
 #[macro_use]
 extern crate log;
 extern crate prettytable;

@@ -1,14 +1,12 @@
 extern crate ceres;
 extern crate clams;
 extern crate clap;
-extern crate colored;
 #[macro_use]
 extern crate error_chain;
 #[macro_use]
 extern crate log;
 
-use clams::config::{Config, default_locations};
-use clams::logging::{Level, ModLevel, init_logging};
+use clams::prelude::*;
 use clap::{App, AppSettings, Arg, ArgMatches, Shell, SubCommand};
 use std::io;
 
@@ -48,9 +46,7 @@ fn main() {
 
 fn run() -> Result<()> {
     let args = build_cli().get_matches();
-    if args.is_present("no-color") {
-        colored::control::set_override(false);
-    }
+    clams::console::set_color(!args.is_present("no-color"));
 
     match args.subcommand_name() {
         Some(subcommand @ "completions") => return generate_completion(args.subcommand_matches(subcommand).unwrap()), // Safe unwrap

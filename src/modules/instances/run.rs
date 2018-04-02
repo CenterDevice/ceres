@@ -1,8 +1,5 @@
-use clams::fs::FileExt;
-use clams::progress::ProgressStyleExt;
+use clams::prelude::*;
 use clap::{App, Arg, ArgMatches, SubCommand};
-use colored::Colorize;
-use indicatif::{ProgressBar, ProgressStyle, MultiProgress};
 use std::fs::File;
 use std::net::IpAddr;
 use std::time::Duration;

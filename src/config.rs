@@ -1,4 +1,4 @@
-use clams::config::{Config, ConfigError, ConfigErrorKind, ConfigResult};
+use clams::config::prelude::*;
 use std::collections::HashMap;
 
 use provider;
