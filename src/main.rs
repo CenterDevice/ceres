@@ -50,11 +50,11 @@ fn main() {
 fn run() -> Result<()> {
     let args = build_cli().get_matches();
 
-    if let Some(subcommand_name) = args.subcommand_name() {
-        if subcommand_name == "completions" {
-            return generate_completion(args.subcommand_matches(subcommand_name).unwrap()); // Safe unwrap
-        }
-    }
+    match args.subcommand_name() {
+        Some(subcommand @ "completions") => return generate_completion(args.subcommand_matches(subcommand).unwrap()), // Safe unwrap
+        Some("show-example-config") =>return show_example_config(),
+        _ => {},
+    };
 
     let default_config_file_name = format!(
         "{}/.{}",
@@ -111,15 +111,22 @@ fn build_cli() -> App<'static, 'static> {
                 .help("Sets the level of verbosity"),
         )
         .subcommand(
-            SubCommand::with_name("completions").arg(
-                Arg::with_name("shell")
-                    .long("shell")
-                    .takes_value(true)
-                    .possible_values(&["bash", "fish", "zsh"])
-                    .required(true)
-                    .hidden(true)
-                    .help("The shell to generate the script for"),
-            ),
+            SubCommand::with_name("completions")
+                .arg(
+                    Arg::with_name("shell")
+                        .long("shell")
+                        .takes_value(true)
+                        .possible_values(&["bash", "fish", "zsh"])
+                        .required(true)
+                        .hidden(true)
+                        .help("The shell to generate the script for"),
+                )
+                .about("Generate shell completion scripts")
+        )
+        .subcommand(
+            SubCommand::with_name("show-example-config")
+                .alias("daniel")
+                .about("Show an example configuration file")
         );
 
     modules::build_sub_cli(general)
@@ -175,13 +182,20 @@ fn start_logging(args: &ArgMatches, config: &CeresConfig) -> Result<()> {
     Ok(())
 }
 
+fn show_example_config() -> Result<()> {
+    let example_config = include_str!("../examples/ceres.conf");
+
+    println!("{}", example_config);
+
+    Ok(())
+}
+
 error_chain! {
     errors {
         CliArgsParsingError(cause: String) {
             description("Failed to parse CLI arguments")
             display("Failed to parse CLI arguments because {}.", cause)
         }
-
         FailedToLoadConfigFile(file: String) {
             description("Failed to load config file")
             display("Failed to load config file '{}'", file)

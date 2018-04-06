@@ -209,6 +209,12 @@ completions --shell *shell*
 : Generates shell completions for supported shells which are currently bash, fish, and zsh.
 
 
+# SHOW EXAMPLE CONFIGURATION
+
+show-example-config
+: Show an example configuration file which can be used as a template to crate a working configuration file.
+
+
 # FILES
   *~/.ceres.conf*
 
