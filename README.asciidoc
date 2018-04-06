@@ -52,7 +52,7 @@ First, install https://www.rustup.rs[Rustup] to install a Rust compiler.
 ----
 git clone https://github.com/lukaspustina/ceres
 cd ceres
-cargo install
+make install
 ----
 
 

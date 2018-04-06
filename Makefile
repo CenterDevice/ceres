@@ -30,6 +30,9 @@ release-bump:
 publish:
 	git push && git push --tags
 
+install:
+	cargo install --force
+
 clippy:
 	rustup run nightly cargo clippy
 
