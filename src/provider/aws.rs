@@ -20,6 +20,7 @@ const EMPTY: &str = "-";
 pub struct Aws {
     pub access_key_id: String,
     pub secret_access_key: String,
+    pub token: Option<String>,
     #[serde(serialize_with = "ser_region", deserialize_with = "de_ser_region")]
     pub region: Region,
     pub role_arn: String,
@@ -275,7 +276,7 @@ fn assume_role(aws: &Aws) -> Result<StsAssumeRoleSessionCredentialsProvider> {
     let base_provider = StaticProvider::new(
         aws.access_key_id.clone(),
         aws.secret_access_key.clone(),
-        None,
+        aws.token.clone(),
         None,
     );
     let default_client = default_tls_client().chain_err(|| ErrorKind::AwsApiError)?;
