@@ -6,6 +6,8 @@ and this project adheres to [Semantic Versioning](http://semver.org/spec/v2.0.0.
 
 ## [Unreleased]
 
+## [0.0.8] - 2018-04-14
+
 ### Added
 - Arg `no-color` to turn off colorful output -- helpful for non-tty usage.
 - Use `smart_load` from `clams` to load configuration.
@@ -13,7 +15,7 @@ and this project adheres to [Semantic Versioning](http://semver.org/spec/v2.0.0.
 - Add `--browser` option to `ops issues create` that opens a new issue in your default browser
 
 ### Changed
-- Config format, `issue_tracker` section to accommodate `--browser` options. This is a *breaking* change.
+- Config format, `issue_tracker` section to accommodate `--browser` options. This is a **breaking** change.
 
 ### Removed
 - Broken use case tests
@@ -37,7 +39,8 @@ and this project adheres to [Semantic Versioning](http://semver.org/spec/v2.0.0.
 ### Changed
 - `instances terminate` uses `warn!` macro instead of yellow `println!` to output warning in case of active dry mode.
 
-[Unreleased]: https://github.com/lukaspustina/ceres/compare/v0.0.7...HEAD
+[Unreleased]: https://github.com/lukaspustina/ceres/compare/v0.0.8...HEAD
+[0.0.8]: https://github.com/lukaspustina/ceres/compare/v0.0.7...v0.0.8
 [0.0.7]: https://github.com/lukaspustina/ceres/compare/v0.0.6...v0.0.7
 [0.0.6]: https://github.com/lukaspustina/ceres/compare/v0.0.5...v0.0.6
 [0.0.5]: https://github.com/lukaspustina/ceres/compare/v0.0.4...v0.0.5
