@@ -36,6 +36,12 @@ Default is \f[I]~/.ceres.conf\f[]
 .RS
 .RE
 .TP
+.B \[en]no\-color
+Turns off colorful output.
+Helpful for non\-tty usage.
+.RS
+.RE
+.TP
 .B \[en]profile \f[I]profile\f[]
 Sets profile to use.
 Default it to use the \f[I]default\f[] profile.
@@ -320,10 +326,17 @@ Opens the corresponding ops issues project instead of the issues list.
 \f[I]ops issues create\f[] creates a new ops issue either from a file or
 using your default \f[I]$EDITOR\f[] pre\-filled from a template.
 .TP
+.B \[en]browser
+Opens new issue in default browser with \f[I]template\f[] from config
+setting or set via \f[I]\[en]template\f[].
+This setting conflicts with \f[I]\-f\f[] and \f[I]\-i\f[].
+.RS
+.RE
+.TP
 .B \-i, \[en]interactive
 Opens $EDITOR to write issue contents using \f[I]template\f[] from
 config setting or set via \f[I]\[en]template\f[].
-This setting conflicts with \f[I]\-f\f[].
+This setting conflicts with \f[I]\[en]browser\f[] and \f[I]\-f\f[].
 .RS
 .RE
 .TP
