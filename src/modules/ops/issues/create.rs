@@ -28,22 +28,29 @@ impl Module for SubModule {
                     .short("t")
                     .long("title")
                     .takes_value(true)
-                    .required(true)
+                    .required_unless_one(&["browser"])
                     .help("Sets title for issue"),
+            )
+            .arg(
+                Arg::with_name("browser")
+                    .long("browser")
+                    .conflicts_with_all(&["filename", "interactive"])
+                    .required_unless_one(&["filename", "template"])
+                    .help("Opens webbrowser to create new issue"),
             )
             .arg(
                 Arg::with_name("interactive")
                     .short("i")
                     .long("interactive")
-                    .conflicts_with("filename")
-                    .required_unless("filename")
+                    .conflicts_with_all(&["browser", "filename"])
+                    .required_unless_one(&["browser", "filename"])
                     .help("Opens $EDITOR to write issue contents"),
             )
             .arg(
                 Arg::with_name("template")
                     .long("template")
                     .takes_value(true)
-                    .conflicts_with("filename")
+                    .conflicts_with_all(&["filename"])
                     .help("Uses this template to pre-fill editor; defaults to config setting"),
             )
             .arg(
@@ -51,7 +58,8 @@ impl Module for SubModule {
                     .long("filename")
                     .short("f")
                     .takes_value(true)
-                    .required_unless("interactive")
+                    .conflicts_with_all(&["browser", "interactive"])
+                    .required_unless_one(&["browser", "interactive"])
                     .help("Sets file name of markdown file to fill issue with"),
             )
             .arg(
@@ -82,12 +90,28 @@ fn do_call(args: &ArgMatches, run_config: &RunConfig, config: &Config) -> Result
     }.chain_err(|| ErrorKind::ModuleFailed(NAME.to_owned()))?;
     let issue_tracker = &profile.issue_tracker;
 
+    if args.is_present("browser") {
+      let template_name: &str = if let Some(ref name) = args.value_of("template") {
+        name
+      } else {
+        &issue_tracker.default_issue_template_name
+      };
+      let html_url = browse_create_issue(&issue_tracker.github_org, &issue_tracker.github_repo, template_name);
+      info!("Opening browser to create new ops issue");
+      webbrowser::open(&html_url)
+          .chain_err(|| ErrorKind::ModuleFailed(NAME.to_owned()))?;
+      return Ok(());
+    }
+
     let title = args.value_of("title").unwrap(); // Safe unwrap
     let labels = args.values_of_lossy("labels").unwrap_or(Vec::new());
 
     let file_path = if args.is_present("interactive") {
         let editor = env::var_os("EDITOR").unwrap_or_else(|| "vi".to_string().into());
-        let path = create_tempfile_from_template(args.value_of("template"), &issue_tracker.default_issue_template)?;
+        let mut local_template = PathBuf::new();
+        local_template.push(&issue_tracker.local_issue_template_path);
+        local_template.push(&issue_tracker.default_issue_template_name);
+        let path = create_tempfile_from_template(args.value_of("template"), &local_template.to_string_lossy())?;
         debug!("Editing file {:?}", path);
         edit_file(&path, &editor)?;
         path
@@ -99,7 +123,7 @@ fn do_call(args: &ArgMatches, run_config: &RunConfig, config: &Config) -> Result
     let issue = create_issue(title.to_owned(), &file_path, labels)?;
 
     debug!("Sending issue {:?}", issue);
-    let res = send_iusse(&config.github.token, &issue_tracker.github_org, &issue_tracker.github_repo, &issue)
+    let res = send_issue(&config.github.token, &issue_tracker.github_org, &issue_tracker.github_repo, &issue)
             .chain_err(|| ErrorKind::ModuleFailed(NAME.to_owned()))?;
 
     info!("Created issue {}: '{}'", res.number, res.title);
@@ -162,7 +186,7 @@ fn create_issue(title: String, file_path: &Path, labels: Vec<String>) -> Result<
     Ok(issue)
 }
 
-fn send_iusse(github_token: &str, org: &str, repo: &str, issue: &IssueOptions) -> Result<Issue> {
+fn send_issue(github_token: &str, org: &str, repo: &str, issue: &IssueOptions) -> Result<Issue> {
   let mut core = Core::new().expect("reactor fail");
   let github = Github::new(
       concat!(env!("CARGO_PKG_NAME"), "/", env!("CARGO_PKG_VERSION")),
@@ -176,5 +200,9 @@ fn send_iusse(github_token: &str, org: &str, repo: &str, issue: &IssueOptions) -
     .create(issue);
   core.run(f)
     .chain_err(|| ErrorKind::ModuleFailed(NAME.to_owned()))
+}
+
+fn browse_create_issue(org: &str, repo: &str, template_name: &str) -> String {
+  format!("https://github.com/{}/{}/issues/new?template={}", org, repo, template_name)
 }
 

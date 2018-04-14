@@ -187,8 +187,11 @@ The *ops* modules include various ops related commands to ease regular ops tasks
 
   *ops issues create* creates a new ops issue either from a file or using your default *$EDITOR* pre-filled from a template.
 
+  --browser
+  : Opens new issue in default browser with *template* from config setting or set via *--template*. This setting conflicts with *-f* and *-i*.
+
   -i, --interactive
-  : Opens $EDITOR to write issue contents using *template* from config setting or set via *--template*. This setting conflicts with *-f*.
+  : Opens $EDITOR to write issue contents using *template* from config setting or set via *--template*. This setting conflicts with *--browser* and *-f*.
 
   --show-in-browser
   : Opens newly created issue in web browser.

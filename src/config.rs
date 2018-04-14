@@ -49,7 +49,8 @@ pub struct IssueTracker {
     pub github_org: String,
     pub github_repo: String,
     pub project_number: u64,
-    pub default_issue_template: String,
+    pub default_issue_template_name: String,
+    pub local_issue_template_path: String,
 }
 
 #[derive(Debug, Serialize, Deserialize, PartialEq)]
@@ -93,7 +94,8 @@ mod tests {
             github_org: "MyOrg".to_owned(),
             github_repo: "MyRepo".to_owned(),
             project_number: 1,
-            default_issue_template: "some markdown file.md".to_owned(),
+            default_issue_template_name: "some markdown file.md".to_owned(),
+            local_issue_template_path: "some/path".to_owned(),
         };
         let consul = Consul {
             urls: vec!["http://localhost:8500".to_owned(), "http://127.0.0.1:8500".to_owned()],

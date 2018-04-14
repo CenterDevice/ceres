@@ -10,6 +10,10 @@ and this project adheres to [Semantic Versioning](http://semver.org/spec/v2.0.0.
 - Arg `no-color` to turn off colorful output -- helpful for non-tty usage.
 - Use `smart_load` from `clams` to load configuration.
 - Use `clams::prelude`.
+- Add `--browser` option to `ops issues create` that opens a new issue in your default browser
+
+### Changed
+- Config format, `issue_tracker` section to accommodate `--browser` options. This is a *breaking* change.
 
 ### Removed
 - Broken use case tests
