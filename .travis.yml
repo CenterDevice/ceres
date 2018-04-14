@@ -1,39 +1,36 @@
 language: rust
-rust:
-  - 1.23.0
-  - stable
-  - beta
-  - nightly
 env:
   global:
   - RUSTFLAGS="-C link-dead-code"
-os:
-  - linux
-  - osx
-
 matrix:
+  include:
+  - env: TARGET=x86_64-unknown-linux-gnu DEPLOY_ARCH=amd64
+    rust: stable
+  - env: TARGET=x86_64-unknown-linux-musl
+    rust: stable
+  - env: TARGET=x86_64-apple-darwin
+    rust: stable
+    os: osx
+  - env: TARGET=x86_64-unknown-linux-gnu
+    rust: beta
+  - env: TARGET=x86_64-unknown-linux-gnu
+    rust: nightly
   allow_failures:
-    - rust: nightly
-    - rust: beta
-    - rust: stable
-
-# Thanks to Meltdown, we need this -- cf. https://github.com/travis-ci/travis-ci/issues/9061
+  - rust: beta
+  - rust: nightly
 sudo: required
-
 addons:
   apt:
     packages:
-      - libcurl4-openssl-dev
-      - libelf-dev
-      - libdw-dev
-      - cmake
-      - gcc
-      - binutils-dev
-      - libiberty-dev
-
-# cf. https://github.com/codecov/example-rust for codecov
+    - libcurl4-openssl-dev
+    - libelf-dev
+    - libdw-dev
+    - cmake
+    - gcc
+    - binutils-dev
+    - libiberty-dev
 after_success: |
-  if [[ "$TRAVIS_OS_NAME" == "linux" && "$TRAVIS_RUST_VERSION" == "1.23.0" ]]; then
+  if [[ "$TRAVIS_OS_NAME" == "linux" && "$DEPLOY_ARCH" ]]; then
     wget https://github.com/SimonKagstrom/kcov/archive/master.tar.gz &&
     tar xzf master.tar.gz &&
     cd kcov-master &&
@@ -48,4 +45,45 @@ after_success: |
     bash <(curl -s https://codecov.io/bash) &&
     echo "Uploaded code coverage"
   fi
-
+before_deploy:
+- cd distribution/deb/ && SRC_DIR=. BIN_DIR=./target/$TARGET/release ARCH=$DEPLOY_ARCH
+  VERSION=$TRAVIS_TAG TAG=$TRAVIS_TAG DIST=trusty make package
+deploy:
+  matrix:
+  - provider: packagecloud
+    username: lukaspustina
+    token:
+      secure: krxKGuOP1lB8wIUvGmnCH2GnyReVsDPkUnwP2eD05Qvzeglv+wbPatPwpD1DrcjfDefRdBE4xE0+C8i7X4GMlDXZgBQr1gKb1q8NaNRKS8AJY9WoOrpBG/mP/2bKhKR9h4x4u9x8W+SPgyAC0eY6aR6WJBtY3g8U/3Ov5iVfylHmLV6Wo9newoHWmlcLepakGdfn4RACAS3xE/ft5EPbwSqESJC9ckbuLiTJFL68UpDXfrZP8vZfujFzKoRvOtpPlmRrztsKiWUrps/xXxtgAAuU4kAG64T/fte/0DU+ZDd7d2K7On/8FSiztM7vJdS12Dr/NNFo9cD3lms5puh9J245SwirriN26zv/7CLrgWGsqulUCAYqLK6L87LxfImSM3W+LkyJF7hC6arhAf7/N7RXelvh3L5SAUKF6zFIKbI2210v1X6j12oca1Y+ThdkDBWzWoijc+7MroOwuAlWKnKYLJR4bHwCK4OAe6IwH17WDS/xa78EKbFyw/6iGy1uLs1R29K6AocDI2pUhgtHSQzNqi9VYfj0KJIVl4i21sf3UlD7xaQ8JqgPtIj+NCSkxWmUG9yDBZg2ivTKOkeBozp7d07B4bo57ks7eFDuKhH5usyJn6Jg28qZgLilTCY11/DluUU6jutditPlqlgjFebLTLqI9WeDoedt6Jgkd7M=
+    repository: opensource
+    dist: ubuntu/trusty
+    package_glob: "**/*.deb"
+    skip_cleanup: true
+    on:
+      tags: true
+      condition:
+      - "$TRAVIS_OS_NAME == linux"
+      - "$DEPLOY_ARCH"
+  - provider: packagecloud
+    username: centerdevice
+    token:
+      secure: fpCOXqw1jmVi27CVhI5sFehRT0conbdL0+rx5KgqzMOv5VjT8Qiol7kygAP2ycddwTTC+qfm4A67B6CnZiwtqLoz7cZ1Z0hCoY7Nvtapa4N/bpyA/k92ces/kSmivprZaMh5WkpUrjoDiTpQcrpchPdqJ1gxSKLxOW9FipAJMJV1enz/F9okKJzdpPGADMhgjLWwvtHvPCBDehKoHA/56RwM7MyRIN+JfAOcW9DEP2CWHvisxb+a+U+i7zF2azfX96LyX8syflni2nKzpA2dMRPOpHky1ZqtieZdu+VZWLO/QQQIRecC9aFiRzy2IAGxP9SFiM4IT9yabaIqtdRUkd0ZYxnCU5zljmOQ/8q5qF0YotGOcE/NVhnFIGBNnueSEt+LXDWM7ESL5w2bcjIukUb0XTOb/1RcV7lJv4iyLwaCA+FJHVsjlTDQ3jz7xNlb23rvbmYIqHM3cxV9SCWYBUEt+4hb8mgG+SEVFa91v77Psd49I0qAUCMj9NKritmjr0NqnL1n+Dokn6T57SBlJSJKIw9sbxdLXI0tQSf6AxCQPVQBbPV6AnTDbjalVSpCB6fEyrLhJH7b2vmvy40SyaEXQgDBBm1bHmsCpTr31LU6qSBOFPJHNLo/1RfnUIFrUKozinrxmH7ZYhLvMLHnYVzbE8aQMlnONl4JMrrgAGA=
+    repository: infrastructure
+    dist: ubuntu/trusty
+    package_glob: "**/*.deb"
+    skip_cleanup: true
+    on:
+      tags: true
+      condition:
+      - "$TRAVIS_OS_NAME == linux"
+      - "$DEPLOY_ARCH"
+  - provider: releases
+    api_key:
+      secure: E/eswWMQ5s0+bp4BJx2NSN/8xnNU/eNFdlPmp1FTzNpDLvuvAdTmADpU5cWs0gNUN7vJ5ohzu2crpafEyK3j7PCF8o1pluN9me2ANfiUwB7IwRwiL7VfbCVkrOixOpsPB7p2RGyxsbMP6NKGu5HPemMAi7FDxm96x/2t04fgBs+UbLc2xbgXUIwTEf/07vj3fcHVFYGHuS6XtenyB1pLejZPfTxZvdt8GCf3btPmtkbY2YK4yEsoAj3ZiH+3z/GGRVjmn0Tmkvhid9YxY5KRj87z3HfsAD8jv3IjlPBxEFvxcPd+TGBwl9+fZ/bVxwtqGIjVgnW8Rnu+SCGc3jeMAIBrClLlWKH0YtMq1VPkDXC9c6S2MO3h31sYI4Vy2yZX7IlawzGD1d4/lSowuh3jR0vhifhspEDRuWifoRFBjQbpIP7utTwY0RNbmZhSRVnOy3X9t7HV9YwnbgFhkWQeutG3SrwobjfcgoPHgYXTmX6Xae0V8YZ74MRLSfuf5VGwuj1reCGhrvTedDB6mkg+PaI4rxutMb2A4j6ssBFKCUI/9ux0QFY7EO6ee56AqB7o7A6dvCZ974UdCk2B312soSmp4arnT3sEqiqa5z3lYPhaekMJYsg4vyvQf1YB2FAqruIdJojuFP3WsswvRwyd780B5wLPY7MxZRz3Zj6Gk5k=
+    file_glob: true
+    file: "$CRATE_NAME-$TRAVIS_TAG-$TARGET.*"
+    skip_cleanup: true
+    on:
+      tags: true
+      condition:
+      - "$TRAVIS_OS_NAME == linux"
+      - "$DEPLOY_ARCH"
