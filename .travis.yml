@@ -1,12 +1,21 @@
 language: rust
 env:
   global:
+  - CRATE_NAME=ceres
   - RUSTFLAGS="-C link-dead-code"
 matrix:
   include:
-  - env: TARGET=x86_64-unknown-linux-gnu DEPLOY_ARCH=amd64
-    rust: stable
-  - env: TARGET=x86_64-unknown-linux-musl
+  - env: TARGET=x86_64-unknown-linux-gnu DEPLOY_DEB=1 DEPLOY_GITHUB=1 DEPLOY_ARCH=amd64 CODECOV=1
+    rust: 1.23.0
+  - env: TARGET=x86_64-apple-darwin DEPLOY_GITHUB=1
+    rust: 1.23.0
+    os: osx
+  - env: TARGET=x86_64-unknown-linux-gnu
+    rust: 1.24.0
+  - env: TARGET=x86_64-apple-darwin
+    rust: 1.24.0
+    os: osx
+  - env: TARGET=x86_64-unknown-linux-gnu
     rust: stable
   - env: TARGET=x86_64-apple-darwin
     rust: stable
@@ -16,8 +25,8 @@ matrix:
   - env: TARGET=x86_64-unknown-linux-gnu
     rust: nightly
   allow_failures:
-  - rust: beta
-  - rust: nightly
+  - rust: 1.24.0
+  - rust: stable
 sudo: required
 addons:
   apt:
@@ -30,7 +39,7 @@ addons:
     - binutils-dev
     - libiberty-dev
 after_success: |
-  if [[ "$TRAVIS_OS_NAME" == "linux" && "$DEPLOY_ARCH" ]]; then
+  if [[ "$TRAVIS_OS_NAME" == "linux" && "$CODECOV" ]]; then
     wget https://github.com/SimonKagstrom/kcov/archive/master.tar.gz &&
     tar xzf master.tar.gz &&
     cd kcov-master &&
@@ -43,13 +52,21 @@ after_success: |
     rm -rf kcov-master &&
     for file in target/debug/ceres-*[^\.d] target/debug/it_*[^\.d]; do mkdir -p "target/cov/$(basename $file)"; ./kcov-build/usr/local/bin/kcov --exclude-pattern=/.cargo,/usr/lib --verify "target/cov/$(basename $file)" "$file"; done &&
     bash <(curl -s https://codecov.io/bash) &&
-    echo "Uploaded code coverage"
+    echo "Uploaded code coverage."
   fi
-before_deploy:
-- cd distribution/deb/ && SRC_DIR=. BIN_DIR=./target/$TARGET/release ARCH=$DEPLOY_ARCH
-  VERSION=$TRAVIS_TAG TAG=$TRAVIS_TAG DIST=trusty make package
+  if [[ "$DEPLOY_DEB" && "$DEPLOY_ARCH" && "$TRAVIS_TAG" ]]; then
+    cargo build --release &&
+    cp "target/release/$CRATE_NAME" "target/release/$CRATE_NAME-$TRAVIS_TAG-$TARGET" &&
+    ls -l target/release/ &&
+    cd distribution/deb/ &&
+    SRC_DIR=../../ BIN_DIR=../../target/release ARCH=$DEPLOY_ARCH VERSION=$TRAVIS_TAG TAG=$TRAVIS_TAG DIST=trusty make package &&
+    cd ../.. &&
+    echo "Built Debian Package."
+  fi
+before_deploy: |
+  echo "Running before each single deployment..."
+  echo "Run before each single deployment."
 deploy:
-  matrix:
   - provider: packagecloud
     username: lukaspustina
     token:
@@ -61,8 +78,8 @@ deploy:
     on:
       tags: true
       condition:
-      - "$TRAVIS_OS_NAME == linux"
-      - "$DEPLOY_ARCH"
+      - "$DEPLOY_DEB"
+      - "$TRAVIS_TAG"
   - provider: packagecloud
     username: centerdevice
     token:
@@ -74,8 +91,8 @@ deploy:
     on:
       tags: true
       condition:
-      - "$TRAVIS_OS_NAME == linux"
-      - "$DEPLOY_ARCH"
+      - "$DEPLOY_DEB"
+      - "$TRAVIS_TAG"
   - provider: releases
     api_key:
       secure: E/eswWMQ5s0+bp4BJx2NSN/8xnNU/eNFdlPmp1FTzNpDLvuvAdTmADpU5cWs0gNUN7vJ5ohzu2crpafEyK3j7PCF8o1pluN9me2ANfiUwB7IwRwiL7VfbCVkrOixOpsPB7p2RGyxsbMP6NKGu5HPemMAi7FDxm96x/2t04fgBs+UbLc2xbgXUIwTEf/07vj3fcHVFYGHuS6XtenyB1pLejZPfTxZvdt8GCf3btPmtkbY2YK4yEsoAj3ZiH+3z/GGRVjmn0Tmkvhid9YxY5KRj87z3HfsAD8jv3IjlPBxEFvxcPd+TGBwl9+fZ/bVxwtqGIjVgnW8Rnu+SCGc3jeMAIBrClLlWKH0YtMq1VPkDXC9c6S2MO3h31sYI4Vy2yZX7IlawzGD1d4/lSowuh3jR0vhifhspEDRuWifoRFBjQbpIP7utTwY0RNbmZhSRVnOy3X9t7HV9YwnbgFhkWQeutG3SrwobjfcgoPHgYXTmX6Xae0V8YZ74MRLSfuf5VGwuj1reCGhrvTedDB6mkg+PaI4rxutMb2A4j6ssBFKCUI/9ux0QFY7EO6ee56AqB7o7A6dvCZ974UdCk2B312soSmp4arnT3sEqiqa5z3lYPhaekMJYsg4vyvQf1YB2FAqruIdJojuFP3WsswvRwyd780B5wLPY7MxZRz3Zj6Gk5k=
@@ -85,5 +102,5 @@ deploy:
     on:
       tags: true
       condition:
-      - "$TRAVIS_OS_NAME == linux"
-      - "$DEPLOY_ARCH"
+      - "$DEPLOY_GITHUB"
+      - "$TRAVIS_TAG"
