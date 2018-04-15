@@ -54,11 +54,14 @@ after_success: |
     bash <(curl -s https://codecov.io/bash) &&
     echo "Uploaded code coverage."
   fi
-  if [[ "$DEPLOY_DEB" && "$DEPLOY_ARCH" && "$TRAVIS_TAG" ]]; then
+  if [[ "$TRAVIS_TAG" && ( "$DEPLOY_DEB" || "DEPLOY_GITHUB" ) ]]; then
     cargo build --release &&
     cp "target/release/$CRATE_NAME" "target/release/$CRATE_NAME-$TRAVIS_TAG-$TARGET" &&
     gzip "target/release/$CRATE_NAME-$TRAVIS_TAG-$TARGET" &&
     ls -l target/release/ &&
+    echo "Built Release Binary."
+  fi
+  if [[ "$DEPLOY_DEB" && "$DEPLOY_ARCH" && "$TRAVIS_TAG" ]]; then
     cd distribution/deb/ &&
     SRC_DIR=../../ BIN_DIR=../../target/release ARCH=$DEPLOY_ARCH VERSION=$TRAVIS_TAG TAG=$TRAVIS_TAG DIST=trusty make package &&
     cd ../.. &&
