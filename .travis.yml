@@ -57,6 +57,7 @@ after_success: |
   if [[ "$DEPLOY_DEB" && "$DEPLOY_ARCH" && "$TRAVIS_TAG" ]]; then
     cargo build --release &&
     cp "target/release/$CRATE_NAME" "target/release/$CRATE_NAME-$TRAVIS_TAG-$TARGET" &&
+    gzip "target/release/$CRATE_NAME-$TRAVIS_TAG-$TARGET" &&
     ls -l target/release/ &&
     cd distribution/deb/ &&
     SRC_DIR=../../ BIN_DIR=../../target/release ARCH=$DEPLOY_ARCH VERSION=$TRAVIS_TAG TAG=$TRAVIS_TAG DIST=trusty make package &&
@@ -97,7 +98,7 @@ deploy:
     api_key:
       secure: E/eswWMQ5s0+bp4BJx2NSN/8xnNU/eNFdlPmp1FTzNpDLvuvAdTmADpU5cWs0gNUN7vJ5ohzu2crpafEyK3j7PCF8o1pluN9me2ANfiUwB7IwRwiL7VfbCVkrOixOpsPB7p2RGyxsbMP6NKGu5HPemMAi7FDxm96x/2t04fgBs+UbLc2xbgXUIwTEf/07vj3fcHVFYGHuS6XtenyB1pLejZPfTxZvdt8GCf3btPmtkbY2YK4yEsoAj3ZiH+3z/GGRVjmn0Tmkvhid9YxY5KRj87z3HfsAD8jv3IjlPBxEFvxcPd+TGBwl9+fZ/bVxwtqGIjVgnW8Rnu+SCGc3jeMAIBrClLlWKH0YtMq1VPkDXC9c6S2MO3h31sYI4Vy2yZX7IlawzGD1d4/lSowuh3jR0vhifhspEDRuWifoRFBjQbpIP7utTwY0RNbmZhSRVnOy3X9t7HV9YwnbgFhkWQeutG3SrwobjfcgoPHgYXTmX6Xae0V8YZ74MRLSfuf5VGwuj1reCGhrvTedDB6mkg+PaI4rxutMb2A4j6ssBFKCUI/9ux0QFY7EO6ee56AqB7o7A6dvCZ974UdCk2B312soSmp4arnT3sEqiqa5z3lYPhaekMJYsg4vyvQf1YB2FAqruIdJojuFP3WsswvRwyd780B5wLPY7MxZRz3Zj6Gk5k=
     file_glob: true
-    file: "$CRATE_NAME-$TRAVIS_TAG-$TARGET.*"
+    file: "target/release/$CRATE_NAME-$TRAVIS_TAG-$TARGET.gz"
     skip_cleanup: true
     on:
       tags: true

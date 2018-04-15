@@ -1,6 +1,6 @@
 [package]
 name = "ceres"
-version = "0.0.8"
+version = "0.0.9"
 authors = ["Lukas Pustina <lukas@pustina.net>"]
 
 [badges]
