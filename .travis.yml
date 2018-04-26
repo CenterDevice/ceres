@@ -2,7 +2,7 @@ language: rust
 env:
   global:
   - CRATE_NAME=ceres
-  - RUSTFLAGS="-C link-dead-code"
+    #  - RUSTFLAGS="-C link-dead-code"
 matrix:
   include:
   - env: TARGET=x86_64-unknown-linux-gnu DEPLOY_DEB=1 DEPLOY_GITHUB=1 DEPLOY_ARCH=amd64 CODECOV=1
@@ -39,21 +39,21 @@ addons:
     - binutils-dev
     - libiberty-dev
 after_success: |
-  if [[ "$TRAVIS_OS_NAME" == "linux" && "$CODECOV" ]]; then
-    wget https://github.com/SimonKagstrom/kcov/archive/master.tar.gz &&
-    tar xzf master.tar.gz &&
-    cd kcov-master &&
-    mkdir build &&
-    cd build &&
-    cmake .. &&
-    make &&
-    make install DESTDIR=../../kcov-build &&
-    cd ../.. &&
-    rm -rf kcov-master &&
-    for file in target/debug/ceres-*[^\.d] target/debug/it_*[^\.d]; do mkdir -p "target/cov/$(basename $file)"; ./kcov-build/usr/local/bin/kcov --exclude-pattern=/.cargo,/usr/lib --verify "target/cov/$(basename $file)" "$file"; done &&
-    bash <(curl -s https://codecov.io/bash) &&
-    echo "Uploaded code coverage."
-  fi
+  #  if [[ "$TRAVIS_OS_NAME" == "linux" && "$CODECOV" ]]; then
+  #    wget https://github.com/SimonKagstrom/kcov/archive/master.tar.gz &&
+  #    tar xzf master.tar.gz &&
+  #    cd kcov-master &&
+  #    mkdir build &&
+  #    cd build &&
+  #    cmake .. &&
+  #    make &&
+  #    make install DESTDIR=../../kcov-build &&
+  #    cd ../.. &&
+  #    rm -rf kcov-master &&
+  #    for file in target/debug/ceres-*[^\.d] target/debug/it_*[^\.d]; do mkdir -p "target/cov/$(basename $file)"; ./kcov-build/usr/local/bin/kcov --exclude-pattern=/.cargo,/usr/lib --verify "target/cov/$(basename $file)" "$file"; done &&
+  #    bash <(curl -s https://codecov.io/bash) &&
+  #    echo "Uploaded code coverage."
+  #  fi
   if [[ "$TRAVIS_TAG" && ( "$DEPLOY_DEB" || "DEPLOY_GITHUB" ) ]]; then
     cargo build --release &&
     cp "target/release/$CRATE_NAME" "target/release/$CRATE_NAME-$TRAVIS_TAG-$TARGET" &&
