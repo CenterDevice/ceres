@@ -2,6 +2,9 @@
 name = "ceres"
 version = "0.0.9"
 authors = ["Lukas Pustina <lukas@pustina.net>"]
+description = "SRE Tool for CenterDevice"
+repository = "https://github.com/lukaspustina/ceres.git"
+homepage = "https://github.com/lukaspustina/ceres"
 
 [badges]
 travis-ci = { repository = "lukaspustina/ceres", branch = "master" }
@@ -16,6 +19,7 @@ error-chain = "^0.11"
 log = "^0.4"
 fern = { version = "^0.5", features = ["colored"] }
 hubcaps = "^0.4"
+human-panic = "^0.4"
 indicatif = "^0.9"
 prettytable-rs = "^0.6"
 regex = "^0.2"

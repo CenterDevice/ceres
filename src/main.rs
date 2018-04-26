@@ -4,6 +4,8 @@ extern crate clap;
 #[macro_use]
 extern crate error_chain;
 #[macro_use]
+extern crate human_panic;
+#[macro_use]
 extern crate log;
 
 use clams::prelude::*;
@@ -17,6 +19,8 @@ use ceres::run_config::RunConfig;
 const DEFAULT_CONFIG_FILE_NAME: &str = "ceres.conf";
 
 fn main() {
+    setup_panic!();
+
     if let Err(ref e) = run() {
         if log_enabled!(log::Level::Error) {
             error!("error: {}", e);
