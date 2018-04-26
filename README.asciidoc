@@ -28,9 +28,15 @@ There are binaries available at the https://github.com/lukaspustina/ceres/releas
 
 === Brew
 
-`brew install lukaspustina/os/ceres --HEAD`
+First, install https://www.rustup.rs[Rustup] to install a Rust compiler.
 
-Attention: Due to a incompatibility between Rust and brew, this installation method currently does not work reliably. If you encounter a compiler error, please use cargo to install ceres.
+==== Latest Release
+
+`brew install lukaspustina/os/ceres`
+
+==== HEAD
+
+`brew install lukaspustina/os/ceres --HEAD`
 
 === Cargo
 

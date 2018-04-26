@@ -7,6 +7,7 @@ and this project adheres to [Semantic Versioning](http://semver.org/spec/v2.0.0.
 ## [Unreleased]
 
 - Add `human_panic`.
+- Fix Homebrew recipe.
 
 ## [0.0.9] - 2018-04-15
 
