@@ -1,7 +1,7 @@
 use rusoto_core::{default_tls_client, Region};
 use rusoto_credential::StaticProvider;
-use rusoto_ec2::{self as ec2, DescribeInstancesRequest, Ec2, TerminateInstancesError,
-                 TerminateInstancesRequest};
+use rusoto_ec2::{self as ec2, DescribeInstancesRequest, Ec2, StartInstancesError, StopInstancesError, TerminateInstancesError,
+                 StartInstancesRequest, StopInstancesRequest, TerminateInstancesRequest};
 use rusoto_sts::{StsAssumeRoleSessionCredentialsProvider, StsClient};
 use serde::de::{self, Deserializer, Visitor};
 use serde::ser::Serializer;
@@ -12,7 +12,7 @@ use std::str::FromStr;
 
 use provider::{DescribeInstance, DescribeInstances, Error as ProviderError,
                ErrorKind as ProviderErrorKind, InstanceDescriptor, InstanceId,
-               Result as ProviderResult, StateChange, TerminateInstances};
+               Result as ProviderResult, StateChange, StartInstances, StopInstances, TerminateInstances};
 
 const EMPTY: &str = "-";
 
@@ -292,6 +292,117 @@ fn assume_role(aws: &Aws) -> Result<StsAssumeRoleSessionCredentialsProvider> {
     );
 
     Ok(provider)
+}
+
+impl StartInstances for Aws {
+    fn start_instances(
+        &self,
+        dry: bool,
+        instance_ids: &[InstanceId],
+    ) -> ProviderResult<Vec<StateChange>> {
+        start(self, dry, instance_ids).map_err(|e| {
+            ProviderError::with_chain(
+                e,
+                ProviderErrorKind::ProviderCallFailed(String::from("start_instances")),
+            )
+        })
+    }
+}
+
+fn start(aws: &Aws, dry: bool, instance_ids: &[InstanceId]) -> Result<Vec<StateChange>> {
+    let credentials_provider = assume_role(aws)?;
+    let default_client = default_tls_client().chain_err(|| ErrorKind::AwsApiError)?;
+    let client = ec2::Ec2Client::new(default_client, credentials_provider, aws.region.clone());
+
+    let request = StartInstancesRequest {
+        additional_info: None,
+        dry_run: Some(dry),
+        instance_ids: instance_ids
+            .iter()
+            .map(|x| x.to_owned())
+            .collect::<Vec<_>>(),
+    };
+    // If run in dry mode, AWS returns an error of type DryRunOperation
+    // cf. https://docs.rs/rusoto_ec2/0.31.0/rusoto_ec2/struct.TerminateInstancesRequest.html#structfield.dry_run
+    let result = match client.start_instances(&request) {
+        Err(StartInstancesError::Unknown(ref s)) if s.contains("DryRunOperation") => {
+            return Ok(create_dry_run_results(instance_ids))
+        }
+        Err(StartInstancesError::Unknown(ref s)) if s.contains("UnauthorizedOperation") => {
+            return Err(Error::from_kind(ErrorKind::AwsApiResultError(
+                "start is not authorized".to_string(),
+            )))
+        }
+        result => result,
+    }.chain_err(|| ErrorKind::AwsApiError)?;
+    let starting_instances = result.starting_instances.ok_or_else(|| {
+        Error::from_kind(ErrorKind::AwsApiResultError(
+            "start failed".to_string(),
+        ))
+    })?;
+
+    let state_changes: Vec<StateChange> = starting_instances
+        .into_iter()
+        .map(|x| x.into())
+        .collect();
+
+    Ok(state_changes)
+}
+
+impl StopInstances for Aws {
+    fn stop_instances(
+        &self,
+        dry: bool,
+        force: bool,
+        instance_ids: &[InstanceId],
+    ) -> ProviderResult<Vec<StateChange>> {
+        stop(self, dry, force, instance_ids).map_err(|e| {
+            ProviderError::with_chain(
+                e,
+                ProviderErrorKind::ProviderCallFailed(String::from("stop_instances")),
+            )
+        })
+    }
+}
+
+fn stop(aws: &Aws, dry: bool, force: bool, instance_ids: &[InstanceId]) -> Result<Vec<StateChange>> {
+    let credentials_provider = assume_role(aws)?;
+    let default_client = default_tls_client().chain_err(|| ErrorKind::AwsApiError)?;
+    let client = ec2::Ec2Client::new(default_client, credentials_provider, aws.region.clone());
+
+    let request = StopInstancesRequest {
+        dry_run: Some(dry),
+        force: Some(force),
+        instance_ids: instance_ids
+            .iter()
+            .map(|x| x.to_owned())
+            .collect::<Vec<_>>(),
+    };
+    // If run in dry mode, AWS returns an error of type DryRunOperation
+    // cf. https://docs.rs/rusoto_ec2/0.31.0/rusoto_ec2/struct.TerminateInstancesRequest.html#structfield.dry_run
+    let result = match client.stop_instances(&request) {
+        Err(StopInstancesError::Unknown(ref s)) if s.contains("DryRunOperation") => {
+            return Ok(create_dry_run_results(instance_ids))
+        }
+        Err(StopInstancesError::Unknown(ref s)) if s.contains("UnauthorizedOperation") => {
+            return Err(Error::from_kind(ErrorKind::AwsApiResultError(
+                "stop is not authorized".to_string(),
+            )))
+        }
+        result => result,
+    }.chain_err(|| ErrorKind::AwsApiError)?;
+    let stopping_instances = result.stopping_instances.ok_or_else(|| {
+        Error::from_kind(ErrorKind::AwsApiResultError(
+            "stop failed".to_string(),
+        ))
+    })?;
+
+    let state_changes: Vec<StateChange> = stopping_instances
+        .into_iter()
+        .map(|x| x.into())
+        .collect();
+
+    Ok(state_changes)
 }
 
 impl TerminateInstances for Aws {

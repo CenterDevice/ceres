@@ -173,6 +173,23 @@ impl Default for InstanceDescriptor {
 
 pub type InstanceId = String;
 
+pub trait StartInstances {
+    fn start_instances(
+        &self,
+        dry: bool,
+        instance_ids: &[InstanceId],
+    ) -> Result<Vec<StateChange>>;
+}
+
+pub trait StopInstances {
+    fn stop_instances(
+        &self,
+        dry: bool,
+        force: bool,
+        instance_ids: &[InstanceId],
+    ) -> Result<Vec<StateChange>>;
+}
+
 pub trait TerminateInstances {
     fn terminate_instances(
         &self,
