@@ -154,6 +154,38 @@ The *instances* modules interacts with instances in the environment selected by 
   --ssh-opt *ssh-opts* ...
   : Passes an option to ssh. This may be used multiple times.
 
+### instances start [*options*] *INSTANCE_ID ...*
+
+  *instances start* starts instances by instance id and outputs the corresponding state changes. The output can be controlled to allow for human readable format or JSON format for post-processing.
+
+  *INSTANCE_ID ...*
+  : Sets the instance id to start. Multiple instance ids may be set.
+
+  -d, --dry
+  : Activates dry run. Permissions and instance ids will be checked by AWS, but no instance will be started.
+
+  -o, --output *output*
+  : Selects output format. The default is *human*. Available options are *human* and *json*.
+
+### instances stop [*options*] *INSTANCE_ID ...*
+
+  *instances stop* stops instances by instance id and outputs the corresponding state changes. A prompt will ask for confirmation before any instance is stopped. The output can be controlled to allow for human readable format or JSON format for post-processing.
+
+  *INSTANCE_ID ...*
+  : Sets the instance id to stop. Multiple instance ids may be set.
+
+  -d, --dry
+  : Activates dry run. Permissions and instance ids will be checked by AWS, but no instance will be stopped.
+
+  --force
+  : Forces instances to stop. The instances do not have an opportunity to flush file system caches or file system metadata. If you use this option, you must perform file system check and repair procedures. 
+
+  -o, --output *output*
+  : Selects output format. The default is *human*. Available options are *human* and *json*.
+
+  --yes-i-really-really-mean-it
+  : Don't ask for confirmation and stop instances immediately.
+
 ### instances terminate [*options*] *INSTANCE_ID ...*
 
   *instances terminate* terminates instances by instance id and outputs the corresponding state changes. A prompt will ask for confirmation before any termination is executed. The output can be controlled to allow for human readable format or JSON format for post-processing.

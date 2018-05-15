@@ -276,6 +276,73 @@ Passes an option to ssh.
 This may be used multiple times.
 .RS
 .RE
+.SS instances start [\f[I]options\f[]] \f[I]INSTANCE_ID \&...\f[]
+.PP
+\f[I]instances start\f[] starts instances by instance id and outputs the
+corresponding state changes.
+The output can be controlled to allow for human readable format or JSON
+format for post\-processing.
+.TP
+.B \f[I]INSTANCE_ID \&...\f[]
+Sets the instance id to start.
+Multiple instance ids may be set.
+.RS
+.RE
+.TP
+.B \-d, \[en]dry
+Activates dry run.
+Permissions and instance ids will be checked by AWS, but no instance
+will be started.
+.RS
+.RE
+.TP
+.B \-o, \[en]output \f[I]output\f[]
+Selects output format.
+The default is \f[I]human\f[].
+Available options are \f[I]human\f[] and \f[I]json\f[].
+.RS
+.RE
+.SS instances stop [\f[I]options\f[]] \f[I]INSTANCE_ID \&...\f[]
+.PP
+\f[I]instances stop\f[] stops instances by instance id and outputs the
+corresponding state changes.
+A prompt will ask for confirmation before any instance is stopped.
+The output can be controlled to allow for human readable format or JSON
+format for post\-processing.
+.TP
+.B \f[I]INSTANCE_ID \&...\f[]
+Sets the instance id to stop.
+Multiple instance ids may be set.
+.RS
+.RE
+.TP
+.B \-d, \[en]dry
+Activates dry run.
+Permissions and instance ids will be checked by AWS, but no instance
+will be stopped.
+.RS
+.RE
+.TP
+.B \[en]force
+Forces instances to stop.
+The instances do not have an opportunity to flush file system caches or
+file system metadata.
+If you use this option, you must perform file system check and repair
+procedures.
+.RS
+.RE
+.TP
+.B \-o, \[en]output \f[I]output\f[]
+Selects output format.
+The default is \f[I]human\f[].
+Available options are \f[I]human\f[] and \f[I]json\f[].
+.RS
+.RE
+.TP
+.B \[en]yes\-i\-really\-really\-mean\-it
+Don't ask for confirmation and stop instances immediately.
+.RS
+.RE
 .SS instances terminate [\f[I]options\f[]] \f[I]INSTANCE_ID \&...\f[]
 .PP
 \f[I]instances terminate\f[] terminates instances by instance id and
