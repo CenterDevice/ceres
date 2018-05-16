@@ -6,6 +6,11 @@ and this project adheres to [Semantic Versioning](http://semver.org/spec/v2.0.0.
 
 ## [Unreleased]
 
+## [0.0.11] - 2018-05-16
+
+### Fixed
+- Fix zsh completions
+
 ## [0.0.10] - 2018-05-15
 
 ### Added
@@ -13,7 +18,6 @@ and this project adheres to [Semantic Versioning](http://semver.org/spec/v2.0.0.
 - Add `human_panic`.
 
 ### Fixed
-
 - Fix Homebrew recipe.
 
 ## [0.0.9] - 2018-04-15
@@ -53,7 +57,8 @@ Add deployments in Travis build.
 ### Changed
 - `instances terminate` uses `warn!` macro instead of yellow `println!` to output warning in case of active dry mode.
 
-[Unreleased]: https://github.com/lukaspustina/ceres/compare/v0.0.10...HEAD
+[Unreleased]: https://github.com/lukaspustina/ceres/compare/v0.0.11...HEAD
+[0.0.11]: https://github.com/lukaspustina/ceres/compare/v0.0.10...v0.0.11
 [0.0.10]: https://github.com/lukaspustina/ceres/compare/v0.0.9...v0.0.10
 [0.0.9]: https://github.com/lukaspustina/ceres/compare/v0.0.8...v0.0.9
 [0.0.8]: https://github.com/lukaspustina/ceres/compare/v0.0.7...v0.0.8
