@@ -42,6 +42,7 @@ addons:
     - binutils-dev
     - libiberty-dev
 after_success: |
+  echo "Running integration tests" && (cd tests; make) && echo "Integration tests finished"
   if [[ "$TRAVIS_OS_NAME" == "linux" && "$CODECOV" ]]; then
     wget https://github.com/SimonKagstrom/kcov/archive/master.tar.gz &&
     tar xzf master.tar.gz &&
