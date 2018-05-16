@@ -25,7 +25,6 @@ impl Module for SubModule {
                 Arg::with_name("dry")
                     .long("dry")
                     .short("d")
-                    .conflicts_with("yes")
                     .help("Makes a dry run without actually starting the instances"),
             )
             .arg(
