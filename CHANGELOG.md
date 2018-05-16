@@ -8,6 +8,9 @@ and this project adheres to [Semantic Versioning](http://semver.org/spec/v2.0.0.
 
 ## [0.0.11] - 2018-05-16
 
+### Added
+- Move Rust stable to required build target
+
 ### Fixed
 - Fix zsh completions
 
