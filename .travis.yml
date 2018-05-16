@@ -27,7 +27,6 @@ matrix:
     rust: nightly
     os: osx
   allow_failures:
-  - rust: stable
   - rust: beta
   - rust: nightly
 sudo: required
