@@ -3,6 +3,7 @@ use clap::{App, Arg, ArgMatches, SubCommand};
 use config::{CeresConfig as Config, Provider};
 use run_config::RunConfig;
 use modules::*;
+use modules::instances::read_instance_ids;
 use output::OutputType;
 use output::instances::{JsonOutputStateChanges, OutputStateChanges, TableOutputStatusChanges};
 use provider::{StateChange, StartInstances};
@@ -19,7 +20,7 @@ impl Module for SubModule {
                 Arg::with_name("instance_ids")
                     .multiple(true)
                     .required(true)
-                    .help("Instance Ids to start"),
+                    .help("Instance Ids to start; or '-' to read json with instance ids from stdin"),
             )
             .arg(
                 Arg::with_name("dry")
@@ -71,9 +72,7 @@ fn start_instances(
         warn!("Running in dry mode -- no changes will be executed.");
     }
 
-    let instance_ids: Vec<_> = args.values_of("instance_ids")
-        .unwrap() // Safe
-        .map(String::from).collect();
+    let instance_ids: Vec<_> = read_instance_ids(args)?;
 
     provider
         .start_instances(dry, &instance_ids)

@@ -6,6 +6,12 @@ and this project adheres to [Semantic Versioning](http://semver.org/spec/v2.0.0.
 
 ## [Unreleased]
 
+### Added
+- instance commands take instance id via stdin where appropriate. So you can do stuff like this:
+    ```bash
+      ceres instances list --filter "Tags=Name=.*rabbit.*" --output json | ceres instances run - -- w
+    ```
+
 ## [0.0.11] - 2018-05-16
 
 ### Added

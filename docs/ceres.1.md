@@ -112,7 +112,7 @@ The *instances* modules interacts with instances in the environment selected by 
   *instances run* connects to multiple instance and runs a single command on each instance. By default, the instances' private IP addresses are used. The remote login name is read from the corresponding profile configuration in the configuration file, or set as option, or the local user name is used. The difference of this command compared to *instances ssh* is that this command logs all output to separate files instead of printing to all output to the console.
 
   *INSTANCE_ID ...*
-  : Sets the instance ids to connect to.
+  : Sets the instance ids to connect to; or '-' to read json with instance ids from stdin. Multiple instance ids may be set.
 
   *COMMAND_ARGS ...*
   : Sets the command and its arguments to execute on the remote instance. These have to be that last argument which requires a prefixing *--*.
@@ -159,7 +159,7 @@ The *instances* modules interacts with instances in the environment selected by 
   *instances start* starts instances by instance id and outputs the corresponding state changes. The output can be controlled to allow for human readable format or JSON format for post-processing.
 
   *INSTANCE_ID ...*
-  : Sets the instance id to start. Multiple instance ids may be set.
+  : Sets the instance id to start; or '-' to read json with instance ids from stdin. Multiple instance ids may be set.
 
   -d, --dry
   : Activates dry run. Permissions and instance ids will be checked by AWS, but no instance will be started.
@@ -172,7 +172,7 @@ The *instances* modules interacts with instances in the environment selected by 
   *instances stop* stops instances by instance id and outputs the corresponding state changes. A prompt will ask for confirmation before any instance is stopped. The output can be controlled to allow for human readable format or JSON format for post-processing.
 
   *INSTANCE_ID ...*
-  : Sets the instance id to stop. Multiple instance ids may be set.
+  : Sets the instance id to stop; or '-' to read json with instance ids from stdin. Multiple instance ids may be set.
 
   -d, --dry
   : Activates dry run. Permissions and instance ids will be checked by AWS, but no instance will be stopped.
@@ -191,7 +191,7 @@ The *instances* modules interacts with instances in the environment selected by 
   *instances terminate* terminates instances by instance id and outputs the corresponding state changes. A prompt will ask for confirmation before any termination is executed. The output can be controlled to allow for human readable format or JSON format for post-processing.
 
   *INSTANCE_ID ...*
-  : Sets the instance id to terminate. Multiple instance ids may be set.
+  : Sets the instance id to terminate; or '-' to read json with instance ids from stdin. Multiple instance ids may be set.
 
   -d, --dry
   : Activates dry run. Permissions and instance ids will be checked by AWS, but no instance will be terminated.

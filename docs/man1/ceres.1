@@ -195,7 +195,9 @@ that this command logs all output to separate files instead of printing
 to all output to the console.
 .TP
 .B \f[I]INSTANCE_ID \&...\f[]
-Sets the instance ids to connect to.
+Sets the instance ids to connect to; or `\-' to read json with instance
+ids from stdin.
+Multiple instance ids may be set.
 .RS
 .RE
 .TP
@@ -284,7 +286,8 @@ The output can be controlled to allow for human readable format or JSON
 format for post\-processing.
 .TP
 .B \f[I]INSTANCE_ID \&...\f[]
-Sets the instance id to start.
+Sets the instance id to start; or `\-' to read json with instance ids
+from stdin.
 Multiple instance ids may be set.
 .RS
 .RE
@@ -311,7 +314,8 @@ The output can be controlled to allow for human readable format or JSON
 format for post\-processing.
 .TP
 .B \f[I]INSTANCE_ID \&...\f[]
-Sets the instance id to stop.
+Sets the instance id to stop; or `\-' to read json with instance ids
+from stdin.
 Multiple instance ids may be set.
 .RS
 .RE
@@ -352,7 +356,8 @@ The output can be controlled to allow for human readable format or JSON
 format for post\-processing.
 .TP
 .B \f[I]INSTANCE_ID \&...\f[]
-Sets the instance id to terminate.
+Sets the instance id to terminate; or `\-' to read json with instance
+ids from stdin.
 Multiple instance ids may be set.
 .RS
 .RE

@@ -9,6 +9,7 @@ use tempfile;
 
 use config::{CeresConfig as Config, Provider};
 use modules::*;
+use modules::instances::read_instance_ids;
 use output::OutputType;
 use output::instances::{JsonOutputCommandResults, OutputCommandResults, TableOutputCommandResults};
 use provider::{DescribeInstance, InstanceDescriptor};
@@ -27,7 +28,7 @@ impl Module for SubModule {
                 Arg::with_name("instance_ids")
                     .required(true)
                     .multiple(true)
-                    .help("Runs command on instances with these instance id"),
+                    .help("Runs command on instances with these instance id; or '-' to read json with instance ids from stdin"),
             )
             .arg(
                 Arg::with_name("command_args")
@@ -125,10 +126,7 @@ fn describe_instances(
     }.chain_err(|| ErrorKind::ModuleFailed(NAME.to_owned()))?;
     let Provider::Aws(ref provider) = profile.provider;
 
-    let instance_ids: Vec<_> = args.values_of("instance_ids")
-        .unwrap() // Safe
-        .map(String::from)
-        .collect();
+    let instance_ids: Vec<_> = read_instance_ids(args)?;
 
     let res: Result<Vec<InstanceDescriptor>> = instance_ids.iter().
         map(|id| provider
@@ -138,6 +136,8 @@ fn describe_instances(
 
     res
 }
+
+
 
 fn build_commands(
     args: &ArgMatches,
