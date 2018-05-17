@@ -6,12 +6,18 @@ and this project adheres to [Semantic Versioning](http://semver.org/spec/v2.0.0.
 
 ## [Unreleased]
 
+### Fixed
+- Fixes #14 by treating `ssh-opts` the same for `instances run` and `instances ssh`. You have to use it like this:
+    ```bash
+    ceres instances ssh i-0af7400f10e5b0249 --ssh-opt=-i --ssh-opt=/Users/lukas/.ssh/id_rsa
+    ```
+
 ## [0.0.12] - 2018-05-17
 
 ### Added
 - instance commands take instance id via stdin where appropriate. So you can do stuff like this:
     ```bash
-      ceres instances list --filter "Tags=Name=.*rabbit.*" --output json | ceres instances run - -- w
+    ceres instances list --filter "Tags=Name=.*rabbit.*" --output json | ceres instances run - -- w
     ```
 
 ## [0.0.11] - 2018-05-16

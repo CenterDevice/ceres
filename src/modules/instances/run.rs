@@ -137,8 +137,6 @@ fn describe_instances(
     res
 }
 
-
-
 fn build_commands(
     args: &ArgMatches,
     run_config: &RunConfig,

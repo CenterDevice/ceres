@@ -6,7 +6,7 @@ use std::os::unix::process::CommandExt;
 pub fn ssh_to_ip_address<T: Into<IpAddr>>(
     ip: T,
     command: Option<&str>,
-    ssh_opts: Option<&str>,
+    ssh_opts: Option<Vec<String>>
 ) -> Result<()> {
     let ip_addr: IpAddr = ip.into();
 
@@ -14,7 +14,7 @@ pub fn ssh_to_ip_address<T: Into<IpAddr>>(
     let ssh_ip = ssh_command.arg(ip_addr.to_string());
 
     let ssh_options = if let Some(opts) = ssh_opts {
-        ssh_ip.args(opts.split(' '))
+        ssh_ip.args(opts)
     } else {
         ssh_ip
     };
