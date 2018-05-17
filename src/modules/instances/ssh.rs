@@ -100,7 +100,6 @@ fn ssh_to_instance(
     let command = args.values_of("command_args")
         .map(|x| x.collect::<Vec<_>>().join(" "));
 
-    let login_name_str: String; // Borrow checker
     let mut ssh_opts: Vec<_> = args.values_of("ssh-opts")
         .map(|x| x
              .map(|s| s.to_owned())
