@@ -6,6 +6,8 @@ and this project adheres to [Semantic Versioning](http://semver.org/spec/v2.0.0.
 
 ## [Unreleased]
 
+## [0.0.12] - 2018-05-17
+
 ### Added
 - instance commands take instance id via stdin where appropriate. So you can do stuff like this:
     ```bash
@@ -66,7 +68,8 @@ Add deployments in Travis build.
 ### Changed
 - `instances terminate` uses `warn!` macro instead of yellow `println!` to output warning in case of active dry mode.
 
-[Unreleased]: https://github.com/lukaspustina/ceres/compare/v0.0.11...HEAD
+[Unreleased]: https://github.com/lukaspustina/ceres/compare/v0.0.12...HEAD
+[0.0.12]: https://github.com/lukaspustina/ceres/compare/v0.0.11...v0.0.12
 [0.0.11]: https://github.com/lukaspustina/ceres/compare/v0.0.10...v0.0.11
 [0.0.10]: https://github.com/lukaspustina/ceres/compare/v0.0.9...v0.0.10
 [0.0.9]: https://github.com/lukaspustina/ceres/compare/v0.0.8...v0.0.9
