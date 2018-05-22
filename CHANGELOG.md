@@ -6,6 +6,9 @@ and this project adheres to [Semantic Versioning](http://semver.org/spec/v2.0.0.
 
 ## [Unreleased]
 
+### Fixed
+- Fixes #3: `ceres ops issues create` wait for with prompt in order to ensure that your editor finished unless `--no-wait` is set.
+
 
 ## [0.0.13] - 2018-05-17
 

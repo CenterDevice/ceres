@@ -1,3 +1,4 @@
+use clams::console::ask_for_confirmation;
 use clap::{App, Arg, ArgMatches, SubCommand};
 use hubcaps::{Credentials, Github};
 use hubcaps::issues::{Issue, IssueOptions};
@@ -71,6 +72,12 @@ impl Module for SubModule {
                     .help("Sets labels for new issue"),
             )
             .arg(
+                Arg::with_name("no-wait")
+                    .long("no-wait")
+                    .requires("interactive")
+                    .help("Do not wait for editor to finish in interactive mode"),
+            )
+            .arg(
                 Arg::with_name("show-in-browser")
                     .long("show-in-browser")
                     .help("Opens newly created issue in web browser"),
@@ -113,7 +120,7 @@ fn do_call(args: &ArgMatches, run_config: &RunConfig, config: &Config) -> Result
         local_template.push(&issue_tracker.default_issue_template_name);
         let path = create_tempfile_from_template(args.value_of("template"), &local_template.to_string_lossy())?;
         debug!("Editing file {:?}", path);
-        edit_file(&path, &editor)?;
+        edit_file(&path, &editor, !args.is_present("no-wait"))?;
         path
     } else {
         Path::new(args.value_of("filename").unwrap()).to_path_buf() // Safe unwrap
@@ -157,13 +164,17 @@ fn create_tempfile_from_template(template: Option<&str>, default_template: &str)
     Ok(tmpfile_path)
 }
 
-fn edit_file(file: &Path, editor: &OsString) -> Result<()> {
+fn edit_file(file: &Path, editor: &OsString, wait_for_completion: bool) -> Result<()> {
     let mut ed = Command::new(editor)
         .arg(file.as_os_str())
         .spawn()
         .chain_err(|| ErrorKind::ModuleFailed(NAME.to_owned()))?;
     let _ = ed.wait()
         .chain_err(|| ErrorKind::ModuleFailed(NAME.to_owned()))?;
+
+    if wait_for_completion {
+      let _ = ask_for_confirmation("Press <Return> when finished ...", "");
+    }
 
     Ok(())
 }

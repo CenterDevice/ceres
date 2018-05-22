@@ -228,6 +228,9 @@ The *ops* modules include various ops related commands to ease regular ops tasks
   --show-in-browser
   : Opens newly created issue in web browser.
 
+  --no-wait
+  : Do not wait for editor to finish in interactive mode
+
   -f, --filename *filename*
   : Sets file name of markdown file to fill issue with. This option conflicts with *-i*.
 
