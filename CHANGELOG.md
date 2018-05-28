@@ -6,6 +6,11 @@ and this project adheres to [Semantic Versioning](http://semver.org/spec/v2.0.0.
 
 ## [Unreleased]
 
+
+
+
+## [0.0.14] - 2018-05-28
+
 ### Fixed
 - Fixes #3: `ceres ops issues create` wait for with prompt in order to ensure that your editor finished unless `--no-wait` is set.
 - Fixes #25: "_Allow ceres instances ssh to receive Instance ID from stdin_" by adding plain output to `instances list`.
@@ -81,7 +86,8 @@ Add deployments in Travis build.
 ### Changed
 - `instances terminate` uses `warn!` macro instead of yellow `println!` to output warning in case of active dry mode.
 
-[Unreleased]: https://github.com/lukaspustina/ceres/compare/v0.0.13...HEAD
+[Unreleased]: https://github.com/lukaspustina/ceres/compare/v0.0.14...HEAD
+[0.0.14]: https://github.com/lukaspustina/ceres/compare/v0.0.13...v0.0.14
 [0.0.13]: https://github.com/lukaspustina/ceres/compare/v0.0.12...v0.0.13
 [0.0.12]: https://github.com/lukaspustina/ceres/compare/v0.0.11...v0.0.12
 [0.0.11]: https://github.com/lukaspustina/ceres/compare/v0.0.10...v0.0.11
