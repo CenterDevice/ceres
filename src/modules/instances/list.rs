@@ -4,7 +4,7 @@ use config::{CeresConfig as Config, Provider};
 use run_config::RunConfig;
 use modules::*;
 use output::OutputType;
-use output::instances::{JsonOutputInstances, OutputInstances, TableOutputInstances};
+use output::instances::{JsonOutputInstances, OutputInstances, PlainOutputInstances, TableOutputInstances};
 use provider::{DescribeInstances, InstanceDescriptor, InstanceDescriptorFields};
 
 pub const NAME: &str = "list";
@@ -28,7 +28,7 @@ impl Module for SubModule {
                     .short("o")
                     .takes_value(true)
                     .default_value("human")
-                    .possible_values(&["human", "json"])
+                    .possible_values(&["human", "json", "plain"])
                     .help("Selects output format"),
             )
             .arg(
@@ -131,7 +131,17 @@ fn output_instances(
                 .chain_err(|| ErrorKind::ModuleFailed(String::from(NAME)))
         },
         OutputType::Plain => {
-            unimplemented!("'Plain' output is not supported for this module");
+            let fields: ::std::result::Result<Vec<_>, _> = args.value_of("output-options").unwrap() // Safe unwrap
+                .split(',')
+                .map(|s| s.parse::<InstanceDescriptorFields>())
+                .collect();
+            let fields =
+                fields.map_err(|e| Error::with_chain(e, ErrorKind::ModuleFailed(NAME.to_owned())))?;
+            let output = PlainOutputInstances { fields };
+
+            output
+                .output(&mut stdout, instances)
+                .chain_err(|| ErrorKind::ModuleFailed(String::from(NAME)))
         }
     }
 }

@@ -55,7 +55,7 @@ The *consul* modules interacts with the consul cluster in the environment select
 
 ### consul list [*options*]
 
-  *consul list* shows all currently active nodes and their services. Nodes can be filtered by service names and service tags. The output can be controlled to allow for human readable format as well as plain or JSON format for post-processing.
+  *consul list* shows all currently active nodes and their services. Nodes can be filtered by service names and service tags. The output can be controlled to allow for human readable and plain format as well as plain or JSON format for post-processing.
 
   -o, --output *output*
   : Selects output format. The default is *human* and the possible values are: 
@@ -82,7 +82,7 @@ The *instances* modules interacts with instances in the environment selected by 
 
 ### instances list [*options*]
 
-  *instances list* shows all currently active instances. Instances can be filtered and the output can be controlled to allow for human readable format or JSON format for post-processing.
+  *instances list* shows all currently active instances. Instances can be filtered and the output can be controlled to allow for human readable, plain, or JSON format for post-processing.
 
   -f, --filter *filter*
   : Filters instances by description fields. The filter syntax is *\<description field\>=\<reg ex\>*. Multiple filters can be used and have to be separated by ','. Each description field will be matched against the regular expression. Only instances matching all description field will be selected.
@@ -96,7 +96,7 @@ The *instances* modules interacts with instances in the environment selected by 
     BlockDeviceMappings, Hypervisor, IamInstanceProfile, ImageId, InstanceId, InstanceType, LaunchTime, Monitoring, Placement, PrivateDnsName, PrivateIpAddress, PublicDnsName, PublicIpAddress, RootDeviceName, RootDeviceType, SecurityGroups, State, StateReason, Tags(_), VirtualizationType, VpcId
 
   -o, --output *output*
-  : Selects output format. The default is *human*. Available options are *human* and *json*.
+  : Selects output format. The default is *human*. Available options are *human*, *plain*, and *json*.
 
   --output-options *output-options*
   : Selects the instance description fields for human output. The default is 'InstanceId,InstanceType,State,PrivateIpAddress,PublicIpAddress,LaunchTime'. The special description field *Tags* may take a list of concrete tags to show. The corresponding syntax is similar to the tags filter and is *Tags[=\<tag name\>]*. Multiple tags can be used have to separated by ':'.
