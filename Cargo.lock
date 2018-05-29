@@ -146,7 +146,7 @@ dependencies = [
  "rusoto_ec2 0.31.0 (registry+https://github.com/rust-lang/crates.io-index)",
  "rusoto_sts 0.31.0 (registry+https://github.com/rust-lang/crates.io-index)",
  "serde 1.0.63 (registry+https://github.com/rust-lang/crates.io-index)",
- "serde_derive 1.0.62 (registry+https://github.com/rust-lang/crates.io-index)",
+ "serde_derive 1.0.63 (registry+https://github.com/rust-lang/crates.io-index)",
  "serde_json 1.0.18 (registry+https://github.com/rust-lang/crates.io-index)",
  "service_world 0.1.1 (registry+https://github.com/rust-lang/crates.io-index)",
  "spectral 0.6.0 (registry+https://github.com/rust-lang/crates.io-index)",
@@ -486,7 +486,7 @@ dependencies = [
  "hyper-tls 0.1.2 (registry+https://github.com/rust-lang/crates.io-index)",
  "log 0.4.1 (registry+https://github.com/rust-lang/crates.io-index)",
  "serde 1.0.63 (registry+https://github.com/rust-lang/crates.io-index)",
- "serde_derive 1.0.62 (registry+https://github.com/rust-lang/crates.io-index)",
+ "serde_derive 1.0.63 (registry+https://github.com/rust-lang/crates.io-index)",
  "serde_json 1.0.18 (registry+https://github.com/rust-lang/crates.io-index)",
  "tokio-core 0.1.17 (registry+https://github.com/rust-lang/crates.io-index)",
  "url 1.6.0 (registry+https://github.com/rust-lang/crates.io-index)",
@@ -501,7 +501,7 @@ dependencies = [
  "failure 0.1.1 (registry+https://github.com/rust-lang/crates.io-index)",
  "os_type 2.0.0 (registry+https://github.com/rust-lang/crates.io-index)",
  "serde 1.0.63 (registry+https://github.com/rust-lang/crates.io-index)",
- "serde_derive 1.0.62 (registry+https://github.com/rust-lang/crates.io-index)",
+ "serde_derive 1.0.63 (registry+https://github.com/rust-lang/crates.io-index)",
  "tempdir 0.3.7 (registry+https://github.com/rust-lang/crates.io-index)",
  "termcolor 0.3.6 (registry+https://github.com/rust-lang/crates.io-index)",
  "toml 0.4.6 (registry+https://github.com/rust-lang/crates.io-index)",
@@ -1224,7 +1224,7 @@ source = "registry+https://github.com/rust-lang/crates.io-index"
 
 [[package]]
 name = "serde_derive"
-version = "1.0.62"
+version = "1.0.63"
 source = "registry+https://github.com/rust-lang/crates.io-index"
 dependencies = [
  "proc-macro2 0.4.3 (registry+https://github.com/rust-lang/crates.io-index)",
@@ -1252,7 +1252,7 @@ dependencies = [
  "handlebars 0.29.1 (registry+https://github.com/rust-lang/crates.io-index)",
  "hyper 0.11.16 (registry+https://github.com/rust-lang/crates.io-index)",
  "serde 1.0.63 (registry+https://github.com/rust-lang/crates.io-index)",
- "serde_derive 1.0.62 (registry+https://github.com/rust-lang/crates.io-index)",
+ "serde_derive 1.0.63 (registry+https://github.com/rust-lang/crates.io-index)",
  "serde_json 1.0.18 (registry+https://github.com/rust-lang/crates.io-index)",
  "tokio-core 0.1.17 (registry+https://github.com/rust-lang/crates.io-index)",
  "toml 0.4.6 (registry+https://github.com/rust-lang/crates.io-index)",
@@ -1944,7 +1944,7 @@ dependencies = [
 "checksum semver 0.6.0 (registry+https://github.com/rust-lang/crates.io-index)" = "7a3186ec9e65071a2095434b1f5bb24838d4e8e130f584c790f6033c79943537"
 "checksum semver-parser 0.7.0 (registry+https://github.com/rust-lang/crates.io-index)" = "388a1df253eca08550bef6c72392cfe7c30914bf41df5269b68cbd6ff8f570a3"
 "checksum serde 1.0.63 (registry+https://github.com/rust-lang/crates.io-index)" = "6f4a07014dd9a6845448a9e62f6f27595847f09828caabf1b1d50bb6755fa4d2"
-"checksum serde_derive 1.0.62 (registry+https://github.com/rust-lang/crates.io-index)" = "9503e0851dc4398d7f7ee1da227f9c9b9cf82718eb239ab10847b1de6e2a5777"
+"checksum serde_derive 1.0.63 (registry+https://github.com/rust-lang/crates.io-index)" = "d68003d21ef20c5c48354638c2e5c0d4ce4a056fdbf973839e0e86054eae7794"
 "checksum serde_json 1.0.18 (registry+https://github.com/rust-lang/crates.io-index)" = "ee382a792fabc5d720630aeafe1a4c69abe3d32aaaa5dbba6762fd8246d1bbe3"
 "checksum service_world 0.1.1 (registry+https://github.com/rust-lang/crates.io-index)" = "69088f258f36e400cb6f8b5a424f949142d6eeaeadd7ff6e6c41918a651363db"
 "checksum sha2 0.7.0 (registry+https://github.com/rust-lang/crates.io-index)" = "7daca11f2fdb8559c4f6c588386bed5e2ad4b6605c1442935a7f08144a918688"
