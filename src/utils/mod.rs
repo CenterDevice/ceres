@@ -128,7 +128,17 @@ pub mod run {
     use output::instances::{JsonOutputCommandResults, OutputCommandResults, TableOutputCommandResults};
     use utils::command::{Command, CommandResult, ExitStatus};
 
-    pub fn run(commands: Vec<Command>) -> Result<Vec<CommandResult>> {
+    pub fn run(commands: Vec<Command>, use_progress_bar: bool) -> Result<Vec<CommandResult>>  {
+        if use_progress_bar {
+            debug!("Running commands with progress bar.");
+            run_with_progress(commands)
+        } else {
+            debug!("Running commands without progress bar.");
+            run_without_progress(commands)
+        }.chain_err(|| ErrorKind::FailedToRunCommands)
+    }
+
+    pub fn run_without_progress(commands: Vec<Command>) -> Result<Vec<CommandResult>> {
         let mut results = Vec::new();
 
         for cmd in commands.into_iter() {
@@ -235,7 +245,39 @@ pub mod ssh {
     use std::time::Duration;
     use tempfile;
 
+    use provider::InstanceDescriptor;
     use utils::command::Command;
+
+    pub fn build_ssh_command_to_instances(
+        instances: &[InstanceDescriptor],
+        use_public_ip: bool,
+        login_name: Option<&String>,
+        ssh_opts: &[&str],
+        remote_commands_args: &[&str],
+        timeout: Duration)
+    -> Result<Vec<Command>>  {
+
+        let commands: Result<Vec<_>> = instances.iter()
+            .map(|i| {
+                let ip_addr: IpAddr = if use_public_ip {
+                    i.public_ip_address.as_ref()
+                } else {
+                    i.private_ip_address.as_ref()
+                }
+                    .map(|ip| ip.parse())
+                    // TODO Fix me!
+                    .chain_err(|| ErrorKind::FailedToBuildSshCommand)?
+                    .chain_err(|| ErrorKind::FailedToBuildSshCommand)?;
+                let instance_id = i.instance_id.as_ref()
+                    .chain_err(|| ErrorKind::FailedToBuildSshCommand)?;
+                let command = build_ssh_command_to_instance(&instance_id, &ip_addr, login_name, &ssh_opts, &remote_commands_args, timeout)?;
+                trace!("ssh_args for instance {}: {:#?}", instance_id, command);
+                Ok(command)
+            }).collect();
+
+        commands
+    }
+
 
     pub fn build_ssh_command_to_instance(
         instance_id: &str,
@@ -300,6 +342,9 @@ error_chain! {
         FailedToRunCommand(cmd: String) {
             description("Failed to run command")
             display("Failed to run command '{}'", cmd)
+        }
+        FailedToRunCommands {
+            description("Failed to run commands")
         }
         FailedToOutput{
             description("Failed to output")

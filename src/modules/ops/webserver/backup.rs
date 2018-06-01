@@ -2,7 +2,6 @@ use clap::{App, Arg, ArgMatches, SubCommand};
 use itertools::Itertools;
 use std::collections::HashMap;
 use std::time::Duration;
-use std::net::IpAddr;
 
 use config::{CeresConfig as Config, Profile, Provider};
 use modules::*;
@@ -10,7 +9,6 @@ use output::OutputType;
 use provider::{DescribeInstances, InstanceDescriptor};
 use provider::filter;
 use run_config::RunConfig;
-use utils::command::{Command, CommandResult};
 use utils::run;
 use utils::ssh;
 
@@ -134,14 +132,16 @@ fn do_call(args: &ArgMatches, run_config: &RunConfig, config: &Config) -> Result
     let commands: Result<Vec<_>> = COMMANDS.iter()
         .map(|c| {
             let command_args: Vec<_> = c.split(' ').collect();
-            build_commands(&instances, public_ip, profile.ssh_user.as_ref(), &ssh_opts, &command_args.as_slice(), timeout)
+            ssh::build_ssh_command_to_instances(&instances, public_ip, profile.ssh_user.as_ref(), &ssh_opts, &command_args.as_slice(), timeout)
+                .chain_err(|| ErrorKind::ModuleFailed(NAME.to_owned()))
         }).collect();
     let commands = commands?;
 
     info!("Running commands.");
     let results: Result<Vec<_>>  = commands.into_iter()
         .map(|cs|
-            run(cs, progress_bar)
+            run::run(cs, progress_bar)
+                .chain_err(|| ErrorKind::ModuleFailed(NAME.to_owned()))
         ).collect();
     let results: Vec<_> = results?.into_iter().flatten().collect();
 
@@ -168,38 +168,5 @@ fn find_instances(profile: &Profile) -> Result<Vec<InstanceDescriptor>> {
         .collect();
 
     Ok(webservers)
-}
-
-fn build_commands(instances: &[InstanceDescriptor], use_public_ip: bool, login_name: Option<&String>, ssh_opts: &[&str], remote_commands_args: &[&str], timeout: Duration) -> Result<Vec<Command>>  {
-    let commands: Result<Vec<_>> = instances.iter()
-        .map(|i| {
-            let ip_addr: IpAddr = if use_public_ip {
-                i.public_ip_address.as_ref()
-            } else {
-                i.private_ip_address.as_ref()
-            }
-                .map(|ip| ip.parse())
-                // TODO Fix me!
-                .chain_err(|| ErrorKind::ModuleFailed(String::from(NAME)))?
-                .chain_err(|| ErrorKind::ModuleFailed(String::from(NAME)))?;
-            let instance_id = i.instance_id.as_ref()
-                .chain_err(|| ErrorKind::ModuleFailed(String::from(NAME)))?;
-            let command = ssh::build_ssh_command_to_instance(&instance_id, &ip_addr, login_name, &ssh_opts, &remote_commands_args, timeout)
-                .chain_err(|| ErrorKind::ModuleFailed(String::from(NAME)))?;
-            trace!("ssh_args for instance {}: {:#?}", instance_id, command);
-            Ok(command)
-        }).collect();
-
-    commands
-}
-
-fn run(commands: Vec<Command>, use_progress_bar: bool) -> Result<Vec<CommandResult>>  {
-    if use_progress_bar {
-        debug!("Running commands with progress bar.");
-        run::run_with_progress(commands)
-    } else {
-        debug!("Running commands without progress bar.");
-        run::run(commands)
-    }.chain_err(|| ErrorKind::ModuleFailed(String::from(NAME)))
 }
 
