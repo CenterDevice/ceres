@@ -384,6 +384,47 @@ Don't ask for confirmation and terminate instances immediately.
 .PP
 The \f[I]ops\f[] modules include various ops related commands to ease
 regular ops tasks.
+.SS ops asp run [\f[I]options\f[]]
+.PP
+\f[I]ops asp run\f[] run ASP on multiple instances.
+By default, the instances' private IP addresses are used.
+The remote login name is read from the corresponding profile
+configuration in the configuration file, or set as option, or the local
+user name is used.
+.TP
+.B \-l, \[en]login\-name \f[I]login\-name\f[]
+Sets remote login name
+.RS
+.RE
+.TP
+.B \[en]no\-progress\-bar
+Do not show progress bar during command execution.
+This is useful for non\-interactive sessions.
+.RS
+.RE
+.TP
+.B \-p, \[en]public\-ip
+Use public IP address of instance
+.RS
+.RE
+.TP
+.B \[en]show\-all
+Show all command results.
+By default show only results of failed commands.
+.RS
+.RE
+.TP
+.B \[en]ssh\-opt \f[I]ssh\-opts\f[] \&...
+Passes an option to ssh.
+This may be used multiple times.
+.RS
+.RE
+.TP
+.B \[en]timeout \f[I]timeout\f[]
+Sets the timeout in sec for command to finish.
+Default is 300 sec.
+.RS
+.RE
 .SS ops issues browse [\f[I]options\f[]]
 .PP
 \f[I]ops issues browse\f[] opens the GitHub ops issues your default web

@@ -8,7 +8,7 @@ and this project adheres to [Semantic Versioning](http://semver.org/spec/v2.0.0.
 
 ### Added
 - Add `ceres ops webserver backup`
-
+- Add `ceres ops asp run`
 
 ## [0.0.14] - 2018-05-28
 
