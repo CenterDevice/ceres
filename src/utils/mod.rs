@@ -116,8 +116,181 @@ pub mod command {
     }
 }
 
+pub mod run {
+    use super::*;
+
+    use clams::prelude::*;
+    use std::fs::File;
+    use std::sync::mpsc::channel;
+    use std::thread;
+
+    use output::OutputType;
+    use output::instances::{JsonOutputCommandResults, OutputCommandResults, TableOutputCommandResults};
+    use utils::command::{Command, CommandResult, ExitStatus};
+
+    pub fn run(commands: Vec<Command>) -> Result<Vec<CommandResult>> {
+        let mut results = Vec::new();
+
+        for cmd in commands.into_iter() {
+            let (sender, receiver) = channel();
+            results.push(receiver);
+
+            let _ = thread::spawn(move || {
+                let res = cmd.run(None::<fn()>);
+                sender.send(res).unwrap();
+            });
+        }
+        let res = results.iter()
+            .map(|r|
+                r.recv().unwrap()
+                    // TODO: Error should contain the command.
+                    .map_err(|e| Error::with_chain(e, ErrorKind::FailedToRunCommand("<nyi>".to_owned())))
+            )
+            .collect();
+
+        res
+    }
+
+    pub fn run_with_progress(commands: Vec<Command>) -> Result<Vec<CommandResult>> {
+        let mut results = Vec::new();
+        let m = MultiProgress::new();
+
+        for cmd in commands.into_iter() {
+            let (sender, receiver) = channel();
+            results.push(receiver);
+
+            let spinner_style = ProgressStyle::default_clams_spinner();
+            let pb = m.add(ProgressBar::new_spinner());
+            pb.set_style(spinner_style);
+            pb.set_prefix(&format!("{}", &cmd.id));
+            pb.set_message(&cmd.cmd);
+
+            let log_path = cmd.log.clone();
+            let _ = thread::spawn(move || {
+                let progress = || {
+                    let line = File::open(log_path.clone()).unwrap().read_last_line().unwrap();
+
+                    pb.set_message(&format!("Running: {}", line));
+                    pb.inc(1);
+                };
+
+                let res = cmd.run(Some(progress));
+
+                let finish_msg = match &res {
+                    &Ok( CommandResult { id: _, log: _, exit_status: ExitStatus::Exited(0) } ) => format!("{}.", "Done".green()),
+                    &Ok( CommandResult { id: _, log: _, exit_status: ExitStatus::Exited(n) } ) => format!("{} with exit status {}.", "Failed".red(), n),
+                    &Ok(ref result) => format!("{} with {:?}", "Failed".red(), result.exit_status),
+                    &Err(ref e) => format!("{} ({:?})", "Error".red(), e),
+                };
+                pb.finish_with_message(&finish_msg);
+
+                sender.send(res).unwrap();
+            });
+        }
+        m.join().unwrap();
+
+        let res = results.iter()
+            .map(|r|
+                r.recv().unwrap()
+                    // TODO: Error should contain the command.
+                    .map_err(|e| Error::with_chain(e, ErrorKind::FailedToRunCommand("<nyi>".to_owned())))
+            )
+            .collect();
+
+        res
+    }
+
+    pub fn output_results(
+        output_type: OutputType,
+        show_all: bool,
+        results: &[CommandResult],
+    ) -> Result<()> {
+        let mut stdout = ::std::io::stdout();
+
+        match output_type {
+            OutputType::Human => {
+                let output = TableOutputCommandResults { show_all };
+
+                output
+                    .output(&mut stdout, results)
+                    .chain_err(|| ErrorKind::FailedToOutput)
+            },
+            OutputType::Json => {
+                let output = JsonOutputCommandResults;
+
+                output
+                    .output(&mut stdout, results)
+                    .chain_err(|| ErrorKind::FailedToOutput)
+            },
+            OutputType::Plain => {
+                unimplemented!("'Plain' output is not supported for this module");
+            }
+        }
+    }
+}
+
+pub mod ssh {
+    use super::*;
+
+    use std::time::Duration;
+    use tempfile;
+
+    use utils::command::Command;
+
+    pub fn build_ssh_command_to_instance(
+        instance_id: &str,
+        ip_addr: &IpAddr,
+        login_name: Option<&String>,
+        ssh_opts: &[&str],
+        remote_command_args: &[&str],
+        timeout: Duration
+    ) -> Result<Command> {
+
+        let mut ssh_opts: Vec<String> = ssh_opts.iter().map(|s| s.to_string()).collect();
+        if let Some(login_name) = login_name {
+            ssh_opts.insert(0, "-l".to_owned());
+            ssh_opts.insert(1, login_name.to_owned());
+        };
+
+        let mut remote_command_args: Vec<String> = remote_command_args.iter().map(|s| s.to_string()).collect();
+
+        let ssh_args = build_ssh_arguments(&ip_addr, &mut ssh_opts, &mut remote_command_args);
+
+        let log_path = tempfile::NamedTempFile::new()
+            .chain_err(|| ErrorKind::FailedToBuildSshCommand)?
+            .path().to_path_buf();
+        let c = Command {
+            id: instance_id.to_owned(),
+            cmd: "ssh".to_owned(),
+            args: Some(ssh_args),
+            log: log_path,
+            timeout: Some(timeout),
+        };
+        Ok(c)
+    }
+
+    fn build_ssh_arguments(
+        ip_addr: &IpAddr,
+        ssh_opts: &mut Vec<String>,
+        remote_command_args: &mut Vec<String>,
+    ) -> Vec<String> {
+
+        let mut ssh_args = Vec::new();
+
+        ssh_args.append(ssh_opts);
+        ssh_args.push(ip_addr.to_string());
+        ssh_args.append(remote_command_args);
+
+        ssh_args
+    }
+
+}
+
 error_chain! {
     errors {
+        FailedToBuildSshCommand {
+            description("Failed to build ssh command")
+        }
         FailedToExecuteSsh {
             description("Failed to execute ssh")
         }
@@ -127,6 +300,9 @@ error_chain! {
         FailedToRunCommand(cmd: String) {
             description("Failed to run command")
             display("Failed to run command '{}'", cmd)
+        }
+        FailedToOutput{
+            description("Failed to output")
         }
     }
 }
