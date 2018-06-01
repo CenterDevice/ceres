@@ -113,7 +113,7 @@ fn ssh_to_instance(
     if let Some(ip) = ip {
         let ip_addr: IpAddr = ip.parse()
             .chain_err(|| ErrorKind::ModuleFailed(String::from(NAME)))?;
-        utils::ssh_to_ip_address(
+        utils::ssh::exec_ssh_to_ip_address(
             ip_addr,
             command.as_ref().map(|x| x.as_str()),
             Some(ssh_opts),

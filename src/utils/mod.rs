@@ -1,7 +1,5 @@
 use std::net::IpAddr;
 use std::path::PathBuf;
-use std::process::Command;
-use std::os::unix::process::CommandExt;
 
 pub mod cli {
     use serde_json;
@@ -43,34 +41,6 @@ pub mod cli {
             }
         }
     }
-}
-
-pub fn ssh_to_ip_address<T: Into<IpAddr>>(
-    ip: T,
-    command: Option<&str>,
-    ssh_opts: Option<Vec<String>>
-) -> Result<()> {
-    let ip_addr: IpAddr = ip.into();
-
-    let mut ssh_command = Command::new("ssh");
-    let ssh_ip = ssh_command.arg(ip_addr.to_string());
-
-    let ssh_options = if let Some(opts) = ssh_opts {
-        ssh_ip.args(opts)
-    } else {
-        ssh_ip
-    };
-
-    let ssh_command = if let Some(c) = command {
-        ssh_options.arg(c)
-    } else {
-        ssh_options
-    };
-
-    debug!("Exec '{:#?}'; replacing ceres now.", &ssh_command);
-    let err = ssh_command.exec();
-
-    Err(Error::with_chain(err, ErrorKind::FailedToExecuteSsh))
 }
 
 pub mod command {
@@ -289,6 +259,36 @@ pub mod ssh {
 
     use provider::InstanceDescriptor;
     use utils::command::Command;
+
+    pub fn exec_ssh_to_ip_address<T: Into<IpAddr>>(
+        ip: T,
+        command: Option<&str>,
+        ssh_opts: Option<Vec<String>>
+    ) -> Result<()> {
+        use std::os::unix::process::CommandExt;
+
+        let ip_addr: IpAddr = ip.into();
+
+        let mut ssh_command = ::std::process::Command::new("ssh");
+        let ssh_ip = ssh_command.arg(ip_addr.to_string());
+
+        let ssh_options = if let Some(opts) = ssh_opts {
+            ssh_ip.args(opts)
+        } else {
+            ssh_ip
+        };
+
+        let ssh_command = if let Some(c) = command {
+            ssh_options.arg(c)
+        } else {
+            ssh_options
+        };
+
+        debug!("Exec '{:#?}'; replacing ceres now.", &ssh_command);
+        let err = ssh_command.exec();
+
+        Err(Error::with_chain(err, ErrorKind::FailedToExecuteSsh))
+    }
 
     pub fn build_ssh_command_to_instances(
         instances: &[InstanceDescriptor],
