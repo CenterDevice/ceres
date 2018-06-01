@@ -5,6 +5,7 @@ extern crate clap;
 #[macro_use]
 extern crate error_chain;
 extern crate hubcaps;
+extern crate itertools;
 #[macro_use]
 extern crate log;
 extern crate prettytable;

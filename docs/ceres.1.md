@@ -244,6 +244,32 @@ The *ops* modules include various ops related commands to ease regular ops tasks
   : Sets title for issue.
 
 
+### ops webserver backup [*options*]
+
+  *ops webserver backup* executes the backup scripts on the webserver. All machines with the tag "Intent=webserver" are considered webservers. By default, the instances' private IP addresses are used. The remote login name is read from the corresponding profile configuration in the configuration file, or set as option, or the local user name is used. This command assumes that there is only one webserver and refuses to execute if more than one webservers are found. This can be overpowered using `--force`
+
+  -l, --login-name *login-name*
+  : Sets remote login name
+
+  --no-progress-bar
+  : Do not show progress bar during command execution. This is useful for non-interactive sessions.
+
+  --force
+  : Force execution even if more than one webservers are found. Use this with caution.
+
+  -p, --public-ip
+  : Use public IP address of instance
+
+  --show-all
+  : Show all command results. By default show only results of failed commands.
+
+  --ssh-opt *ssh-opts* ...
+  : Passes an option to ssh. This may be used multiple times.
+
+  --timeout *timeout*
+  : Sets the timeout in sec for command to finish. Default is 300 sec.
+
+
 # SHELL COMPLETION
 
 completions --shell *shell*
