@@ -4,10 +4,10 @@ use clap::{App, Arg, ArgMatches, SubCommand};
 use config::{CeresConfig as Config, Provider};
 use run_config::RunConfig;
 use modules::*;
-use modules::instances::read_instance_ids;
 use output::OutputType;
 use output::instances::{JsonOutputStateChanges, OutputStateChanges, TableOutputStatusChanges};
 use provider::{StateChange, TerminateInstances};
+use utils::cli::read_instance_ids;
 
 pub const NAME: &str = "terminate";
 
@@ -92,7 +92,9 @@ fn terminate_instances(
         (false, true) => {}
     }
 
-    let instance_ids: Vec<_> = read_instance_ids(args)?;
+    let instance_ids: Vec<&str> = args.values_of("instance_ids").unwrap_or_else(|| Default::default()).collect();
+    let instance_ids: Vec<_> = read_instance_ids(&instance_ids)
+        .chain_err(|| ErrorKind::ModuleFailed(String::from(NAME)))?;
 
     provider
         .terminate_instances(dry, &instance_ids)

@@ -3,6 +3,48 @@ use std::path::PathBuf;
 use std::process::Command;
 use std::os::unix::process::CommandExt;
 
+pub mod cli {
+    use serde_json;
+    use std::io;
+
+    #[derive(Debug, Deserialize)]
+    struct Instance {
+        instance_id: String
+    }
+
+    pub fn read_instance_ids(ids: &[&str]) -> Result<Vec<String>> {
+        let instance_ids: Vec<_> = ids.iter()
+            .map(|s| s.to_string())
+            .collect();
+
+        // Let's check if we shall read instance ids from stdin
+        if instance_ids.len() == 1 && instance_ids[0] == "-" {
+            read_instance_ids_from_stdin()
+        } else {
+            Ok(instance_ids)
+        }
+    }
+
+    fn read_instance_ids_from_stdin() -> Result<Vec<String>> {
+        let instances: Vec<Instance> = serde_json::from_reader(io::stdin())
+            .chain_err(|| ErrorKind::FailedToReadStdin)?;
+
+        let instance_ids: Vec<String> = instances.into_iter()
+            .map(|i| i.instance_id)
+            .collect();
+
+        Ok(instance_ids)
+    }
+
+    error_chain! {
+        errors {
+            FailedToReadStdin {
+                description("Failed to read instance ids from stdin")
+            }
+        }
+    }
+}
+
 pub fn ssh_to_ip_address<T: Into<IpAddr>>(
     ip: T,
     command: Option<&str>,

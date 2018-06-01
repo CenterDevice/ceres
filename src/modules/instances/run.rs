@@ -3,10 +3,10 @@ use std::time::Duration;
 
 use config::{CeresConfig as Config, Profile, Provider};
 use modules::*;
-use modules::instances::read_instance_ids;
 use output::OutputType;
 use provider::{DescribeInstance, InstanceDescriptor};
 use run_config::RunConfig;
+use utils::cli::read_instance_ids;
 use utils::run;
 use utils::ssh;
 
@@ -91,7 +91,9 @@ fn do_call(args: &ArgMatches, run_config: &RunConfig, config: &Config) -> Result
     }.chain_err(|| ErrorKind::ModuleFailed(NAME.to_owned()))?;
 
     // Parse my args
-    let instance_ids: Vec<_> = read_instance_ids(args)?;
+    let instance_ids: Vec<&str> =  args.values_of("instance_ids").unwrap_or_else(|| Default::default()).collect();
+    let instance_ids: Vec<_> = read_instance_ids(&instance_ids)
+        .chain_err(|| ErrorKind::ModuleFailed(String::from(NAME)))?;
     let public_ip = args.is_present("public-ip");
 
     let ssh_opts: Vec<&str> = args.values_of("ssh-opts").unwrap_or_else(|| Default::default()).collect();
