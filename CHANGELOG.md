@@ -6,6 +6,9 @@ and this project adheres to [Semantic Versioning](http://semver.org/spec/v2.0.0.
 
 ## [Unreleased]
 
+
+## [0.0.15] - 2018-06-01
+
 ### Added
 - Add `ceres ops webserver backup`
 - Add `ceres ops asp run`
@@ -25,6 +28,7 @@ and this project adheres to [Semantic Versioning](http://semver.org/spec/v2.0.0.
     ceres instances ssh i-0af7400f10e5b0249 --ssh-opt=-i --ssh-opt=/Users/lukas/.ssh/id_rsa
     ```
 
+
 ## [0.0.12] - 2018-05-17
 
 ### Added
@@ -33,6 +37,7 @@ and this project adheres to [Semantic Versioning](http://semver.org/spec/v2.0.0.
     ceres instances list --filter "Tags=Name=.*rabbit.*" --output json | ceres instances run - -- w
     ```
 
+
 ## [0.0.11] - 2018-05-16
 
 ### Added
@@ -40,6 +45,7 @@ and this project adheres to [Semantic Versioning](http://semver.org/spec/v2.0.0.
 
 ### Fixed
 - Fix zsh completions
+
 
 ## [0.0.10] - 2018-05-15
 
@@ -50,9 +56,11 @@ and this project adheres to [Semantic Versioning](http://semver.org/spec/v2.0.0.
 ### Fixed
 - Fix Homebrew recipe.
 
+
 ## [0.0.9] - 2018-04-15
 
 Add deployments in Travis build.
+
 
 ## [0.0.8] - 2018-04-14
 
@@ -68,15 +76,18 @@ Add deployments in Travis build.
 ### Removed
 - Broken use case tests
 
+
 ## [0.0.7] - 2018-04-06
 
 ### Add
 - show-example-config module to echo an example configuration.
 
+
 ## [0.0.6] - 2018-04-01
 
 ### Changed
 - Use utils from `clams` instead of reinventing the wheel and maintaining all the general purpose utils.
+
 
 ## [0.0.5] - 2018-03-29
 
@@ -87,7 +98,8 @@ Add deployments in Travis build.
 ### Changed
 - `instances terminate` uses `warn!` macro instead of yellow `println!` to output warning in case of active dry mode.
 
-[Unreleased]: https://github.com/lukaspustina/ceres/compare/v0.0.14...HEAD
+[Unreleased]: https://github.com/lukaspustina/ceres/compare/v0.0.15...HEAD
+[0.0.15]: https://github.com/lukaspustina/ceres/compare/v0.0.14...v0.0.15
 [0.0.14]: https://github.com/lukaspustina/ceres/compare/v0.0.13...v0.0.14
 [0.0.13]: https://github.com/lukaspustina/ceres/compare/v0.0.12...v0.0.13
 [0.0.12]: https://github.com/lukaspustina/ceres/compare/v0.0.11...v0.0.12
