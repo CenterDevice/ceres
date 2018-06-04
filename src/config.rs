@@ -39,6 +39,7 @@ pub struct GitHub {
 #[derive(Debug, Serialize, Deserialize, PartialEq)]
 pub struct Profile {
     pub ssh_user: Option<String>,
+    pub local_base_dir: Option<String>,
     pub issue_tracker: IssueTracker,
     pub provider: Provider,
     pub consul: Consul,
@@ -102,6 +103,7 @@ mod tests {
         };
         let prod_profile = Profile {
             ssh_user: Some("a_user".to_owned()),
+            local_base_dir: Some("path/to/your/infrastructure/aws/prod/directory".to_owned()),
             issue_tracker,
             provider: Provider::Aws(aws_provider),
             consul,
@@ -137,6 +139,10 @@ mod tests {
 
         assert_that(&config.profiles).contains_key(String::from("prod"));
         let default_profile = config.profiles.get("prod").unwrap();
+
+        let profile = default_profile;
+        assert_that(&profile.ssh_user).is_some().is_equal_to("a_user".to_owned());
+        assert_that(&profile.local_base_dir).is_some().is_equal_to("path/to/your/infrastructure/aws/prod/directory".to_owned());
 
         let &Provider::Aws(ref aws) = &default_profile.provider;
         assert_that(&aws.access_key_id).is_equal_to("a key id".to_owned());
