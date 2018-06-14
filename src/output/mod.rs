@@ -2,6 +2,7 @@ use std::str::FromStr;
 
 pub mod consul;
 pub mod instances;
+pub mod infrastructure;
 
 pub enum OutputType {
     Human,

@@ -4,6 +4,7 @@ extern crate clams_derive;
 extern crate clap;
 #[macro_use]
 extern crate error_chain;
+extern crate ignore;
 extern crate hubcaps;
 extern crate itertools;
 #[macro_use]
@@ -39,7 +40,7 @@ macro_rules! sub_module {
         use modules::*;
 
         $(
-        mod $submodule;
+        pub mod $submodule;
         )*
 
         pub const NAME: &str = $name;

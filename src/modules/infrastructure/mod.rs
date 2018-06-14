@@ -1,2 +1,2 @@
-sub_module!("ops", "Do ops with infrastructure repos", asp);
+sub_module!("infrastructure", "Do stuff with infrastructure repos", asp);
 

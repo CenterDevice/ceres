@@ -18,6 +18,7 @@ colored = "^1.6"
 error-chain = "^0.11"
 log = "^0.4"
 fern = { version = "^0.5", features = ["colored"] }
+ignore = "0.4.2"
 hubcaps = "^0.4"
 human-panic = "^1.0"
 itertools = "^0.7"
