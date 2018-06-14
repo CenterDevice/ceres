@@ -6,6 +6,7 @@ and this project adheres to [Semantic Versioning](http://semver.org/spec/v2.0.0.
 
 ## [Unreleased]
 
+- Add `ceres infrastructure asp list`
 
 ## [0.0.15] - 2018-06-01
 
