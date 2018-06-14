@@ -55,6 +55,7 @@ pub mod command {
         pub id: String,
         pub cmd: String,
         pub args: Option<Vec<String>>,
+        pub cwd: Option<String>,
         pub log: PathBuf,
         pub timeout: Option<Duration>,
     }
@@ -89,12 +90,20 @@ pub mod command {
         pub fn run<T: Fn() -> ()>(self, progress: Option<T>) -> Result<CommandResult> {
             debug!("Executing command '{:?}'", self);
             let cmd = self.cmd.clone();
-            let mut p = if let Some(ref args) = self.args {
+            let mut c = if let Some(ref args) = self.args {
                 Exec::cmd(&cmd)
                 .args(args)
             } else {
                 Exec::cmd(&cmd)
-            }
+            };
+
+            c = if let Some(cwd) = self.cwd {
+                c.cwd(cwd)
+            } else {
+                c
+            };
+
+            let mut p = c
                 .stdout(File::create(self.log.clone()).unwrap())
                 .stderr(Redirection::Merge)
                 .popen()
@@ -347,6 +356,7 @@ pub mod ssh {
             id: instance_id.to_owned(),
             cmd: "ssh".to_owned(),
             args: Some(ssh_args),
+            cwd: None,
             log: log_path,
             timeout: Some(timeout),
         };

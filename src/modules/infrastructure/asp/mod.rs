@@ -1,4 +1,4 @@
-sub_module!("asp", "Do infrastructure stuff with ASPs", list);
+sub_module!("asp", "Do infrastructure stuff with ASPs", list, build);
 
 #[derive(Debug, Serialize)]
 pub struct Asp {
