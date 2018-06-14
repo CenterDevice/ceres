@@ -20,6 +20,8 @@ token = "\< your github token \>"
 
 ssh_user = "\<a user name\>"
 
+local_base_dir = "\<path to your infrastructure as code sub-directory of your CenterDevice infrastructure repo\>"
+
 [profiles."\<profile name\>".issue_tracker]
 
 github_org = "\<your github org\>"

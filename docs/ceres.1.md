@@ -76,6 +76,21 @@ The *consul* modules interacts with the consul cluster in the environment select
   : Filters services for specific tags.
 
 
+## INFRASTRUCTURE
+
+The *infrastructure* modules automate building, planning, and deploying infrastructure as code resources from the CenterDevice *infrastructure* repository.
+
+### infrastructure asp list [*options*]
+
+  *infrastructure asp list* identifies all ansible setup packages (ASPs) in a given sub-directory of the CenterDevice *infrastructure* repository specified either in the ceres configuration file or passed via command line.
+
+  --base-dir *base-dir*
+  : Overwrites base dir from ceres configuration file
+
+  -o, --output *output*
+  : Selects output format. The default is *human*. Available options are *human*, *plain*, and *json*.
+
+
 ## INSTANCES 
 
 The *instances* modules interacts with instances in the environment selected by the profile to use.
