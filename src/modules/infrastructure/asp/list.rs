@@ -4,6 +4,7 @@ use std::path::{Component, Path, PathBuf};
 
 use config::CeresConfig as Config;
 use modules::{Result as ModuleResult, Error as ModuleError, ErrorKind as ModuleErrorKind, Module};
+use modules::infrastructure::asp::Asp;
 use output::OutputType;
 use output::infrastructure::{JsonOutputAspListResult, OutputAspListResult, PlainOutputAspListResult, TableOutputAspListResult};
 use run_config::RunConfig;
@@ -125,12 +126,6 @@ fn find_asps<P: AsRef<Path>>(base_dir: P) -> Result<Vec<PathBuf>> {
         .collect();
 
     asps
-}
-
-#[derive(Debug, Serialize)]
-pub struct Asp {
-    pub project: String,
-    pub resource: String,
 }
 
 impl Asp {

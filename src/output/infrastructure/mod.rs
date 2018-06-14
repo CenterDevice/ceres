@@ -6,7 +6,7 @@ use serde_json;
 use std::collections::HashMap;
 use std::io::Write;
 
-use modules::infrastructure::asp::list::Asp;
+use modules::infrastructure::asp::Asp;
 use output::*;
 
 pub trait OutputAspListResult {
