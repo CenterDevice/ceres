@@ -3,13 +3,13 @@ use itertools::Itertools;
 use std::path::{Path, PathBuf};
 use std::time::Duration;
 
-use config::{CeresConfig as Config, Profile, Provider};
+use config::{CeresConfig as Config};
 use modules::{Result as ModuleResult, Error as ModuleError, ErrorKind as ModuleErrorKind, Module};
 use modules::infrastructure::asp::Asp;
 use output::OutputType;
 use run_config::RunConfig;
 use tempfile;
-use utils::command::{Command, ExitStatus};
+use utils::command::{Command, CommandResult};
 use utils::run;
 
 pub const NAME: &str = "build";
@@ -153,55 +153,68 @@ fn do_call(args: &ArgMatches, run_config: &RunConfig, config: &Config) -> Result
         .parse::<OutputType>()
         .chain_err(|| ErrorKind::FailedToParseOutputType)?;
 
-    // Run me
     debug!("Building commands.");
     let commands: Result<Vec<_>> = COMMANDS.iter()
         .map(|c| {
-            let command_args: Vec<_> = c.split(' ').collect();
-            build_command(&command_args, asp.to_path(local_base_dir).to_string_lossy().to_string(), timeout)
-        }).collect();
+            let cwd = &asp.to_path(local_base_dir);
+            build_command(c, cwd, timeout)
+        })
+        .collect();
     let commands = commands?;
 
-    info!("Running commands.");
-    let mut results = Vec::new();
-    for c in commands.into_iter() {
-        let mut res = run::run(vec![c], progress_bar)
-            .chain_err(|| ErrorKind::FailedToRunCommand)?;
-        let res = res.pop().unwrap();
-        if let ExitStatus::Exited(status) = res.exit_status {
-            if status > 0 {
-                return Err(Error::from_kind(ErrorKind::FailedToRunCommand));
-            }
-        }
-        results.push(res);
-    }
+    debug!("Running commands.");
+    let results = run_commands(commands, progress_bar)?;
 
+    debug!("Outputting results.");
     run::output_results(output_type, show_all, results.as_slice())
         .chain_err(|| ErrorKind::FailedToRunCommand)?;
 
     Ok(())
 }
 
-fn build_command(command_args: &[&str], cwd: String, timeout: Duration) -> Result<Command> {
-    let log_path = tempfile::NamedTempFile::new()
-        .chain_err(|| ErrorKind::FailedToBuildCommand)?
-        .path().to_path_buf();
-    let cmd = command_args[0].to_owned();
-    let id = "make all".to_string();
-    let args = if command_args.len() > 1 {
-        let v: Vec<String> = command_args[1..].iter().map(|x| x.to_string()).collect();
-        Some(v)
+fn build_command<T: AsRef<Path>>(command: &str, cwd: T, timeout: Duration) -> Result<Command> {
+    let id = command.to_string();
+
+    let mut command_args: Vec<_> = command.split(' ').map(|x| x.to_string()).collect();
+    if command_args.len() == 0 {
+        return Err(Error::from_kind(ErrorKind::FailedToBuildCommand));
+    }
+    let cmd = command_args.remove(0);
+
+    let args = if command_args.len() > 0 {
+        Some(command_args)
     } else {
         None
     };
+
+    let cwd = cwd.as_ref().to_str().map(|x| x.to_string());
+    let log_path = tempfile::NamedTempFile::new()
+        .chain_err(|| ErrorKind::FailedToBuildCommand)?
+        .path().to_path_buf();
+
     let c = Command {
         id,
         cmd,
         args,
-        cwd: Some(cwd),
+        cwd,
         log: log_path,
         timeout: Some(timeout),
     };
 
     Ok(c)
+}
+
+fn run_commands(commands: Vec<Command>, progress_bar: bool) -> Result<Vec<CommandResult>> {
+    let mut results = Vec::new();
+    for c in commands.into_iter() {
+        let mut res = run::run(vec![c], progress_bar)
+            .chain_err(|| ErrorKind::FailedToRunCommand)?;
+        if res.iter().filter(|x| !x.exit_status.success()).count() > 0 {
+            return Err(Error::from_kind(ErrorKind::FailedToRunCommand));
+        }
+        results.push(res);
+    }
+    let results: Vec<_> = results.into_iter().flatten().collect();
+
+    Ok(results)
 }

@@ -75,6 +75,15 @@ pub mod command {
         Undetermined,
     }
 
+    impl ExitStatus {
+        pub fn success(&self) -> bool {
+            if let &ExitStatus::Exited(0) = self {
+                true
+            } else {
+                false
+            }
+        }
+    }
     impl From<SubprocessExitStatus> for ExitStatus {
         fn from(s: SubprocessExitStatus) -> Self {
             match s {
