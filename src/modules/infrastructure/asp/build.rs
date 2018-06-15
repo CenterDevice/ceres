@@ -120,7 +120,6 @@ impl Asp {
     }
 }
 
-#[allow(unstable_name_collision)] // flatten from itertools
 fn do_call(args: &ArgMatches, run_config: &RunConfig, config: &Config) -> Result<()> {
     let profile = match run_config.active_profile.as_ref() {
         "default" => config.get_default_profile(),
@@ -204,6 +203,7 @@ fn build_command<T: AsRef<Path>>(command: &str, cwd: T, timeout: Duration) -> Re
     Ok(c)
 }
 
+#[allow(unstable_name_collision)] // flatten from itertools
 fn run_commands(commands: Vec<Command>, progress_bar: bool) -> Result<Vec<CommandResult>> {
     let mut results = Vec::new();
     for c in commands.into_iter() {
