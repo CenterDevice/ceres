@@ -430,6 +430,7 @@ mod tests {
             id: "a command".to_owned(),
             cmd: "this_command_does_not_exists".to_owned(),
             args: None,
+            cwd: None,
             log: tmpfile,
             timeout: None,
         };
@@ -446,6 +447,7 @@ mod tests {
             id: "ls".to_owned(),
             cmd: "/bin/ls".to_owned(),
             args: None,
+            cwd: None,
             log: tmpfile,
             timeout: None,
 
@@ -463,6 +465,7 @@ mod tests {
             id: "ls".to_owned(),
             cmd: "/bin/ls".to_owned(),
             args: Some(vec!["-l".to_owned(), "LICENSE".to_owned(), "Makefile".to_owned()]),
+            cwd: None,
             log: tmpfile.clone(),
             timeout: None,
         };
