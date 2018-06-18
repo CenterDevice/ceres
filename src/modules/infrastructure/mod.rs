@@ -411,5 +411,5 @@ macro_rules! build_resource {
     }
 }
 
-sub_module!("infrastructure", "Do stuff with infrastructure repos", asp, images);
+sub_module!("infrastructure", "Do stuff with infrastructure repos", asp, images, resources);
 
