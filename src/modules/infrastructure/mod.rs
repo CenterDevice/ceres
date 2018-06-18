@@ -1,18 +1,94 @@
+use std::path::{Component, Path, PathBuf};
+
+// This mod's errors need an individual namespace because the sub_module macro imports the
+// module::errors into this scope which leads to name / type conflicts.
+mod errors {
+    error_chain! {
+        errors {
+            FailedToLoadProfile {
+                description("Failed to load profile")
+                display("Failed to load profile")
+            }
+            NoLocalBaseDir {
+                description("No local base directory configured for this profile")
+                display("No local base directory configured for this profile")
+            }
+            FailedToFindResources {
+                description("Failed to find resources")
+                display("Failed to find resources")
+            }
+            FailedParseResourcesFromPath(path: String) {
+                description("Failed to parse resources from path")
+                display("Failed to parse resources from path '{}'", path)
+            }
+            FailedOutput {
+                description("Failed to output")
+                display("Failed to output")
+            }
+            FailedToParseDuration {
+                description("Failed to parse duration")
+                display("Failed to parse duration")
+            }
+            FailedToParseOutputType {
+                description("Failed to parse output type")
+                display("Failed to parse output type")
+            }
+            FailedToBuildCommand {
+                description("Failed to build command")
+                display("Failed to build command")
+            }
+            FailedToRunCommand {
+                description("Failed to run command")
+                display("Failed to run command")
+            }
+        }
+    }
+}
+
 #[derive(Debug, Serialize)]
 pub struct Resource {
     pub project: String,
     pub name: String,
 }
 
+impl Resource {
+    fn to_path<T: AsRef<Path>>(&self, base_dir: T, resources_prefix: T) -> PathBuf {
+        let mut p: PathBuf = base_dir.as_ref().to_path_buf();
+        p.push(&self.project);
+        p.push(resources_prefix);
+        p.push(&self.name);
+        p
+    }
+
+    /// This function assumes that it gets a relative path starting with the project directory
+    ///
+    /// Example: "logimon/packer/resources/elk_elasticsearch/" instead of "/Users/lukas/Documents/src/ceres/tests/base_dir/logimon/packer/resources/elk_elasticsearch"
+    pub fn from_path<P: AsRef<Path>>(path: P) -> errors::Result<Self> {
+        let path: &Path = path.as_ref();
+
+        let components: Vec<_> = path.components().collect();
+        match components.as_slice() {
+            [Component::Normal(project), _, _, Component::Normal(resource)] =>
+                Ok( Resource {
+                    project: project.to_string_lossy().to_string(),
+                    name: resource.to_string_lossy().to_string(),
+                } ),
+            _ => Err(errors::Error::from_kind(errors::ErrorKind::FailedParseResourcesFromPath(path.to_string_lossy().to_string()))),
+        }
+    }
+}
+
+
 macro_rules! list_resources {
     ($description:tt,$resources_prefix:tt) => {
         use clap::{App, Arg, ArgMatches, SubCommand};
         use ignore::WalkBuilder;
-        use std::path::{Component, Path, PathBuf};
+        use std::path::{Path, PathBuf};
 
         use config::CeresConfig as Config;
         use modules::{Result as ModuleResult, Error as ModuleError, ErrorKind as ModuleErrorKind, Module};
         use modules::infrastructure::Resource;
+        use modules::infrastructure::errors::*;
         use output::OutputType;
         use output::infrastructure::{JsonOutputResourceListResult, OutputResourceListResult, PlainOutputResourceListResult, TableOutputResourceListResult};
         use run_config::RunConfig;
@@ -46,35 +122,6 @@ macro_rules! list_resources {
                 let args = cli_args.unwrap(); // Safe unwrap
                 do_call(args, run_config, config)
                     .map_err(|e| ModuleError::with_chain(e, ModuleErrorKind::ModuleFailed(NAME.to_owned())))
-            }
-        }
-
-        error_chain! {
-            errors {
-                FailedToLoadProfile {
-                    description("Failed to load profile")
-                    display("Failed to load profile")
-                }
-                NoLocalBaseDir {
-                    description("No local base directory configured for this profile")
-                    display("No local base directory configured for this profile")
-                }
-                FailedToFindResources {
-                    description("Failed to find resources")
-                    display("Failed to find resources")
-                }
-                FailedParseResourcesFromPath(path: String) {
-                    description("Failed to parse resources from path")
-                    display("Failed to parse resources from path '{}'", path)
-                }
-                FailedToParseOutputType {
-                    description("Failed to parse output type")
-                    display("Failed to parse output type")
-                }
-                FailedOutput {
-                    description("Failed to output")
-                    display("Failed to output")
-                }
             }
         }
 
@@ -136,25 +183,6 @@ macro_rules! list_resources {
             resources
         }
 
-        impl Resource {
-            /// This function assumes that it gets a relative path starting with the project directory
-            ///
-            /// Example: "logimon/packer/resources/elk_elasticsearch/" instead of "/Users/lukas/Documents/src/ceres/tests/base_dir/logimon/packer/resources/elk_elasticsearch"
-            pub fn from_path<P: AsRef<Path>>(path: P) -> Result<Self> {
-                let path: &Path = path.as_ref();
-
-                let components: Vec<_> = path.components().collect();
-                match components.as_slice() {
-                    [Component::Normal(project), _, _, Component::Normal(resource)] =>
-                        Ok( Resource {
-                            project: project.to_string_lossy().to_string(),
-                            name: resource.to_string_lossy().to_string(),
-                        } ),
-                    _ => Err(Error::from_kind(ErrorKind::FailedParseResourcesFromPath(path.to_string_lossy().to_string()))),
-                }
-            }
-        }
-
         fn output_list(
             args: &ArgMatches,
             _: &RunConfig,
@@ -198,12 +226,13 @@ macro_rules! build_resource {
     ($description:tt,$resources_prefix:tt,$($command:tt),+) => {
         use clap::{App, Arg, ArgMatches, SubCommand};
         use itertools::Itertools;
-        use std::path::{Path, PathBuf};
+        use std::path::Path;
         use std::time::Duration;
 
         use config::{CeresConfig as Config};
         use modules::{Result as ModuleResult, Error as ModuleError, ErrorKind as ModuleErrorKind, Module};
         use modules::infrastructure::Resource;
+        use modules::infrastructure::errors::*;
         use output::OutputType;
         use run_config::RunConfig;
         use tempfile;
@@ -278,44 +307,6 @@ macro_rules! build_resource {
             }
         }
 
-        error_chain! {
-            errors {
-                FailedToLoadProfile {
-                    description("Failed to load profile")
-                    display("Failed to load profile")
-                }
-                NoLocalBaseDir {
-                    description("No local base directory configured for this profile")
-                    display("No local base directory configured for this profile")
-                }
-                FailedToParseDuration {
-                    description("Failed to parse duration")
-                    display("Failed to parse duration")
-                }
-                FailedToParseOutputType {
-                    description("Failed to parse output type")
-                    display("Failed to parse output type")
-                }
-                FailedToBuildCommand {
-                    description("Failed to build command")
-                    display("Failed to build command")
-                }
-                FailedToRunCommand {
-                    description("Failed to run command")
-                    display("Failed to run command")
-                }
-            }
-        }
-
-        impl Resource {
-            fn to_path<T: AsRef<Path>>(&self, base_dir: T) -> PathBuf {
-                let mut p: PathBuf = base_dir.as_ref().to_path_buf();
-                p.push(&self.project);
-                p.push($resources_prefix);
-                p.push(&self.name);
-                p
-            }
-        }
 
         fn do_call(args: &ArgMatches, run_config: &RunConfig, config: &Config) -> Result<()> {
             let profile = match run_config.active_profile.as_ref() {
@@ -334,7 +325,7 @@ macro_rules! build_resource {
                 project: args.value_of("project").unwrap().to_string(), // Safe
                 name: args.value_of("resource").unwrap().to_string(), // Safe
             };
-            debug!("Resource path is = '{:#?}'", resource.to_path(local_base_dir));
+            debug!("Resource path is = '{:#?}'", resource.to_path(local_base_dir, $resources_prefix));
 
             let timeout = Duration::from_secs(
                 args.value_of("timeout").unwrap() // safe unwrap
@@ -352,7 +343,7 @@ macro_rules! build_resource {
             debug!("Building commands.");
             let commands: Result<Vec<_>> = COMMANDS.iter()
                 .map(|c| {
-                    let cwd = &resource.to_path(local_base_dir);
+                    let cwd = &resource.to_path(local_base_dir, $resources_prefix);
                     build_command(c, cwd, timeout)
                 })
                 .collect();
@@ -419,7 +410,6 @@ macro_rules! build_resource {
         }
     }
 }
-
 
 sub_module!("infrastructure", "Do stuff with infrastructure repos", asp, images);
 
