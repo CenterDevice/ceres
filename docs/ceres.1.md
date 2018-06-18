@@ -117,6 +117,80 @@ The *infrastructure* modules automate building, planning, and deploying infrastr
   : Sets the timeout in sec for command to finish. Default is 300 sec.
 
 
+### infrastructure images list [*options*]
+
+  *infrastructure images list* identifies all images in a given sub-directory of the CenterDevice *infrastructure* repository specified either in the ceres configuration file or passed via command line.
+
+  --base-dir *base-dir*
+  : Overwrites base dir from ceres configuration file
+
+  -o, --output *output*
+  : Selects output format. The default is *human*. Available options are *human*, *plain*, and *json*.
+
+
+### infrastructure images build [*options*] -p *project* -r *resource*
+
+  *infrastructure images build* builds a specific image in a given sub-directory of the CenterDevice *infrastructure* repository specified either in the ceres configuration file or passed via command line.
+
+  -p, --project *project*
+  : Sets project
+
+  -r, --resource *resource*
+  : Sets resource to build
+
+  --no-progress-bar
+  : Do not show progress bar during command execution. This is useful for non-interactive sessions.
+
+  --show-all
+  : Show all command results. By default show only results of failed commands.
+
+  --base-dir *base-dir*
+  : Overwrites base dir from ceres configuration file
+
+  -o, --output *output*
+  : Selects output format. The default is *human*. Available options are *human*, *plain*, and *json*.
+
+  --timeout *timeout*
+  : Sets the timeout in sec for command to finish. Default is 300 sec.
+
+
+### infrastructure resources list [*options*]
+
+  *infrastructure resources list* identifies all resources in a given sub-directory of the CenterDevice *infrastructure* repository specified either in the ceres configuration file or passed via command line.
+
+  --base-dir *base-dir*
+  : Overwrites base dir from ceres configuration file
+
+  -o, --output *output*
+  : Selects output format. The default is *human*. Available options are *human*, *plain*, and *json*.
+
+
+### infrastructure resources build [*options*] -p *project* -r *resource*
+
+  *infrastructure resources build* builds a specific resources in a given sub-directory of the CenterDevice *infrastructure* repository specified either in the ceres configuration file or passed via command line.
+
+  -p, --project *project*
+  : Sets project
+
+  -r, --resource *resource*
+  : Sets resource to build
+
+  --no-progress-bar
+  : Do not show progress bar during command execution. This is useful for non-interactive sessions.
+
+  --show-all
+  : Show all command results. By default show only results of failed commands.
+
+  --base-dir *base-dir*
+  : Overwrites base dir from ceres configuration file
+
+  -o, --output *output*
+  : Selects output format. The default is *human*. Available options are *human*, *plain*, and *json*.
+
+  --timeout *timeout*
+  : Sets the timeout in sec for command to finish. Default is 300 sec.
+
+
 ## INSTANCES 
 
 The *instances* modules interacts with instances in the environment selected by the profile to use.

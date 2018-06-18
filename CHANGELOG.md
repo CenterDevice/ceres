@@ -6,6 +6,10 @@ and this project adheres to [Semantic Versioning](http://semver.org/spec/v2.0.0.
 
 ## [Unreleased]
 
+### Added
+- Add `ceres infrastructure images [list|build]`
+- Add `ceres infrastructure resources [list|build]`
+
 
 ## [0.0.16] - 2018-06-18
 
