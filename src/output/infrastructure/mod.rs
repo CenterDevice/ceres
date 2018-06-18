@@ -7,7 +7,7 @@ use std::collections::HashMap;
 use std::io::Write;
 
 use modules::infrastructure::asp::Asp;
-use modules::infrastructure::images::Resource;
+use modules::infrastructure::Resource;
 use output::*;
 
 pub trait OutputAspListResult {

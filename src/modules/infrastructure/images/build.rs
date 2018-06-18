@@ -5,7 +5,7 @@ use std::time::Duration;
 
 use config::{CeresConfig as Config};
 use modules::{Result as ModuleResult, Error as ModuleError, ErrorKind as ModuleErrorKind, Module};
-use modules::infrastructure::images::Resource;
+use modules::infrastructure::Resource;
 use output::OutputType;
 use run_config::RunConfig;
 use tempfile;
