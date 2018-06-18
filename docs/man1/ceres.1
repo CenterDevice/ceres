@@ -135,10 +135,11 @@ Available options are \f[I]human\f[], \f[I]plain\f[], and \f[I]json\f[].
 .SS infrastructure asp build [\f[I]options\f[]] \-p \f[I]project\f[] \-r
 \f[I]resource\f[]
 .PP
-\f[I]infrastructure asp build\f[] builds a specifi ansible setup
-packages (ASP) and uploads it to S3 in a given sub\-directory of the
-CenterDevice \f[I]infrastructure\f[] repository specified either in the
-ceres configuration file or passed via command line.
+\f[I]infrastructure asp build\f[] builds a specific ansible setup
+packages (ASP) in a given sub\-directory of the CenterDevice
+\f[I]infrastructure\f[] repository specified either in the ceres
+configuration file or passed via command line and, on success uploads
+the ASP to S3.
 .TP
 .B \-p, \[en]project \f[I]project\f[]
 Sets project
