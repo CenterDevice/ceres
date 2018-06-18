@@ -6,8 +6,13 @@ and this project adheres to [Semantic Versioning](http://semver.org/spec/v2.0.0.
 
 ## [Unreleased]
 
+
+## [0.0.16] - 2018-06-18
+
+### Added
 - Add `ceres infrastructure asp list`
 - Add `ceres infrastructure asp build`
+
 
 ## [0.0.15] - 2018-06-01
 
@@ -100,7 +105,8 @@ Add deployments in Travis build.
 ### Changed
 - `instances terminate` uses `warn!` macro instead of yellow `println!` to output warning in case of active dry mode.
 
-[Unreleased]: https://github.com/lukaspustina/ceres/compare/v0.0.15...HEAD
+[Unreleased]: https://github.com/lukaspustina/ceres/compare/v0.0.16...HEAD
+[0.0.16]: https://github.com/lukaspustina/ceres/compare/v0.0.15...v0.0.16
 [0.0.15]: https://github.com/lukaspustina/ceres/compare/v0.0.14...v0.0.15
 [0.0.14]: https://github.com/lukaspustina/ceres/compare/v0.0.13...v0.0.14
 [0.0.13]: https://github.com/lukaspustina/ceres/compare/v0.0.12...v0.0.13
