@@ -112,10 +112,11 @@ fn value_for_field(field: &InstanceDescriptorFields, instance: &InstanceDescript
         }
         InstanceDescriptorFields::State => instance.state.clone(),
         InstanceDescriptorFields::StateReason => instance.state_reason.clone(),
-        InstanceDescriptorFields::Tags(ref tags_filter) => Some(format_tags(
-            instance.tags.as_ref().unwrap(),
-            tags_filter.as_ref().map(|x| x.as_slice()),
-        )),
+        InstanceDescriptorFields::Tags(ref tags_filter) => if let Some(ref tags) = instance.tags.as_ref() {
+            Some(format_tags(tags, tags_filter.as_ref().map(|x| x.as_slice())))
+        } else {
+            None
+        },
         InstanceDescriptorFields::VirtualizationType => instance.virtualization_type.clone(),
         InstanceDescriptorFields::VpcId => instance.vpc_id.clone(),
     }.unwrap_or_else(|| String::from("-"))
