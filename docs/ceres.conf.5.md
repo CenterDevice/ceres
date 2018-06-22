@@ -14,7 +14,10 @@ ceres = "info"
 
 [github]
 
-token = "\< your github token \>"
+token = "\<your github token\>"
+
+[status_pages."\status page name\>"]
+id = "\<your status page id\>"
 
 [profiles."\<profile name\>"]
 

@@ -8,6 +8,7 @@ pub struct CeresConfig {
     pub default_profile: String,
     pub github: GitHub,
     pub logging: Logging,
+    pub status_pages: HashMap<String, StatusPage>,
     pub profiles: HashMap<String, Profile>,
 }
 
@@ -34,6 +35,11 @@ pub struct Logging {
 #[derive(Debug, Default, Serialize, Deserialize, PartialEq)]
 pub struct GitHub {
     pub token: String,
+}
+
+#[derive(Debug, Default, Serialize, Deserialize, PartialEq)]
+pub struct StatusPage {
+    pub id: String,
 }
 
 #[derive(Debug, Serialize, Deserialize, PartialEq)]
@@ -110,6 +116,11 @@ mod tests {
         };
         let mut profiles = HashMap::new();
         profiles.insert("prod".to_owned(), prod_profile);
+        let status_page = StatusPage {
+            id: "123456789".to_owned(),
+        };
+        let mut status_pages = HashMap::new();
+        status_pages.insert("prod".to_owned(), status_page);
         let logging = Logging {
             default: "warn".to_owned(),
             ceres: "info".to_owned(),
@@ -121,6 +132,7 @@ mod tests {
             default_profile: "prod".to_owned(),
             logging,
             github,
+            status_pages,
             profiles,
         };
         let toml = toml::to_string(&config).unwrap();

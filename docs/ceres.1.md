@@ -407,6 +407,18 @@ The *ops* modules include various ops related commands to ease regular ops tasks
   : Sets the timeout in sec for command to finish. Default is 300 sec.
 
 
+## STATUSPAGES
+
+The *statuspages* modules interacts with the statuspage.io status pages.
+
+### statuspages show [*options*]
+
+  *statuspages show* show the current status for every statuspage.
+
+  -o, --output *output*
+  : Selects output format. The default is *human*. Available options are *human* and *json*
+
+
 # SHELL COMPLETION
 
 completions --shell *shell*

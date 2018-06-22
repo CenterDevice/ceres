@@ -2,15 +2,19 @@ extern crate clams;
 #[macro_use]
 extern crate clams_derive;
 extern crate clap;
+extern crate chrono;
+extern crate chrono_humanize;
 #[macro_use]
 extern crate error_chain;
+extern crate futures;
 extern crate ignore;
-extern crate hubcaps;
 extern crate itertools;
+extern crate hubcaps;
 #[macro_use]
 extern crate log;
 extern crate prettytable;
 extern crate regex;
+extern crate reqwest;
 extern crate rusoto_core;
 extern crate rusoto_credential;
 extern crate rusoto_ec2;

@@ -6,6 +6,9 @@ and this project adheres to [Semantic Versioning](http://semver.org/spec/v2.0.0.
 
 ## [Unreleased]
 
+### Added
+- Add `ceres statuspage show`
+
 ### Fixed
 - Fix #46: `instance list --output-options Tags` panics if no tags are set for an instance
 

@@ -3,6 +3,7 @@ use std::str::FromStr;
 pub mod consul;
 pub mod instances;
 pub mod infrastructure;
+pub mod statuspages;
 
 pub enum OutputType {
     Human,
