@@ -6,11 +6,15 @@ and this project adheres to [Semantic Versioning](http://semver.org/spec/v2.0.0.
 
 ## [Unreleased]
 
+
+## [0.0.18] - 2018-06-23
+
 ### Added
 - Add `ceres statuspage show`
 
 ### Fixed
 - Fix #46: `instance list --output-options Tags` panics if no tags are set for an instance
+
 
 ## [0.0.17] - 2018-06-18
 
@@ -117,7 +121,8 @@ Add deployments in Travis build.
 ### Changed
 - `instances terminate` uses `warn!` macro instead of yellow `println!` to output warning in case of active dry mode.
 
-[Unreleased]: https://github.com/lukaspustina/ceres/compare/v0.0.17...HEAD
+[Unreleased]: https://github.com/lukaspustina/ceres/compare/v0.0.18...HEAD
+[0.0.18]: https://github.com/lukaspustina/ceres/compare/v0.0.17...v0.0.18
 [0.0.17]: https://github.com/lukaspustina/ceres/compare/v0.0.16...v0.0.17
 [0.0.16]: https://github.com/lukaspustina/ceres/compare/v0.0.15...v0.0.16
 [0.0.15]: https://github.com/lukaspustina/ceres/compare/v0.0.14...v0.0.15
