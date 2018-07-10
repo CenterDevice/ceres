@@ -37,7 +37,7 @@ pub struct SubModule;
 impl Module for SubModule {
     fn build_sub_cli() -> App<'static, 'static> {
         SubCommand::with_name(NAME)
-            .about("Prepare a tory")
+            .about("Prepare a story")
             .arg(
                 Arg::with_name("story-id")
                     .multiple(true)
