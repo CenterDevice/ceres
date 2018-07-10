@@ -1,6 +1,7 @@
 extern crate clams;
 #[macro_use]
 extern crate clams_derive;
+#[macro_use]
 extern crate clap;
 extern crate chrono;
 extern crate chrono_humanize;
@@ -10,6 +11,8 @@ extern crate futures;
 extern crate ignore;
 extern crate itertools;
 extern crate hubcaps;
+#[macro_use]
+extern crate hyper;
 #[macro_use]
 extern crate log;
 extern crate prettytable;
@@ -22,6 +25,7 @@ extern crate rusoto_sts;
 extern crate serde;
 #[macro_use]
 extern crate serde_derive;
+#[macro_use]
 extern crate serde_json;
 extern crate service_world;
 extern crate subprocess;

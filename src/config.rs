@@ -7,6 +7,7 @@ use provider;
 pub struct CeresConfig {
     pub default_profile: String,
     pub github: GitHub,
+    pub pivotal: Pivotal,
     pub logging: Logging,
     pub status_pages: HashMap<String, StatusPage>,
     pub profiles: HashMap<String, Profile>,
@@ -38,6 +39,11 @@ pub struct GitHub {
 }
 
 #[derive(Debug, Default, Serialize, Deserialize, PartialEq)]
+pub struct Pivotal {
+    pub token: String,
+}
+
+#[derive(Debug, Default, Serialize, Deserialize, PartialEq)]
 pub struct StatusPage {
     pub id: String,
 }
@@ -47,6 +53,7 @@ pub struct Profile {
     pub ssh_user: Option<String>,
     pub local_base_dir: Option<String>,
     pub issue_tracker: IssueTracker,
+    pub story_tracker: StoryTracker,
     pub provider: Provider,
     pub consul: Consul,
 }
@@ -58,6 +65,11 @@ pub struct IssueTracker {
     pub project_number: u64,
     pub default_issue_template_name: String,
     pub local_issue_template_path: String,
+}
+
+#[derive(Debug, Serialize, Deserialize, PartialEq)]
+pub struct StoryTracker {
+    pub project_id: u64,
 }
 
 #[derive(Debug, Serialize, Deserialize, PartialEq)]
@@ -104,6 +116,9 @@ mod tests {
             default_issue_template_name: "some markdown file.md".to_owned(),
             local_issue_template_path: "some/path".to_owned(),
         };
+        let story_tracker = StoryTracker {
+            project_id: 1,
+        };
         let consul = Consul {
             urls: vec!["http://localhost:8500".to_owned(), "http://127.0.0.1:8500".to_owned()],
         };
@@ -111,6 +126,7 @@ mod tests {
             ssh_user: Some("a_user".to_owned()),
             local_base_dir: Some("path/to/your/infrastructure/aws/prod/directory".to_owned()),
             issue_tracker,
+            story_tracker,
             provider: Provider::Aws(aws_provider),
             consul,
         };
@@ -128,10 +144,14 @@ mod tests {
         let github = GitHub {
             token: "a github token".to_owned()
         };
+        let pivotal = Pivotal {
+            token: "a pivotal token".to_owned()
+        };
         let config = CeresConfig {
             default_profile: "prod".to_owned(),
             logging,
             github,
+            pivotal,
             status_pages,
             profiles,
         };

@@ -419,6 +419,32 @@ The *statuspages* modules interacts with the statuspage.io status pages.
   : Selects output format. The default is *human*. Available options are *human* and *json*
 
 
+## STORIES
+
+The *stories* modules interacts with the story trackers, i.e., currently PivotalTracker.
+
+### stories prepare [*options*] *STORY_ID*
+
+  *stories prepare* prepares a story. Currently, the 13 steps from the infrastructure story process are added as tasks. These tasks are only added, if the story does not have any other tasks. This behavior can be change with the *--force* flag.
+
+  *STORY_ID*
+  : The id of the story to prepare. The id may start with a '#' the same way, PivotalTracker uses ids. If used with '#', then the id needs to be surrounded by tickets to allow for shell escaping, e.g., '#12345'.
+
+  --force
+  : Forces creation of tasks even when other tasks already exist.
+
+
+### stories start [*options*] *STORY_ID*
+
+  *stories start* starts a story. A story will only be started, if it is currently in the 'unstarted' state. This behavior can be change with the *--force* flag. A story can only be started if already estimated.
+
+  *STORY_ID*
+  : The id of the story to start. The id may start with a '#' the same way, PivotalTracker uses ids. If used with '#', then the id needs to be surrounded by tickets to allow for shell escaping, e.g., '#12345'.
+
+  --force
+  : Sets state to started even if current state is not 'unstarted'.
+
+
 # SHELL COMPLETION
 
 completions --shell *shell*
