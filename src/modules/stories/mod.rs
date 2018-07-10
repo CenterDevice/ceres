@@ -13,6 +13,12 @@ mod errors {
             StoryHasTasksAlready {
                 description("This story already has tasks added")
             }
+            StoryAlreadyStarted {
+                description("This story is already started")
+            }
+            StoryIsNotEstimated {
+                description("This story is not yet estimated")
+            }
             FailedOutput {
                 description("Failed to output")
             }
