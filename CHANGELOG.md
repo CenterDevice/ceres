@@ -9,6 +9,7 @@ and this project adheres to [Semantic Versioning](http://semver.org/spec/v2.0.0.
 ### Added
 - Add `ceres stories prepare`
 - Add `ceres stories start`
+- Add `contrib/cssh`
 
 
 ## [0.0.18] - 2018-06-23
