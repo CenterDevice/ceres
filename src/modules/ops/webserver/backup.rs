@@ -152,7 +152,10 @@ fn do_call(args: &ArgMatches, run_config: &RunConfig, config: &Config) -> Result
 }
 
 fn find_instances(profile: &Profile) -> Result<Vec<InstanceDescriptor>> {
-    let Provider::Aws(ref provider) = profile.provider;
+    let Provider::Aws(provider) = profile.provider
+        .as_ref()
+        .ok_or(Error::from_kind(ErrorKind::ConfigMissingInProfile("provider".to_string())))?;
+
     let all = provider.describe_instances()
         .chain_err(|| ErrorKind::ModuleFailed(NAME.to_owned()))?;
 

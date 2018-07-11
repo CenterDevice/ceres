@@ -54,8 +54,8 @@ pub struct Profile {
     pub local_base_dir: Option<String>,
     pub issue_tracker: IssueTracker,
     pub story_tracker: StoryTracker,
-    pub provider: Provider,
-    pub consul: Consul,
+    pub provider: Option<Provider>,
+    pub consul: Option<Consul>,
 }
 
 #[derive(Debug, Serialize, Deserialize, PartialEq)]
@@ -127,8 +127,8 @@ mod tests {
             local_base_dir: Some("path/to/your/infrastructure/aws/prod/directory".to_owned()),
             issue_tracker,
             story_tracker,
-            provider: Provider::Aws(aws_provider),
-            consul,
+            provider: Some(Provider::Aws(aws_provider)),
+            consul: Some(consul),
         };
         let mut profiles = HashMap::new();
         profiles.insert("prod".to_owned(), prod_profile);
@@ -176,7 +176,7 @@ mod tests {
         assert_that(&profile.ssh_user).is_some().is_equal_to("a_user".to_owned());
         assert_that(&profile.local_base_dir).is_some().is_equal_to("path/to/your/infrastructure/aws/prod/directory".to_owned());
 
-        let &Provider::Aws(ref aws) = &default_profile.provider;
+        let &Provider::Aws(aws) = &default_profile.provider.as_ref().expect("no AWS provider");
         assert_that(&aws.access_key_id).is_equal_to("a key id".to_owned());
         assert_that(&aws.secret_access_key).is_equal_to("an access key".to_owned());
         assert_that(&aws.region).is_equal_to(Region::EuCentral1);
