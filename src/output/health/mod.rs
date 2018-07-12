@@ -62,7 +62,7 @@ impl OutputHealthCheck for TableOutputHealthCheck {
             Cell::new("Resource"),
             Cell::new("Health"),
             Cell::new("Since *"),
-            Cell::new("Updated at *"),
+            Cell::new("Last update at *"),
         ]));
 
         for hc in health_checks {
@@ -89,7 +89,7 @@ impl OutputHealthCheck for TableOutputHealthCheck {
                         };
 
                         let naive_datetime = NaiveDateTime::from_timestamp(resource.time_stamp / 1000, 0);
-                        let updated_at: DateTime<Utc> = DateTime::from_utc(naive_datetime, Utc);
+                        let updated_at: DateTime<Local> = Local.from_utc_datetime(&naive_datetime);
                         let since_cell = {
                             let since_str = since(updated_at);
                             Cell::new(&since_str)
@@ -125,21 +125,7 @@ impl OutputHealthCheck for TableOutputHealthCheck {
     }
 }
 
-/*
-impl Indicator {
-    fn to_colored_cell(&self) -> Cell {
-        let c = Cell::new(self.to_string().as_ref());
-        match self {
-            Indicator::None => c.with_style(Attr::ForegroundColor(color::GREEN)),
-            Indicator::Minor => c.with_style(Attr::ForegroundColor(color::YELLOW)),
-            Indicator::Major =>c.with_style(Attr::ForegroundColor(color::YELLOW)),
-            Indicator::Critical =>c.with_style(Attr::ForegroundColor(color::RED)),
-        }
-    }
-}
-*/
-
-fn since(updated_at: DateTime<Utc>) -> String {
+fn since(updated_at: DateTime<Local>) -> String {
     let dt = updated_at.signed_duration_since(Local::now());
     let ht = HumanTime::from(dt);
 
