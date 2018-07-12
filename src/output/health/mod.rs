@@ -6,7 +6,7 @@ use prettytable::row::Row;
 use serde_json;
 use std::io::Write;
 
-use modules::health::check::{HealthCheck, HealthSample};
+use modules::health::check::{HealthCheck, HealthCheckResult};
 use output::*;
 
 pub trait OutputHealthCheck {
@@ -26,16 +26,24 @@ pub struct PlainOutputHealthCheck;
 impl OutputHealthCheck for PlainOutputHealthCheck {
     fn output<T: Write>(&self, writer: &mut T, health_checks: &[HealthCheck]) -> Result<()> {
         for hc in health_checks {
-            for resource_name in hc.checks.keys() {
-                let resource = &hc.checks[resource_name]; // Safe, because iter over keys
-                let line = format!("{} {} {} {} {}\n",
-                                   hc.name,
-                                   resource_name,
-                                   resource.time_stamp,
-                                   resource.stampling_time,
-                                   resource.healthy,
-                );
-                let _ = writer.write(line.as_bytes());
+            match hc.result {
+                HealthCheckResult::Ok(ref checks) => {
+                    for resource_name in checks.keys() {
+                        let resource = &checks[resource_name]; // Safe, because iter over keys
+                        let line = format!("{} {} {} {} {}\n",
+                                        hc.name,
+                                        resource_name,
+                                        resource.time_stamp,
+                                        resource.stampling_time,
+                                        resource.healthy,
+                        );
+                        let _ = writer.write(line.as_bytes());
+                    }
+                },
+                HealthCheckResult::Failed(ref reason) => {
+                    let line = format!("{} Failed {}\n", hc.name, reason);
+                    let _ = writer.write(line.as_bytes());
+                }
             }
         }
         Ok(())
@@ -59,45 +67,54 @@ impl OutputHealthCheck for TableOutputHealthCheck {
 
         for hc in health_checks {
             let mut previous_hc_name: Option<&str> = None;
-            for resource_name in hc.checks.keys() {
-                let resource = &hc.checks[resource_name]; // Safe, because iter over keys
+            match hc.result {
+                HealthCheckResult::Ok(ref checks) => {
+                    for resource_name in checks.keys() {
+                        let resource = &checks[resource_name]; // Safe, because iter over keys
 
-                let service_cell = match previous_hc_name {
-                    Some(name) if name == &hc.name => Cell::new(""),
-                    Some(_) | None => {
-                        previous_hc_name = Some(hc.name.as_ref());
-                        Cell::new(hc.name.as_ref())
-                    },
-                };
+                        let service_cell = match previous_hc_name {
+                            Some(name) if name == &hc.name => Cell::new(""),
+                            Some(_) | None => {
+                                previous_hc_name = Some(hc.name.as_ref());
+                                Cell::new(hc.name.as_ref())
+                            },
+                        };
 
-                let healthy_cell = if resource.healthy {
-                    Cell::new("up")
-                        .with_style(Attr::ForegroundColor(color::GREEN))
-                } else {
-                    Cell::new("down")
-                        .with_style(Attr::ForegroundColor(color::RED))
-                };
+                        let healthy_cell = if resource.healthy {
+                            Cell::new("up")
+                                .with_style(Attr::ForegroundColor(color::GREEN))
+                        } else {
+                            Cell::new("down")
+                                .with_style(Attr::ForegroundColor(color::RED))
+                        };
 
-                let naive_datetime = NaiveDateTime::from_timestamp(resource.time_stamp / 1000, 0);
-                let updated_at: DateTime<Utc> = DateTime::from_utc(naive_datetime, Utc);
-                let since_cell = {
-                    let since_str = since(updated_at);
-                    Cell::new(&since_str)
-                };
+                        let naive_datetime = NaiveDateTime::from_timestamp(resource.time_stamp / 1000, 0);
+                        let updated_at: DateTime<Utc> = DateTime::from_utc(naive_datetime, Utc);
+                        let since_cell = {
+                            let since_str = since(updated_at);
+                            Cell::new(&since_str)
+                        };
 
-                let updated_at_cell = {
-                    let updated_at = format!("{}", updated_at);
-                    Cell::new(&updated_at)
-                };
+                        let updated_at_cell = {
+                            let updated_at = format!("{}", updated_at);
+                            Cell::new(&updated_at)
+                        };
 
-                let row = Row::new(vec![
-                    service_cell,
-                    Cell::new(resource_name.as_ref()),
-                    healthy_cell,
-                    since_cell,
-                    updated_at_cell,
-                ]);
-                table.add_row(row);
+                        let row = Row::new(vec![
+                            service_cell,
+                            Cell::new(resource_name.as_ref()),
+                            healthy_cell,
+                            since_cell,
+                            updated_at_cell,
+                        ]);
+                        table.add_row(row);
+                    }
+                }
+                HealthCheckResult::Failed(ref reason) => {
+                    let failed = format!("Failed because {}", reason);
+                    let row = Row::new(vec![Cell::new(&hc.name), Cell::new(&failed)]);
+                    table.add_row(row);
+                }
             }
         }
 

@@ -3,8 +3,9 @@
 mod errors {
     error_chain! {
         errors {
-            FailedQueryHeatlhCheck {
-                description("Failed to query health check API")
+            FailedQueryHeatlhCheck(reason: String) {
+                description("health check query failed")
+                display("health check query failed because {}", reason)
             }
             FailedToParseCmd(arg: String) {
                 description("Failed to parse command line arguments")

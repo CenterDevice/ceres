@@ -1,6 +1,9 @@
 use clap::{App, Arg, ArgMatches, SubCommand};
+use error_chain::ChainedError;
 use futures::{Future, Stream};
-use futures::future::{join_all, result};
+use futures::future::result;
+use futures::stream::futures_ordered;
+use reqwest::StatusCode;
 use reqwest::header::Connection;
 use reqwest::unstable::async::{Client as ReqwestClient};
 use serde_json;
@@ -22,13 +25,20 @@ pub const ENDPOINTS: &[&str] = &[
    "app",
    "auth",
    "public",
+   "sales",
    "upload",
 ];
 
 #[derive(Debug, Deserialize, Serialize)]
 pub struct HealthCheck {
    pub name: String,
-   pub checks: HealthCheckResponse,
+   pub result: HealthCheckResult,
+}
+
+#[derive(Debug, Deserialize, Serialize)]
+pub enum HealthCheckResult {
+   Ok(HealthCheckResponse),
+   Failed(String),
 }
 
 type HealthCheckResponse = HashMap<String, HealthSample>;
@@ -63,7 +73,7 @@ impl Module for SubModule {
     fn call(cli_args: Option<&ArgMatches>, run_config: &RunConfig, config: &Config) -> ModuleResult<()> {
         let args = cli_args.unwrap(); // Safe unwrap
         do_call(args, run_config, config)
-                    .map_err(|e| ModuleError::with_chain(e, ModuleErrorKind::ModuleFailed(NAME.to_owned())))
+            .map_err(|e| ModuleError::with_chain(e, ModuleErrorKind::ModuleFailed(NAME.to_owned())))
     }
 }
 
@@ -80,16 +90,17 @@ fn do_call(args: &ArgMatches, run_config: &RunConfig, config: &Config) -> Result
 
    info!("Checking Health");
    let mut core = tokio_core::reactor::Core::new()
-      .chain_err(|| ErrorKind::FailedQueryHeatlhCheck)?;
+      .chain_err(|| ErrorKind::FailedQueryHeatlhCheck("failed to create reactor".to_owned()))?;
    let client = ReqwestClient::new(&core.handle());
 
    let queries = ENDPOINTS.iter().map(|name| {
       let url = format!("https://{}.{}/healthcheck", name, base_domain);
-      query_health(&client, &url)
-         .map(move |checks| HealthCheck { name: name.to_string(), checks } )
+      query_health(&client, name, &url)
    });
-   let work = join_all(queries);
+   let work = futures_ordered(queries).collect();
    let health_checks = core.run(work)?;
+
+   trace!("{:#?}", health_checks);
 
    info!("Outputting Health Checks");
    output_page_status(output_type, &health_checks)?;
@@ -97,24 +108,39 @@ fn do_call(args: &ArgMatches, run_config: &RunConfig, config: &Config) -> Result
    Ok(())
 }
 
-fn query_health(client: &ReqwestClient, url: &str) -> impl Future<Item = HealthCheckResponse, Error = Error> {
+fn query_health(client: &ReqwestClient, name: &'static str, url: &str) -> impl Future<Item = HealthCheck, Error = Error> {
    trace!("Quering health for {}", url);
    client
       .get(url)
       .header(Connection::close())
       .send()
-      .and_then(|res| {
-         trace!("Received response with status = {}.", res.status());
-         let body = res.into_body();
-         body.concat2()
+      .map_err(|e| Error::with_chain(e, ErrorKind::FailedQueryHeatlhCheck("failed to request health check from server".to_owned())))
+      .and_then(|response| {
+         trace!("Received response with status = {}.", response.status());
+         let res = if response.status() == StatusCode::Ok {
+            Ok(response)
+         } else {
+            let reason = format!("of unexpected status code {} != 200", response.status());
+            Err(Error::from_kind(ErrorKind::FailedQueryHeatlhCheck(reason)))
+         };
+         result(res)
       })
-      .map_err(|_| Error::from_kind(ErrorKind::FailedQueryHeatlhCheck))
+      .and_then(|response| {
+         let body = response.into_body();
+         body.concat2()
+            .map_err(|e| Error::with_chain(e, ErrorKind::FailedQueryHeatlhCheck("failed to read body".to_owned())))
+      })
       .and_then(|body| {
          let body = String::from_utf8_lossy(&body).to_string();
          trace!("Parsing body {:?}", &body);
          let res = serde_json::from_slice::<HealthCheckResponse>(&body.as_bytes())
-            .chain_err(|| Error::from_kind(ErrorKind::FailedQueryHeatlhCheck));
+            .map_err(|e| Error::with_chain(e, ErrorKind::FailedQueryHeatlhCheck("failed to parse response".to_owned())));
          result(res)
+      })
+      .map(move |checks| HealthCheck { name: name.to_string(), result: HealthCheckResult::Ok(checks) } )
+      .or_else(move |e| {
+         let reason = format!("{}", e);
+         Ok(HealthCheck { name: name.to_string(), result: HealthCheckResult::Failed(reason) })
       })
 }
 
