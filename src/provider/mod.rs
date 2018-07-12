@@ -174,11 +174,7 @@ impl Default for InstanceDescriptor {
 pub type InstanceId = String;
 
 pub trait StartInstances {
-    fn start_instances(
-        &self,
-        dry: bool,
-        instance_ids: &[InstanceId],
-    ) -> Result<Vec<StateChange>>;
+    fn start_instances(&self, dry: bool, instance_ids: &[InstanceId]) -> Result<Vec<StateChange>>;
 }
 
 pub trait StopInstances {
@@ -259,9 +255,9 @@ mod tests {
 pub mod filter {
     use regex::Regex;
 
+    use provider::{InstanceDescriptor, InstanceDescriptorFields};
     use std::collections::HashMap;
     use std::str::FromStr;
-    use provider::{InstanceDescriptor, InstanceDescriptorFields};
 
     macro_rules! filter_builder {
         ($($field:tt),+) => {
@@ -419,17 +415,18 @@ pub mod filter {
 
         fn from_str(s: &str) -> ::std::result::Result<Self, Self::Err> {
             let tags = s.split(',');
-            let kvs: Result<Vec<(&str, Option<&str>)>> = tags.map(|tag| {
-                let mut splits: Vec<_> = tag.splitn(2, '=').collect();
-                match splits.len() {
-                    2 => Ok((splits.remove(0), Some(splits.remove(0)))),
-                    1 => Ok((splits.remove(0), None)),
-                    _ => Err(Error::from_kind(ErrorKind::FilterParsingFailed(
-                        s.to_owned(),
-                        "splitting fields failed".to_owned(),
-                    ))),
-                }
-            }).collect();
+            let kvs: Result<Vec<(&str, Option<&str>)>> =
+                tags.map(|tag| {
+                    let mut splits: Vec<_> = tag.splitn(2, '=').collect();
+                    match splits.len() {
+                        2 => Ok((splits.remove(0), Some(splits.remove(0)))),
+                        1 => Ok((splits.remove(0), None)),
+                        _ => Err(Error::from_kind(ErrorKind::FilterParsingFailed(
+                            s.to_owned(),
+                            "splitting fields failed".to_owned(),
+                        ))),
+                    }
+                }).collect();
             let kvs = kvs?;
 
             let mut f_builder = FilterBuilder::new();
@@ -716,4 +713,3 @@ pub mod filter {
         }
     }
 }
-

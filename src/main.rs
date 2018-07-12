@@ -53,9 +53,11 @@ fn run() -> Result<()> {
     clams::console::set_color(!args.is_present("no-color"));
 
     match args.subcommand_name() {
-        Some(subcommand @ "completions") => return generate_completion(args.subcommand_matches(subcommand).unwrap()), // Safe unwrap
-        Some("show-example-config") =>return show_example_config(),
-        _ => {},
+        Some(subcommand @ "completions") => {
+            return generate_completion(args.subcommand_matches(subcommand).unwrap())
+        } // Safe unwrap
+        Some("show-example-config") => return show_example_config(),
+        _ => {}
     };
 
     let mut config_locations = default_locations(DEFAULT_CONFIG_FILE_NAME);
@@ -77,8 +79,10 @@ fn run() -> Result<()> {
         color: !args.is_present("no-color"),
         active_profile: args.value_of("profile").unwrap().to_owned(), // Safe unwrap
     };
-    info!("Active profile={}, default profile={}",
-          run_config.active_profile, config.default_profile);
+    info!(
+        "Active profile={}, default profile={}",
+        run_config.active_profile, config.default_profile
+    );
 
     modules::call(&args, &run_config, &config).map_err(|e| e.into())
 }
@@ -96,25 +100,25 @@ fn build_cli() -> App<'static, 'static> {
             Arg::with_name("config")
                 .long("config")
                 .takes_value(true)
-                .help("Sets config file to use [default: ~/.ceres.conf]")
+                .help("Sets config file to use [default: ~/.ceres.conf]"),
         )
         .arg(
             Arg::with_name("no-color")
                 .long("no-color")
-                .help("Turns off colored output")
+                .help("Turns off colored output"),
         )
         .arg(
             Arg::with_name("profile")
                 .long("profile")
                 .takes_value(true)
                 .default_value("default")
-                .help("Sets profile to use")
+                .help("Sets profile to use"),
         )
         .arg(
             Arg::with_name("verbosity")
                 .short("v")
                 .multiple(true)
-                .help("Sets the level of verbosity")
+                .help("Sets the level of verbosity"),
         )
         .subcommand(
             SubCommand::with_name("completions")
@@ -127,12 +131,12 @@ fn build_cli() -> App<'static, 'static> {
                         .hidden(true)
                         .help("The shell to generate the script for"),
                 )
-                .about("Generate shell completion scripts")
+                .about("Generate shell completion scripts"),
         )
         .subcommand(
             SubCommand::with_name("show-example-config")
                 .alias("daniel")
-                .about("Show an example configuration file")
+                .about("Show an example configuration file"),
         );
 
     modules::build_sub_cli(general)
@@ -140,7 +144,8 @@ fn build_cli() -> App<'static, 'static> {
 
 fn generate_completion(args: &ArgMatches) -> Result<()> {
     let bin_name = env!("CARGO_PKG_NAME");
-    let shell = args.value_of("shell")
+    let shell = args
+        .value_of("shell")
         .ok_or_else(|| ErrorKind::CliArgsParsingError("shell argument is missing".to_string()))?;
     build_cli().gen_completions_to(
         bin_name,
@@ -176,7 +181,10 @@ fn start_logging(args: &ArgMatches, config: &CeresConfig) -> Result<()> {
         io::stderr(),
         !args.is_present("no-color"),
         default,
-        vec![ModLevel { module: "ceres".to_owned(), level: ceres }]
+        vec![ModLevel {
+            module: "ceres".to_owned(),
+            level: ceres,
+        }],
     ).chain_err(|| ErrorKind::FailedToInitLogging)?;
 
     Ok(())

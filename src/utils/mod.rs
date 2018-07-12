@@ -7,13 +7,11 @@ pub mod cli {
 
     #[derive(Debug, Deserialize)]
     struct Instance {
-        instance_id: String
+        instance_id: String,
     }
 
     pub fn read_instance_ids(ids: &[&str]) -> Result<Vec<String>> {
-        let instance_ids: Vec<_> = ids.iter()
-            .map(|s| s.to_string())
-            .collect();
+        let instance_ids: Vec<_> = ids.iter().map(|s| s.to_string()).collect();
 
         // Let's check if we shall read instance ids from stdin
         if instance_ids.len() == 1 && instance_ids[0] == "-" {
@@ -24,12 +22,10 @@ pub mod cli {
     }
 
     fn read_instance_ids_from_stdin() -> Result<Vec<String>> {
-        let instances: Vec<Instance> = serde_json::from_reader(io::stdin())
-            .chain_err(|| ErrorKind::FailedToReadStdin)?;
+        let instances: Vec<Instance> =
+            serde_json::from_reader(io::stdin()).chain_err(|| ErrorKind::FailedToReadStdin)?;
 
-        let instance_ids: Vec<String> = instances.into_iter()
-            .map(|i| i.instance_id)
-            .collect();
+        let instance_ids: Vec<String> = instances.into_iter().map(|i| i.instance_id).collect();
 
         Ok(instance_ids)
     }
@@ -46,8 +42,8 @@ pub mod cli {
 pub mod command {
     use super::*;
 
-    use std::time::Duration;
     use std::fs::File;
+    use std::time::Duration;
     use subprocess::{Exec, ExitStatus as SubprocessExitStatus, Redirection};
 
     #[derive(Debug)]
@@ -100,8 +96,7 @@ pub mod command {
             debug!("Executing command '{:?}'", self);
             let cmd = self.cmd.clone();
             let mut c = if let Some(ref args) = self.args {
-                Exec::cmd(&cmd)
-                .args(args)
+                Exec::cmd(&cmd).args(args)
             } else {
                 Exec::cmd(&cmd)
             };
@@ -121,15 +116,23 @@ pub mod command {
             let mut timeout = self.timeout;
             let resolution = Duration::from_millis(100);
             loop {
-                let status = p.wait_timeout(resolution)
-                        .chain_err(|| ErrorKind::FailedToRunCommand(cmd.clone()))?;
+                let status = p
+                    .wait_timeout(resolution)
+                    .chain_err(|| ErrorKind::FailedToRunCommand(cmd.clone()))?;
 
                 if let Some(count_down) = timeout {
                     let count_down = count_down - resolution;
                     if count_down <= Duration::from_secs(0) {
-                        p.kill().chain_err(|| ErrorKind::FailedToRunCommand(cmd.clone()))?;
-                        let exit_status = p.wait().chain_err(|| ErrorKind::FailedToRunCommand(cmd.clone()))?;
-                        return Ok( CommandResult{ id: self.id, log: self.log, exit_status: exit_status.into() } )
+                        p.kill()
+                            .chain_err(|| ErrorKind::FailedToRunCommand(cmd.clone()))?;
+                        let exit_status = p
+                            .wait()
+                            .chain_err(|| ErrorKind::FailedToRunCommand(cmd.clone()))?;
+                        return Ok(CommandResult {
+                            id: self.id,
+                            log: self.log,
+                            exit_status: exit_status.into(),
+                        });
                     }
                     timeout = Some(count_down);
                 }
@@ -138,8 +141,14 @@ pub mod command {
                     progress();
                 }
                 match status {
-                    Some(exit_status) => return Ok( CommandResult{ id: self.id, log: self.log, exit_status: exit_status.into() } ),
-                    None => {},
+                    Some(exit_status) => {
+                        return Ok(CommandResult {
+                            id: self.id,
+                            log: self.log,
+                            exit_status: exit_status.into(),
+                        })
+                    }
+                    None => {}
                 }
             }
         }
@@ -154,11 +163,13 @@ pub mod run {
     use std::sync::mpsc::channel;
     use std::thread;
 
+    use output::instances::{
+        JsonOutputCommandResults, OutputCommandResults, TableOutputCommandResults,
+    };
     use output::OutputType;
-    use output::instances::{JsonOutputCommandResults, OutputCommandResults, TableOutputCommandResults};
     use utils::command::{Command, CommandResult, ExitStatus};
 
-    pub fn run(commands: Vec<Command>, use_progress_bar: bool) -> Result<Vec<CommandResult>>  {
+    pub fn run(commands: Vec<Command>, use_progress_bar: bool) -> Result<Vec<CommandResult>> {
         if use_progress_bar {
             debug!("Running commands with progress bar.");
             run_with_progress(commands)
@@ -181,12 +192,13 @@ pub mod run {
             });
         }
 
-        results.iter()
-            .map(|r|
+        results
+            .iter()
+            .map(|r| {
                 r.recv().unwrap()
                     // TODO: Error should contain the command.
                     .map_err(|e| Error::with_chain(e, ErrorKind::FailedToRunCommand("<nyi>".to_owned())))
-            )
+            })
             .collect()
     }
 
@@ -207,7 +219,10 @@ pub mod run {
             let log_path = cmd.log.clone();
             let _ = thread::spawn(move || {
                 let progress = || {
-                    let line = File::open(log_path.clone()).unwrap().read_last_line().unwrap();
+                    let line = File::open(log_path.clone())
+                        .unwrap()
+                        .read_last_line()
+                        .unwrap();
 
                     pb.set_message(&format!("Running: {}", line));
                     pb.inc(1);
@@ -216,8 +231,14 @@ pub mod run {
                 let res = cmd.run(Some(progress));
 
                 let finish_msg = match &res {
-                    &Ok( CommandResult { exit_status: ExitStatus::Exited(0), .. } ) => format!("{}.", "Done".green()),
-                    &Ok( CommandResult { exit_status: ExitStatus::Exited(n), .. } ) => format!("{} with exit status {}.", "Failed".red(), n),
+                    &Ok(CommandResult {
+                        exit_status: ExitStatus::Exited(0),
+                        ..
+                    }) => format!("{}.", "Done".green()),
+                    &Ok(CommandResult {
+                        exit_status: ExitStatus::Exited(n),
+                        ..
+                    }) => format!("{} with exit status {}.", "Failed".red(), n),
                     &Ok(ref result) => format!("{} with {:?}", "Failed".red(), result.exit_status),
                     &Err(ref e) => format!("{} ({:?})", "Error".red(), e),
                 };
@@ -228,12 +249,13 @@ pub mod run {
         }
         m.join().unwrap();
 
-        results.iter()
-            .map(|r|
+        results
+            .iter()
+            .map(|r| {
                 r.recv().unwrap()
                     // TODO: Error should contain the command.
                     .map_err(|e| Error::with_chain(e, ErrorKind::FailedToRunCommand("<nyi>".to_owned())))
-            )
+            })
             .collect()
     }
 
@@ -251,14 +273,14 @@ pub mod run {
                 output
                     .output(&mut stdout, results)
                     .chain_err(|| ErrorKind::FailedToOutput)
-            },
+            }
             OutputType::Json => {
                 let output = JsonOutputCommandResults;
 
                 output
                     .output(&mut stdout, results)
                     .chain_err(|| ErrorKind::FailedToOutput)
-            },
+            }
             OutputType::Plain => {
                 unimplemented!("'Plain' output is not supported for this module");
             }
@@ -278,7 +300,7 @@ pub mod ssh {
     pub fn exec_ssh_to_ip_address<T: Into<IpAddr>>(
         ip: T,
         command: Option<&str>,
-        ssh_opts: Option<Vec<String>>
+        ssh_opts: Option<Vec<String>>,
     ) -> Result<()> {
         use std::os::unix::process::CommandExt;
 
@@ -311,10 +333,10 @@ pub mod ssh {
         login_name: Option<&String>,
         ssh_opts: &[&str],
         remote_commands_args: &[&str],
-        timeout: Duration)
-    -> Result<Vec<Command>>  {
-
-        let commands: Result<Vec<_>> = instances.iter()
+        timeout: Duration,
+    ) -> Result<Vec<Command>> {
+        let commands: Result<Vec<_>> = instances
+            .iter()
             .map(|i| {
                 let ip_addr: IpAddr = if use_public_ip {
                     i.public_ip_address.as_ref()
@@ -325,16 +347,25 @@ pub mod ssh {
                     // TODO Fix me!
                     .chain_err(|| ErrorKind::FailedToBuildSshCommand)?
                     .chain_err(|| ErrorKind::FailedToBuildSshCommand)?;
-                let instance_id = i.instance_id.as_ref()
+                let instance_id = i
+                    .instance_id
+                    .as_ref()
                     .chain_err(|| ErrorKind::FailedToBuildSshCommand)?;
-                let command = build_ssh_command_to_instance(&instance_id, &ip_addr, login_name, &ssh_opts, &remote_commands_args, timeout)?;
+                let command = build_ssh_command_to_instance(
+                    &instance_id,
+                    &ip_addr,
+                    login_name,
+                    &ssh_opts,
+                    &remote_commands_args,
+                    timeout,
+                )?;
                 trace!("ssh_args for instance {}: {:#?}", instance_id, command);
                 Ok(command)
-            }).collect();
+            })
+            .collect();
 
         commands
     }
-
 
     pub fn build_ssh_command_to_instance(
         instance_id: &str,
@@ -342,22 +373,23 @@ pub mod ssh {
         login_name: Option<&String>,
         ssh_opts: &[&str],
         remote_command_args: &[&str],
-        timeout: Duration
+        timeout: Duration,
     ) -> Result<Command> {
-
         let mut ssh_opts: Vec<String> = ssh_opts.iter().map(|s| s.to_string()).collect();
         if let Some(login_name) = login_name {
             ssh_opts.insert(0, "-l".to_owned());
             ssh_opts.insert(1, login_name.to_owned());
         };
 
-        let mut remote_command_args: Vec<String> = remote_command_args.iter().map(|s| s.to_string()).collect();
+        let mut remote_command_args: Vec<String> =
+            remote_command_args.iter().map(|s| s.to_string()).collect();
 
         let ssh_args = build_ssh_arguments(&ip_addr, &mut ssh_opts, &mut remote_command_args);
 
         let log_path = tempfile::NamedTempFile::new()
             .chain_err(|| ErrorKind::FailedToBuildSshCommand)?
-            .path().to_path_buf();
+            .path()
+            .to_path_buf();
         let c = Command {
             id: instance_id.to_owned(),
             cmd: "ssh".to_owned(),
@@ -374,7 +406,6 @@ pub mod ssh {
         ssh_opts: &mut Vec<String>,
         remote_command_args: &mut Vec<String>,
     ) -> Vec<String> {
-
         let mut ssh_args = Vec::new();
 
         ssh_args.append(ssh_opts);
@@ -414,9 +445,9 @@ error_chain! {
 mod tests {
     use super::*;
 
+    use spectral::prelude::*;
     use std::fs::File;
     use std::io::{BufRead, BufReader};
-    use spectral::prelude::*;
     use tempfile::NamedTempFile;
 
     #[test]
@@ -447,7 +478,6 @@ mod tests {
             cwd: None,
             log: tmpfile,
             timeout: None,
-
         };
         let res = cmd.run(None::<fn()>);
 
@@ -461,7 +491,11 @@ mod tests {
         let cmd = command::Command {
             id: "ls".to_owned(),
             cmd: "/bin/ls".to_owned(),
-            args: Some(vec!["-l".to_owned(), "LICENSE".to_owned(), "Makefile".to_owned()]),
+            args: Some(vec![
+                "-l".to_owned(),
+                "LICENSE".to_owned(),
+                "Makefile".to_owned(),
+            ]),
             cwd: None,
             log: tmpfile.clone(),
             timeout: None,

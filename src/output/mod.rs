@@ -2,8 +2,8 @@ use std::str::FromStr;
 
 pub mod consul;
 pub mod health;
-pub mod instances;
 pub mod infrastructure;
+pub mod instances;
 pub mod statuspages;
 
 pub enum OutputType {
@@ -38,4 +38,3 @@ error_chain! {
         }
     }
 }
-

@@ -1,8 +1,8 @@
 use std::collections::HashMap;
 use std::io::Write;
 
-use provider::{InstanceDescriptor, InstanceDescriptorFields};
 use output::instances::*;
+use provider::{InstanceDescriptor, InstanceDescriptorFields};
 
 pub struct PlainOutputInstances {
     pub fields: Vec<InstanceDescriptorFields>,
@@ -25,12 +25,12 @@ impl Default for PlainOutputInstances {
 
 impl OutputInstances for PlainOutputInstances {
     fn output<T: Write>(&self, writer: &mut T, instances: &[InstanceDescriptor]) -> Result<()> {
-
         let mut rows = Vec::new();
         for instance in instances {
             match self.fields.as_slice() {
                 _ => {
-                    let row = self.fields
+                    let row = self
+                        .fields
                         .iter()
                         .map(|f| value_for_field(f, instance))
                         .collect::<Vec<_>>();
@@ -107,4 +107,3 @@ fn format_tags(tags: &HashMap<String, Option<String>>, tags_filter: Option<&[Str
     }
     concat
 }
-

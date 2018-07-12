@@ -1,15 +1,15 @@
 extern crate clams;
 #[macro_use]
 extern crate clams_derive;
-extern crate clap;
 extern crate chrono;
 extern crate chrono_humanize;
+extern crate clap;
 #[macro_use]
 extern crate error_chain;
 extern crate futures;
+extern crate hubcaps;
 extern crate ignore;
 extern crate itertools;
-extern crate hubcaps;
 #[macro_use]
 extern crate hyper;
 #[macro_use]
@@ -118,4 +118,3 @@ pub mod output;
 pub mod provider;
 pub mod run_config;
 pub mod utils;
-

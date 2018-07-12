@@ -1,8 +1,8 @@
 use chrono::prelude::*;
 use chrono_humanize::HumanTime;
-use prettytable::{Attr, Table, color, format};
 use prettytable::cell::Cell;
 use prettytable::row::Row;
+use prettytable::{color, format, Attr, Table};
 use serde_json;
 use std::io::Write;
 
@@ -30,16 +30,17 @@ impl OutputHealthCheck for PlainOutputHealthCheck {
                 HealthCheckResult::Ok(ref checks) => {
                     for resource_name in checks.keys() {
                         let resource = &checks[resource_name]; // Safe, because iter over keys
-                        let line = format!("{} {} {} {} {}\n",
-                                        hc.name,
-                                        resource_name,
-                                        resource.time_stamp,
-                                        resource.stampling_time,
-                                        resource.healthy,
+                        let line = format!(
+                            "{} {} {} {} {}\n",
+                            hc.name,
+                            resource_name,
+                            resource.time_stamp,
+                            resource.stampling_time,
+                            resource.healthy,
                         );
                         let _ = writer.write(line.as_bytes());
                     }
-                },
+                }
                 HealthCheckResult::Failed(ref reason) => {
                     let line = format!("{} Failed {}\n", hc.name, reason);
                     let _ = writer.write(line.as_bytes());
@@ -77,18 +78,17 @@ impl OutputHealthCheck for TableOutputHealthCheck {
                             Some(_) | None => {
                                 previous_hc_name = Some(hc.name.as_ref());
                                 Cell::new(hc.name.as_ref())
-                            },
+                            }
                         };
 
                         let healthy_cell = if resource.healthy {
-                            Cell::new("up")
-                                .with_style(Attr::ForegroundColor(color::GREEN))
+                            Cell::new("up").with_style(Attr::ForegroundColor(color::GREEN))
                         } else {
-                            Cell::new("down")
-                                .with_style(Attr::ForegroundColor(color::RED))
+                            Cell::new("down").with_style(Attr::ForegroundColor(color::RED))
                         };
 
-                        let naive_datetime = NaiveDateTime::from_timestamp(resource.time_stamp / 1000, 0);
+                        let naive_datetime =
+                            NaiveDateTime::from_timestamp(resource.time_stamp / 1000, 0);
                         let updated_at: DateTime<Local> = Local.from_utc_datetime(&naive_datetime);
                         let since_cell = {
                             let since_str = since(updated_at);
@@ -118,8 +118,7 @@ impl OutputHealthCheck for TableOutputHealthCheck {
             }
         }
 
-        table.print(writer)
-            .chain_err(|| ErrorKind::OutputFailed)?;
+        table.print(writer).chain_err(|| ErrorKind::OutputFailed)?;
         writeln!(writer, "* Mind that results may come from different backend servers for each call and thus, time stamps may very.")
             .chain_err(|| ErrorKind::OutputFailed)
     }
@@ -131,4 +130,3 @@ fn since(updated_at: DateTime<Local>) -> String {
 
     format!("{}", ht)
 }
-

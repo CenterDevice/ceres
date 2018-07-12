@@ -15,7 +15,8 @@ pub struct CeresConfig {
 
 impl CeresConfig {
     pub fn get_profile(&self, profile_name: &str) -> Result<&Profile> {
-        let profile = self.profiles
+        let profile = self
+            .profiles
             .get(profile_name)
             .ok_or_else(|| ErrorKind::NoSuchProfile(profile_name.to_owned()))?;
 
@@ -56,7 +57,7 @@ pub struct Profile {
     pub story_tracker: StoryTracker,
     pub provider: Option<Provider>,
     pub consul: Option<Consul>,
-    pub health: HealthCheck
+    pub health: HealthCheck,
 }
 
 #[derive(Debug, Serialize, Deserialize, PartialEq)]
@@ -122,11 +123,12 @@ mod tests {
             default_issue_template_name: "some markdown file.md".to_owned(),
             local_issue_template_path: "some/path".to_owned(),
         };
-        let story_tracker = StoryTracker {
-            project_id: 1,
-        };
+        let story_tracker = StoryTracker { project_id: 1 };
         let consul = Consul {
-            urls: vec!["http://localhost:8500".to_owned(), "http://127.0.0.1:8500".to_owned()],
+            urls: vec![
+                "http://localhost:8500".to_owned(),
+                "http://127.0.0.1:8500".to_owned(),
+            ],
         };
         let health = HealthCheck {
             base_domain: "instance_domain.com".to_owned(),
@@ -152,10 +154,10 @@ mod tests {
             ceres: "info".to_owned(),
         };
         let github = GitHub {
-            token: "a github token".to_owned()
+            token: "a github token".to_owned(),
         };
         let pivotal = Pivotal {
-            token: "a pivotal token".to_owned()
+            token: "a pivotal token".to_owned(),
         };
         let config = CeresConfig {
             default_profile: "prod".to_owned(),
@@ -183,8 +185,12 @@ mod tests {
         let default_profile = config.profiles.get("prod").unwrap();
 
         let profile = default_profile;
-        assert_that(&profile.ssh_user).is_some().is_equal_to("a_user".to_owned());
-        assert_that(&profile.local_base_dir).is_some().is_equal_to("path/to/your/infrastructure/aws/prod/directory".to_owned());
+        assert_that(&profile.ssh_user)
+            .is_some()
+            .is_equal_to("a_user".to_owned());
+        assert_that(&profile.local_base_dir)
+            .is_some()
+            .is_equal_to("path/to/your/infrastructure/aws/prod/directory".to_owned());
 
         let &Provider::Aws(aws) = &default_profile.provider.as_ref().expect("no AWS provider");
         assert_that(&aws.access_key_id).is_equal_to("a key id".to_owned());

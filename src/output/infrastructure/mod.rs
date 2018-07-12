@@ -1,7 +1,7 @@
-use prettytable::Table;
 use prettytable::cell::Cell;
 use prettytable::format;
 use prettytable::row::Row;
+use prettytable::Table;
 use serde_json;
 use std::collections::HashMap;
 use std::io::Write;
@@ -41,13 +41,12 @@ impl OutputResourceListResult for TableOutputResourceListResult {
         let mut table = Table::new();
         table.set_format(*format::consts::FORMAT_NO_LINESEP_WITH_TITLE);
 
-        table.set_titles(Row::new(vec![
-            Cell::new("Project"), Cell::new("Resource")
-        ]));
+        table.set_titles(Row::new(vec![Cell::new("Project"), Cell::new("Resource")]));
 
         for resource in result {
             let row = Row::new(vec![
-                Cell::new(resource.project.as_ref()), Cell::new(resource.name.as_ref())
+                Cell::new(resource.project.as_ref()),
+                Cell::new(resource.name.as_ref()),
             ]);
             table.add_row(row);
         }
@@ -66,4 +65,3 @@ fn resources_by_project(resources: &[Resource]) -> HashMap<&str, Vec<&str>> {
 
     map
 }
-

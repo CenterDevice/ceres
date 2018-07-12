@@ -20,7 +20,7 @@ impl Default for PlainOutputCatalogResult {
                 NodeField::ServiceId,
                 NodeField::ServiceName,
                 NodeField::Healthy,
-            ]
+            ],
         }
     }
 }
@@ -39,7 +39,8 @@ impl OutputCatalogResult for PlainOutputCatalogResult {
                         },
                         */
                         _ => {
-                            let row = self.fields
+                            let row = self
+                                .fields
                                 .iter()
                                 .map(|f| value_for_field(f, catalog, node))
                                 .collect::<Vec<_>>();
@@ -57,4 +58,3 @@ impl OutputCatalogResult for PlainOutputCatalogResult {
         Ok(())
     }
 }
-

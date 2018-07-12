@@ -1,8 +1,8 @@
 use chrono::prelude::*;
 use chrono_humanize::HumanTime;
-use prettytable::{Attr, Table, color, format};
 use prettytable::cell::Cell;
 use prettytable::row::Row;
+use prettytable::{color, format, Attr, Table};
 use serde_json;
 use std::io::Write;
 
@@ -26,13 +26,14 @@ pub struct PlainOutputPageStatusResult;
 impl OutputPageStatusResult for PlainOutputPageStatusResult {
     fn output<T: Write>(&self, writer: &mut T, result: &[PageStatusResult]) -> Result<()> {
         for r in result {
-            let line = format!("{} {} {} {} {} {}\n",
-                               r.name,
-                               r.page_status.status.indicator,
-                               r.page_status.status.description,
-                               r.page_status.page.updated_at,
-                               r.page_status.page.time_zone,
-                               r.page_status.page.url
+            let line = format!(
+                "{} {} {} {} {} {}\n",
+                r.name,
+                r.page_status.status.indicator,
+                r.page_status.status.description,
+                r.page_status.page.updated_at,
+                r.page_status.page.time_zone,
+                r.page_status.page.url
             );
             let _ = writer.write(line.as_bytes());
         }
@@ -78,8 +79,8 @@ impl Indicator {
         match self {
             Indicator::None => c.with_style(Attr::ForegroundColor(color::GREEN)),
             Indicator::Minor => c.with_style(Attr::ForegroundColor(color::YELLOW)),
-            Indicator::Major =>c.with_style(Attr::ForegroundColor(color::YELLOW)),
-            Indicator::Critical =>c.with_style(Attr::ForegroundColor(color::RED)),
+            Indicator::Major => c.with_style(Attr::ForegroundColor(color::YELLOW)),
+            Indicator::Critical => c.with_style(Attr::ForegroundColor(color::RED)),
         }
     }
 }
@@ -90,4 +91,3 @@ fn since(updated_at: DateTime<FixedOffset>) -> String {
 
     format!("{}", ht)
 }
-

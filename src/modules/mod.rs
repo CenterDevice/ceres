@@ -7,7 +7,15 @@ pub trait Module {
     fn call(cli_args: Option<&ArgMatches>, run_config: &RunConfig, config: &Config) -> Result<()>;
 }
 
-main_module!(consul, health, infrastructure, instances, ops, statuspages, stories);
+main_module!(
+    consul,
+    health,
+    infrastructure,
+    instances,
+    ops,
+    statuspages,
+    stories
+);
 
 error_chain! {
     errors {

@@ -21,13 +21,12 @@ fn value_for_field(field: &NodeField, catalog: &Catalog, node: &Node) -> String 
     match *field {
         NodeField::Id => node.id.clone(),
         NodeField::Name => node.name.clone(),
-        NodeField::MetaData(ref filter) => format_meta_data(
-            &node.meta_data,
-            filter.as_ref().map(|x| x.as_slice())
-        ),
+        NodeField::MetaData(ref filter) => {
+            format_meta_data(&node.meta_data, filter.as_ref().map(|x| x.as_slice()))
+        }
         NodeField::Address => node.address.clone(),
         NodeField::ServicePort => node.service_port.to_string(),
-        NodeField::ServiceTags =>  node.service_tags.as_slice().join(","),
+        NodeField::ServiceTags => node.service_tags.as_slice().join(","),
         NodeField::ServiceId => node.service_id.clone(),
         NodeField::ServiceName => node.service_name.clone(),
         NodeField::Healthy => is_healthy(catalog, node),
@@ -61,6 +60,7 @@ fn format_meta_data(tags: &HashMap<String, String>, filter: Option<&[String]>) -
 }
 
 fn is_healthy(catalog: &Catalog, node: &Node) -> String {
-    catalog.is_node_healthy_for_service(node, &node.service_name).to_string()
+    catalog
+        .is_node_healthy_for_service(node, &node.service_name)
+        .to_string()
 }
-
