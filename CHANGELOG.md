@@ -7,6 +7,11 @@ and this project adheres to [Semantic Versioning](http://semver.org/spec/v2.0.0.
 ## [Unreleased]
 
 
+## [0.0.20] - 2018-07-13
+
+- Add `ceres health check`
+
+
 ## [0.0.19] - 2018-07-10
 
 ### Added
@@ -129,7 +134,8 @@ Add deployments in Travis build.
 ### Changed
 - `instances terminate` uses `warn!` macro instead of yellow `println!` to output warning in case of active dry mode.
 
-[Unreleased]: https://github.com/lukaspustina/ceres/compare/v0.0.19...HEAD
+[Unreleased]: https://github.com/lukaspustina/ceres/compare/v0.0.20...HEAD
+[0.0.20]: https://github.com/lukaspustina/ceres/compare/v0.0.19...v0.0.20
 [0.0.19]: https://github.com/lukaspustina/ceres/compare/v0.0.18...v0.0.19
 [0.0.18]: https://github.com/lukaspustina/ceres/compare/v0.0.17...v0.0.18
 [0.0.17]: https://github.com/lukaspustina/ceres/compare/v0.0.16...v0.0.17

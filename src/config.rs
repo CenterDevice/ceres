@@ -56,6 +56,7 @@ pub struct Profile {
     pub story_tracker: StoryTracker,
     pub provider: Option<Provider>,
     pub consul: Option<Consul>,
+    pub health: HealthCheck
 }
 
 #[derive(Debug, Serialize, Deserialize, PartialEq)]
@@ -82,6 +83,11 @@ pub enum Provider {
 #[derive(Debug, Serialize, Deserialize, PartialEq)]
 pub struct Consul {
     pub urls: Vec<String>,
+}
+
+#[derive(Debug, Serialize, Deserialize, PartialEq)]
+pub struct HealthCheck {
+    pub base_domain: String,
 }
 
 error_chain! {
@@ -122,6 +128,9 @@ mod tests {
         let consul = Consul {
             urls: vec!["http://localhost:8500".to_owned(), "http://127.0.0.1:8500".to_owned()],
         };
+        let health = HealthCheck {
+            base_domain: "instance_domain.com".to_owned(),
+        };
         let prod_profile = Profile {
             ssh_user: Some("a_user".to_owned()),
             local_base_dir: Some("path/to/your/infrastructure/aws/prod/directory".to_owned()),
@@ -129,6 +138,7 @@ mod tests {
             story_tracker,
             provider: Some(Provider::Aws(aws_provider)),
             consul: Some(consul),
+            health,
         };
         let mut profiles = HashMap::new();
         profiles.insert("prod".to_owned(), prod_profile);

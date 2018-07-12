@@ -57,7 +57,9 @@ project_id = \<number of corresponding pivotal project\>
 
 urls = ["\<URL to your consul server or agent\>", ...]
 
+[profiles."\<profile name\>".health]
 
+base_domain = "\<base domain name of your CenterDevice instance\>"
 
 # SEE ALSO
   ceres(1)
