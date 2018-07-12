@@ -109,6 +109,21 @@ Filters services for specific service names.
 Filters services for specific tags.
 .RS
 .RE
+.SS HEALTH
+.PP
+The \f[I]health\f[] module interacts with the health check resources of
+a CenterDevice instance configured per profile.
+.SS health check [\f[I]options\f[]]
+.PP
+\f[I]health check\f[] queries health checks for all resources, i.e.,
+\[lq]admin\[rq], \[lq]api\[rq], \[lq]app\[rq], \[lq]auth\[rq],
+\[lq]public\[rq], \[lq]sales\[rq], \[lq]upload\[rq].
+.TP
+.B \-o, \[en]output \f[I]output\f[]
+Selects output format [default: human] [possible values: human, json,
+plain]
+.RS
+.RE
 .SS INFRASTRUCTURE
 .PP
 The \f[I]infrastructure\f[] modules automate building, planning, and

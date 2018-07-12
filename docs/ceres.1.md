@@ -76,6 +76,18 @@ The *consul* modules interacts with the consul cluster in the environment select
   : Filters services for specific tags.
 
 
+## HEALTH
+
+The *health* module interacts with the health check resources of a CenterDevice instance configured per profile.
+
+### health check [*options*]
+
+  *health check* queries health checks for all resources, i.e., "admin", "api", "app", "auth", "public", "sales", "upload".
+
+  -o, --output *output*
+  : Selects output format [default: human]  [possible values: human, json, plain]
+
+
 ## INFRASTRUCTURE
 
 The *infrastructure* modules automate building, planning, and deploying infrastructure as code resources from the CenterDevice *infrastructure* repository.
