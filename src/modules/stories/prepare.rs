@@ -1,7 +1,6 @@
 use clap::{App, Arg, ArgMatches, SubCommand};
-use futures::{Future, Stream, collect};
+use futures::{Future, Stream};
 use futures::future::{self, result};
-use hyper::header::Headers;
 use reqwest::header::{ContentType, Connection};
 use reqwest::unstable::async::{Client as ReqwestClient};
 use serde_json;
@@ -12,7 +11,6 @@ use run_config::RunConfig;
 use modules::{Result as ModuleResult, Error as ModuleError, ErrorKind as ModuleErrorKind, Module};
 use modules::stories::XTrackerToken;
 use modules::stories::errors::*;
-use output::OutputType;
 
 pub const NAME: &str = "prepare";
 

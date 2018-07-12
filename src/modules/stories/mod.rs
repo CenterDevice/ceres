@@ -19,9 +19,6 @@ mod errors {
             StoryIsNotEstimated {
                 description("This story is not yet estimated")
             }
-            FailedOutput {
-                description("Failed to output")
-            }
         }
     }
 }

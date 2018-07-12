@@ -125,7 +125,7 @@ macro_rules! list_resources {
             }
         }
 
-        #[allow(unstable_name_collision)] // flatten from itertools
+        #[allow(unstable_name_collisions)] // flatten from itertools
         fn do_call(args: &ArgMatches, run_config: &RunConfig, config: &Config) -> Result<()> {
             let profile = match run_config.active_profile.as_ref() {
                 "default" => config.get_default_profile(),
@@ -155,7 +155,7 @@ macro_rules! list_resources {
         fn find_resources<P: AsRef<Path>>(base_dir: P) -> Result<Vec<PathBuf>> {
             let walker = WalkBuilder::new(base_dir).build();
 
-            let resources = walker
+            walker
                 .filter(|x| // Does the path point to a Makefile?
                     x.is_ok() &&
                     x.as_ref().unwrap().path().ends_with("Makefile")
@@ -178,9 +178,7 @@ macro_rules! list_resources {
                         false
                     }
                 })
-                .collect();
-
-            resources
+                .collect()
         }
 
         fn output_list(
@@ -391,7 +389,7 @@ macro_rules! build_resource {
             Ok(c)
         }
 
-        #[allow(unstable_name_collision)] // flatten from itertools
+        #[allow(unstable_name_collisions)] // flatten from itertools
         fn run_commands(commands: Vec<Command>, progress_bar: bool) -> Result<Vec<CommandResult>> {
             let mut results = Vec::new();
             for c in commands.into_iter() {

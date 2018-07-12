@@ -1,5 +1,4 @@
 use clap::{App, Arg, ArgMatches, SubCommand};
-use error_chain::ChainedError;
 use futures::{Future, Stream};
 use futures::future::result;
 use futures::stream::futures_ordered;

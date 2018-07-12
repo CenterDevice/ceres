@@ -1,7 +1,6 @@
 extern crate clams;
 #[macro_use]
 extern crate clams_derive;
-#[macro_use]
 extern crate clap;
 extern crate chrono;
 extern crate chrono_humanize;

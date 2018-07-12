@@ -180,15 +180,14 @@ pub mod run {
                 sender.send(res).unwrap();
             });
         }
-        let res = results.iter()
+
+        results.iter()
             .map(|r|
                 r.recv().unwrap()
                     // TODO: Error should contain the command.
                     .map_err(|e| Error::with_chain(e, ErrorKind::FailedToRunCommand("<nyi>".to_owned())))
             )
-            .collect();
-
-        res
+            .collect()
     }
 
     pub fn run_with_progress(commands: Vec<Command>) -> Result<Vec<CommandResult>> {
@@ -217,8 +216,8 @@ pub mod run {
                 let res = cmd.run(Some(progress));
 
                 let finish_msg = match &res {
-                    &Ok( CommandResult { id: _, log: _, exit_status: ExitStatus::Exited(0) } ) => format!("{}.", "Done".green()),
-                    &Ok( CommandResult { id: _, log: _, exit_status: ExitStatus::Exited(n) } ) => format!("{} with exit status {}.", "Failed".red(), n),
+                    &Ok( CommandResult { exit_status: ExitStatus::Exited(0), .. } ) => format!("{}.", "Done".green()),
+                    &Ok( CommandResult { exit_status: ExitStatus::Exited(n), .. } ) => format!("{} with exit status {}.", "Failed".red(), n),
                     &Ok(ref result) => format!("{} with {:?}", "Failed".red(), result.exit_status),
                     &Err(ref e) => format!("{} ({:?})", "Error".red(), e),
                 };
@@ -229,15 +228,13 @@ pub mod run {
         }
         m.join().unwrap();
 
-        let res = results.iter()
+        results.iter()
             .map(|r|
                 r.recv().unwrap()
                     // TODO: Error should contain the command.
                     .map_err(|e| Error::with_chain(e, ErrorKind::FailedToRunCommand("<nyi>".to_owned())))
             )
-            .collect();
-
-        res
+            .collect()
     }
 
     pub fn output_results(

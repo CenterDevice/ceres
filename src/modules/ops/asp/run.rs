@@ -12,7 +12,7 @@ use utils::run;
 use utils::ssh;
 
 pub const NAME: &str = "run";
-const COMMANDS: &'static [&'static str] = &[
+const COMMANDS: &[&str] = &[
     "sudo /usr/local/sbin/run-my-asp.sh"
 ];
 
@@ -82,7 +82,7 @@ impl Module for SubModule {
     }
 }
 
-#[allow(unstable_name_collision)] // flatten from itertools
+#[allow(unstable_name_collisions)] // flatten from itertools
 fn do_call(args: &ArgMatches, run_config: &RunConfig, config: &Config) -> Result<()> {
     let profile = match run_config.active_profile.as_ref() {
         "default" => config.get_default_profile(),

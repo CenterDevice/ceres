@@ -14,7 +14,7 @@ use utils::ssh;
 
 pub const NAME: &str = "backup";
 const DESCRIPTION: &str = "Execute backup script remotely";
-const COMMANDS: &'static [&'static str] = &[
+const COMMANDS: &[&str] = &[
     "sudo /usr/local/bin/mysql_backup.sh -s -b -1 -c /root/.mysql-backup-client-options.cnf -k /etc/backup/backup-enc-secret.enc -g 60",
     "sudo /usr/local/bin/wordpress_backup.sh -s -k /etc/backup/backup-enc-secret.enc -g 60"
 ];
@@ -84,7 +84,7 @@ impl Module for SubModule {
     }
 }
 
-#[allow(unstable_name_collision)] // flatten from itertools
+#[allow(unstable_name_collisions)] // flatten from itertools
 fn do_call(args: &ArgMatches, run_config: &RunConfig, config: &Config) -> Result<()> {
     let profile = match run_config.active_profile.as_ref() {
         "default" => config.get_default_profile(),
