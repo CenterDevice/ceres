@@ -41,7 +41,7 @@ subprocess = "^0.1"
 tempfile = "^3"
 tokio-core = "^0.1"
 toml = "^0.4"
-webbrowser = "^0.2"
+webbrowser = "^0.3"
 
 [dev-dependencies]
 quickcheck = "^0.6"
