@@ -43,7 +43,7 @@ if [[ -z "${NAME}" || -z "${PROFILE}" ]]; then
   usage
 fi
 
-F="Tags=Name=.*${NAME}.*"
+F="State=running,Tags=Name=.*${NAME}.*"
 for t in ${TAGS}; do
     F="${F}:${t}"
 done
