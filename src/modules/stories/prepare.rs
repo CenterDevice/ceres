@@ -15,19 +15,16 @@ use modules::stories::errors::*;
 pub const NAME: &str = "prepare";
 
 pub const TASKS: &[&str] = &[
-   "Detailed Planning durchführen",
-   "Feature Branch (PT-<Ticketnr>) erzeugen",
-   "Fachliche Entwicklung mit Deployment für Staging abschließen",
-   "PR erstellen",
-   "Fachliches Review anfordern",
-   "ggf. Review-Kommentare nachpflegen",
-   "Dokumentation erstellen",
-   "Approval für Prod Merge anfordern",
-   "Patch für Prod anwenden",
-   "Approval für Deployment anfordern",
-   "PR mit Merge nach master schließen",
-   "Story fertigstellen (Finished)",
-   "Story nach Prod deployment (Delivered)",
+    "Detail Planning",
+    "Feature Branch erzeugen",
+    "Fachliche Entwicklung inklusive Tests und Dokumentation",
+    "Review anfordern",
+    "Fachliche Abnahme anfordern",
+    "Vorbereitungen für Deployment treffen",
+    "Genehmigung für Deployment anfordern",
+    "Pull Request Merge durchführen",
+    "Deployment durchführen",
+    "Verfügbarkeit in Prod prüfen",
 ];
 
 pub struct SubModule;
