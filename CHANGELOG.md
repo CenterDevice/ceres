@@ -5,7 +5,14 @@ The format is based on [Keep a Changelog](http://keepachangelog.com/en/1.0.0/)
 and this project adheres to [Semantic Versioning](http://semver.org/spec/v2.0.0.html).
 
 ## [Unreleased]
+
+
+## [0.0.21] - 2018-09-04
+
 - Add filter to cssh so it only considers running instances
+- Update pivotal tracker tasks
+- Update dependencies
+
 
 ## [0.0.20] - 2018-07-13
 
@@ -134,7 +141,8 @@ Add deployments in Travis build.
 ### Changed
 - `instances terminate` uses `warn!` macro instead of yellow `println!` to output warning in case of active dry mode.
 
-[Unreleased]: https://github.com/lukaspustina/ceres/compare/v0.0.20...HEAD
+[Unreleased]: https://github.com/lukaspustina/ceres/compare/v0.0.21...HEAD
+[0.0.21]: https://github.com/lukaspustina/ceres/compare/v0.0.20...v0.0.21
 [0.0.20]: https://github.com/lukaspustina/ceres/compare/v0.0.19...v0.0.20
 [0.0.19]: https://github.com/lukaspustina/ceres/compare/v0.0.18...v0.0.19
 [0.0.18]: https://github.com/lukaspustina/ceres/compare/v0.0.17...v0.0.18
