@@ -13,7 +13,7 @@ codecov = { repository = "lukaspustina/ceres", branch = "master", service = "git
 [dependencies]
 clams = "^0.0.9"
 clams-derive = "^0.0.4"
-clap = "^2.31"
+clap = "^2.32"
 colored = "^1.6"
 chrono = { version = "0.4", features = ["serde"] }
 chrono-humanize = "0.0.11"
