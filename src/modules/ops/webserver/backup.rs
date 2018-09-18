@@ -143,7 +143,7 @@ fn do_call(args: &ArgMatches, run_config: &RunConfig, config: &Config) -> Result
             run::run(cs, progress_bar)
                 .chain_err(|| ErrorKind::ModuleFailed(NAME.to_owned()))
         ).collect();
-    let results: Vec<_> = results?.into_iter().flatten().collect();
+    let results: Vec<_> = Itertools::flatten(results?.into_iter()).collect();
 
     run::output_results(output_type, show_all, results.as_slice())
         .chain_err(|| ErrorKind::ModuleFailed(NAME.to_owned()))?;

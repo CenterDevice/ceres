@@ -402,7 +402,7 @@ macro_rules! build_resource {
                     results.push(res);
                 }
             }
-            let results: Vec<_> = results.into_iter().flatten().collect();
+            let results: Vec<_> = Itertools::flatten(results.into_iter()).collect();
 
             Ok(results)
         }
