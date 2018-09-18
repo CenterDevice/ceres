@@ -44,5 +44,5 @@ toml = "^0.4"
 webbrowser = "^0.2"
 
 [dev-dependencies]
-quickcheck = "^0.6"
+quickcheck = "^0.7"
 spectral = "^0.6"
