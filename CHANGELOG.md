@@ -6,8 +6,10 @@ and this project adheres to [Semantic Versioning](http://semver.org/spec/v2.0.0.
 
 ## [Unreleased]
 
+## [0.0.23] - 2018-08-20
+- Update health check to understand 'global' key
 
-## [0.0.21] - 2018-09-18
+## [0.0.22] - 2018-09-18
 - Fix `flatten()` issue introduced by Rust 1.29
 
 ## [0.0.21] - 2018-09-04
@@ -144,7 +146,8 @@ Add deployments in Travis build.
 ### Changed
 - `instances terminate` uses `warn!` macro instead of yellow `println!` to output warning in case of active dry mode.
 
-[Unreleased]: https://github.com/lukaspustina/ceres/compare/v0.0.22...HEAD
+[Unreleased]: https://github.com/lukaspustina/ceres/compare/v0.0.23...HEAD
+[0.0.23]: https://github.com/lukaspustina/ceres/compare/v0.0.22...v0.0.23
 [0.0.22]: https://github.com/lukaspustina/ceres/compare/v0.0.21...v0.0.22
 [0.0.21]: https://github.com/lukaspustina/ceres/compare/v0.0.20...v0.0.21
 [0.0.20]: https://github.com/lukaspustina/ceres/compare/v0.0.19...v0.0.20
