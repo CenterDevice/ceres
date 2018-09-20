@@ -45,9 +45,9 @@ type HealthCheckResponse = HashMap<String, HealthSample>;
 #[derive(Debug, Deserialize, Serialize)]
 pub struct HealthSample {
    #[serde(rename = "timeStamp")]
-   pub time_stamp: i64,
+   pub time_stamp: Option<i64>,
    #[serde(rename = "samplingTime")]
-   pub stampling_time: usize,
+   pub stampling_time: Option<usize>,
    #[serde(rename = "value")]
    pub healthy: bool,
 }
