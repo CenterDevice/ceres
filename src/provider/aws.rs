@@ -21,7 +21,10 @@ pub struct Aws {
     pub access_key_id: String,
     pub secret_access_key: String,
     pub token: Option<String>,
-    #[serde(serialize_with = "ser_region", deserialize_with = "de_ser_region")]
+    #[serde(
+        serialize_with = "ser_region",
+        deserialize_with = "de_ser_region"
+    )]
     pub region: Region,
     pub role_arn: String,
 }
