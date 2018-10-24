@@ -89,6 +89,7 @@ mod tests {
         let aws_provider = provider::aws::Aws {
             access_key_id: String::from("a key id"),
             secret_access_key: String::from("an access key"),
+            token: Some("a-token".to_string()),
             region: Region::EuCentral1,
             role_arn: String::from("a_role_arn"),
         };
