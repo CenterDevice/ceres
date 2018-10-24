@@ -7,7 +7,15 @@ pub trait Module {
     fn call(cli_args: Option<&ArgMatches>, run_config: &RunConfig, config: &Config) -> Result<()>;
 }
 
-main_module!(consul, instances, ops);
+main_module!(
+    consul,
+    health,
+    infrastructure,
+    instances,
+    ops,
+    statuspages,
+    stories
+);
 
 error_chain! {
     errors {
@@ -29,6 +37,11 @@ error_chain! {
         ModuleFailed(module_name: String) {
             description("module failed")
             display("executing module {} failed", module_name)
+        }
+
+        ConfigMissingInProfile(config: String) {
+            description("There is a configuration missing in this profile")
+            display("there is no {} configuration in this profile", config)
         }
     }
 }

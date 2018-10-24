@@ -8,25 +8,51 @@ toc::[]
 
 == Installation
 
-== Brew
+=== Ubuntu [x86_64]
+
+Please add my PackageCloud open source repository and install `ceres` via apt.
+
+[source,bash]
+----
+curl -s https://packagecloud.io/install/repositories/lukaspustina/opensource/script.deb.sh | sudo bash
+sudo apt-get install ceres
+----
+
+=== Linux Binaries [x86_64]
+
+There are binaries available at the https://github.com/lukaspustina/ceres/releases[GitHub release] page. The binaries are compiled on Ubuntu.
+
+=== macOS Binaries [x86_64]
+
+There are binaries available at the https://github.com/lukaspustina/ceres/releases[GitHub release] page.
+
+=== Brew
+
+First, install https://www.rustup.rs[Rustup] to install a Rust compiler.
+
+==== Latest Release
+
+`brew install lukaspustina/os/ceres`
+
+==== HEAD
 
 `brew install lukaspustina/os/ceres --HEAD`
 
-Attention: Due to a incompatibility between Rust and brew, this installation method currently does not work reliably. If you encounter a compiler error, please use cargo to install ceres.
-
 === Cargo
 
-First install https://www.rustup.rs[Rustup] to install a Rust compiler.
+First, install https://www.rustup.rs[Rustup] to install a Rust compiler.
 
 `cargo install ceres --git https://github.com/lukaspustina/ceres`
 
 === From Source
 
+First, install https://www.rustup.rs[Rustup] to install a Rust compiler.
+
 [source,bash]
 ----
 git clone https://github.com/lukaspustina/ceres
 cd ceres
-cargo install
+make install
 ----
 
 

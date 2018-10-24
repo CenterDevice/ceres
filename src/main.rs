@@ -1,17 +1,16 @@
-extern crate clams;
 extern crate ceres;
+extern crate clams;
 extern crate clap;
 #[macro_use]
 extern crate error_chain;
 #[macro_use]
+extern crate human_panic;
+#[macro_use]
 extern crate log;
 
-use clams::config::Config;
-use clams::logging::{Level, ModLevel, init_logging};
+use clams::prelude::*;
 use clap::{App, AppSettings, Arg, ArgMatches, Shell, SubCommand};
-use std::env;
 use std::io;
-use std::path::Path;
 
 use ceres::config::CeresConfig;
 use ceres::modules;
@@ -20,6 +19,8 @@ use ceres::run_config::RunConfig;
 const DEFAULT_CONFIG_FILE_NAME: &str = "ceres.conf";
 
 fn main() {
+    setup_panic!();
+
     if let Err(ref e) = run() {
         if log_enabled!(log::Level::Error) {
             error!("error: {}", e);
@@ -49,35 +50,39 @@ fn main() {
 
 fn run() -> Result<()> {
     let args = build_cli().get_matches();
+    clams::console::set_color(!args.is_present("no-color"));
 
     match args.subcommand_name() {
-        Some(subcommand @ "completions") => return generate_completion(args.subcommand_matches(subcommand).unwrap()), // Safe unwrap
-        Some("show-example-config") =>return show_example_config(),
-        _ => {},
+        Some(subcommand @ "completions") => {
+            return generate_completion(args.subcommand_matches(subcommand).unwrap())
+        } // Safe unwrap
+        Some("show-example-config") => return show_example_config(),
+        _ => {}
     };
 
-    let default_config_file_name = format!(
-        "{}/.{}",
-        env::home_dir().unwrap().display(),
-        DEFAULT_CONFIG_FILE_NAME
-    );
-    let config_file_name = args.value_of("config").unwrap_or(&default_config_file_name);
-    let config = load_config(&config_file_name)?;
+    let mut config_locations = default_locations(DEFAULT_CONFIG_FILE_NAME);
+    if let Some(config) = args.value_of("config") {
+        config_locations.insert(0, config.into());
+    }
+    let config = CeresConfig::smart_load(&config_locations)?;
 
     start_logging(&args, &config)?;
 
     info!(
-        "{} version {}, log level={}",
+        "{} version={}, log level={}",
         env!("CARGO_PKG_NAME"),
         env!("CARGO_PKG_VERSION"),
         log::max_level()
     );
 
     let run_config = RunConfig {
+        color: !args.is_present("no-color"),
         active_profile: args.value_of("profile").unwrap().to_owned(), // Safe unwrap
     };
-    info!("Active profile={}, default profile={}",
-          run_config.active_profile, config.default_profile);
+    info!(
+        "Active profile={}, default profile={}",
+        run_config.active_profile, config.default_profile
+    );
 
     modules::call(&args, &run_config, &config).map_err(|e| e.into())
 }
@@ -96,6 +101,11 @@ fn build_cli() -> App<'static, 'static> {
                 .long("config")
                 .takes_value(true)
                 .help("Sets config file to use [default: ~/.ceres.conf]"),
+        )
+        .arg(
+            Arg::with_name("no-color")
+                .long("no-color")
+                .help("Turns off colored output"),
         )
         .arg(
             Arg::with_name("profile")
@@ -121,27 +131,21 @@ fn build_cli() -> App<'static, 'static> {
                         .hidden(true)
                         .help("The shell to generate the script for"),
                 )
-                .about("Generate shell completion scripts")
+                .about("Generate shell completion scripts"),
         )
         .subcommand(
             SubCommand::with_name("show-example-config")
                 .alias("daniel")
-                .about("Show an example configuration file")
+                .about("Show an example configuration file"),
         );
 
     modules::build_sub_cli(general)
 }
 
-fn load_config<T: AsRef<Path>>(file_path: T) -> Result<CeresConfig> {
-    let config = CeresConfig::from_file(&file_path)
-        .chain_err(|| ErrorKind::FailedToLoadConfigFile(format!("{:#?}", file_path.as_ref())))?;
-
-    Ok(config)
-}
-
 fn generate_completion(args: &ArgMatches) -> Result<()> {
     let bin_name = env!("CARGO_PKG_NAME");
-    let shell = args.value_of("shell")
+    let shell = args
+        .value_of("shell")
         .ok_or_else(|| ErrorKind::CliArgsParsingError("shell argument is missing".to_string()))?;
     build_cli().gen_completions_to(
         bin_name,
@@ -175,8 +179,12 @@ fn start_logging(args: &ArgMatches, config: &CeresConfig) -> Result<()> {
 
     init_logging(
         io::stderr(),
+        !args.is_present("no-color"),
         default,
-        vec![ModLevel { module: "ceres".to_owned(), level: ceres }]
+        vec![ModLevel {
+            module: "ceres".to_owned(),
+            level: ceres,
+        }],
     ).chain_err(|| ErrorKind::FailedToInitLogging)?;
 
     Ok(())
@@ -207,5 +215,6 @@ error_chain! {
     links {
         Module(ceres::modules::Error, ceres::modules::ErrorKind);
         Utils(ceres::utils::Error, ceres::utils::ErrorKind);
+        Config(clams::config::ConfigError, clams::config::ConfigErrorKind);
     }
 }

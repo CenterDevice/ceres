@@ -1,7 +1,7 @@
-use prettytable::Table;
 use prettytable::cell::Cell;
 use prettytable::format;
 use prettytable::row::Row;
+use prettytable::Table;
 use service_world::consul::Catalog;
 use std::io::Write;
 
@@ -25,7 +25,7 @@ impl Default for TableOutputCatalogResult {
                 NodeField::ServiceId,
                 NodeField::ServiceName,
                 NodeField::Healthy,
-            ]
+            ],
         }
     }
 }
@@ -49,7 +49,8 @@ impl OutputCatalogResult for TableOutputCatalogResult {
         for service in catalog.services() {
             if let Some(nodes) = catalog.nodes_by_service(service) {
                 for node in nodes {
-                    let row = self.fields
+                    let row = self
+                        .fields
                         .iter()
                         .map(|f| value_for_field(f, catalog, node))
                         .collect::<Vec<_>>();
@@ -80,4 +81,3 @@ fn header_for_field(field: &NodeField) -> &str {
         NodeField::Healthy => "Healthy",
     }
 }
-

@@ -1,7 +1,10 @@
 use std::str::FromStr;
 
 pub mod consul;
+pub mod health;
+pub mod infrastructure;
 pub mod instances;
+pub mod statuspages;
 
 pub enum OutputType {
     Human,
@@ -35,4 +38,3 @@ error_chain! {
         }
     }
 }
-

@@ -1,0 +1,5 @@
+chown root:root /usr/bin/ceres
+chmod 755 /usr/bin/ceres
+
+mandb
+

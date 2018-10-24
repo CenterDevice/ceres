@@ -7,6 +7,7 @@ use modules::*;
 use output::OutputType;
 use output::instances::{JsonOutputStateChanges, OutputStateChanges, TableOutputStatusChanges};
 use provider::{StateChange, TerminateInstances};
+use utils::cli::read_instance_ids;
 
 pub const NAME: &str = "terminate";
 
@@ -20,7 +21,7 @@ impl Module for SubModule {
                 Arg::with_name("instance_ids")
                     .multiple(true)
                     .required(true)
-                    .help("Instance Ids to terminate"),
+                    .help("Instance Ids to terminate; or '-' to read json with instance ids from stdin"),
             )
             .arg(
                 Arg::with_name("dry")
@@ -71,7 +72,9 @@ fn terminate_instances(
         "default" => config.get_default_profile(),
         s => config.get_profile(s),
     }.chain_err(|| ErrorKind::ModuleFailed(NAME.to_owned()))?;
-    let Provider::Aws(ref provider) = profile.provider;
+    let Provider::Aws(provider) = profile.provider
+        .as_ref()
+        .ok_or(Error::from_kind(ErrorKind::ConfigMissingInProfile("provider".to_string())))?;
 
     let dry = args.is_present("dry");
     let yes = args.is_present("yes");
@@ -91,9 +94,9 @@ fn terminate_instances(
         (false, true) => {}
     }
 
-    let instance_ids: Vec<_> = args.values_of("instance_ids")
-        .unwrap() // Safe
-        .map(String::from).collect();
+    let instance_ids: Vec<&str> = args.values_of("instance_ids").unwrap_or_else(|| Default::default()).collect();
+    let instance_ids: Vec<_> = read_instance_ids(&instance_ids)
+        .chain_err(|| ErrorKind::ModuleFailed(String::from(NAME)))?;
 
     provider
         .terminate_instances(dry, &instance_ids)
