@@ -66,14 +66,18 @@ fn do_call(args: &ArgMatches, run_config: &RunConfig, config: &Config) -> Result
 
     let services = args.values_of_lossy("services");
     let tags = args.values_of_lossy("tags");
-    let url = profile.consul.urls.first()
+    let url = profile.consul
+        .as_ref()
+        .ok_or(Error::from_kind(ErrorKind::ConfigMissingInProfile("consul".to_string())))?
+        .urls
+        .first()
         .chain_err(|| ErrorKind::ModuleFailed(String::from(NAME)))?;
 
     info!("Quering for services = {}, tags = {}",
         services.as_ref().map(|x| x.join(",")).unwrap_or_else(|| "()".to_owned()),
         tags.as_ref().map(|x| x.join(",")).unwrap_or_else(|| "()".to_owned())
     );
-    let catalog = query_consul(url.to_owned(), services, tags)
+    let catalog = query_consul(url.to_string(), services, tags)
         .chain_err(|| ErrorKind::ModuleFailed(String::from(NAME)))?;
 
     info!("Outputting catalog");

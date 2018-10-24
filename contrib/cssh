@@ -1,0 +1,66 @@
+#!/bin/bash
+
+function usage() {
+    cat <<EOF
+    Usage: $(basename ${0}) -p|--profile profile -n|--name instance-name [[-t|--tags key=value] ...]
+      profile       : as per ceres config file
+      instance-name : full or part of the instance name (as per the Name tag)
+      tags          : one or more key=value pairs to filter
+
+    When more than 1 instance matches the criteria, an error is returned.
+EOF
+  exit 1
+}
+
+while [[ ${#} > 0 ]]; do
+    case "${1}" in
+        -p | --profile )
+            shift
+            PROFILE="${1}"
+            shift
+            ;;
+        -n | --name )
+            shift
+            NAME="${1}"
+            shift
+            ;;
+        -t | --tag )
+            shift
+            TAGS="${TAGS} ${1}"
+            shift
+            ;;
+        -l | --list )
+            LIST=1
+            shift
+            ;;
+        *)
+            usage
+            ;;
+    esac
+done
+
+if [[ -z "${NAME}" || -z "${PROFILE}" ]]; then
+  usage
+fi
+
+F="State=running,Tags=Name=.*${NAME}.*"
+for t in ${TAGS}; do
+    F="${F}:${t}"
+done
+
+INSTANCEID=( $(ceres --profile ${PROFILE} instances list --output plain --output-options InstanceId --filter "${F}") ) 
+if [[ ! -z "${LIST}" ]]; then
+  echo ${INSTANCEID[@]}
+  exit 0
+fi
+ICOUNT=${#INSTANCEID[@]}
+if [[ ${ICOUNT} > 1 ]]; then
+    echo "Found ${ICOUNT} instances. Can only SSH into one. Refine your filters."
+    exit 1
+elif [[ ${ICOUNT} == 0 ]]; then
+    echo "No matching instances found."
+    exit 1
+else
+    ceres --profile ${PROFILE} instances ssh $INSTANCEID
+fi
+

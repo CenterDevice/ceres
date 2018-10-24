@@ -1,13 +1,13 @@
-use prettytable::Table;
 use prettytable::cell::Cell;
 use prettytable::format;
 use prettytable::row::Row;
+use prettytable::Table;
 use std::collections::HashMap;
 use std::io::Write;
 use utils::command::ExitStatus;
 
-use provider::{InstanceDescriptor, InstanceDescriptorFields, StateChange};
 use output::instances::*;
+use provider::{InstanceDescriptor, InstanceDescriptorFields, StateChange};
 use utils::command::CommandResult;
 
 pub struct TableOutputInstances {
@@ -45,7 +45,8 @@ impl OutputInstances for TableOutputInstances {
         // `InstanceDescriptorFields` need to allocate representations first, e.g., `InstanceDescriptorFields::Tags`
         let mut rows = Vec::new();
         for instance in instances {
-            let row = self.fields
+            let row = self
+                .fields
                 .iter()
                 .map(|f| value_for_field(f, instance))
                 .collect::<Vec<_>>();
@@ -112,10 +113,16 @@ fn value_for_field(field: &InstanceDescriptorFields, instance: &InstanceDescript
         }
         InstanceDescriptorFields::State => instance.state.clone(),
         InstanceDescriptorFields::StateReason => instance.state_reason.clone(),
-        InstanceDescriptorFields::Tags(ref tags_filter) => Some(format_tags(
-            instance.tags.as_ref().unwrap(),
-            tags_filter.as_ref().map(|x| x.as_slice()),
-        )),
+        InstanceDescriptorFields::Tags(ref tags_filter) => {
+            if let Some(ref tags) = instance.tags.as_ref() {
+                Some(format_tags(
+                    tags,
+                    tags_filter.as_ref().map(|x| x.as_slice()),
+                ))
+            } else {
+                None
+            }
+        }
         InstanceDescriptorFields::VirtualizationType => instance.virtualization_type.clone(),
         InstanceDescriptorFields::VpcId => instance.vpc_id.clone(),
     }.unwrap_or_else(|| String::from("-"))
@@ -180,9 +187,10 @@ pub struct TableOutputCommandResults {
 
 impl OutputCommandResults for TableOutputCommandResults {
     fn output<T: Write>(&self, writer: &mut T, results: &[CommandResult]) -> Result<()> {
-
         let results = TableOutputCommandResults::filter_results(results, self.show_all);
-        if results.is_empty() { return Ok(()) };
+        if results.is_empty() {
+            return Ok(());
+        };
 
         let mut table = Table::new();
         table.set_format(*format::consts::FORMAT_NO_LINESEP_WITH_TITLE);
@@ -207,13 +215,16 @@ impl OutputCommandResults for TableOutputCommandResults {
 }
 
 impl TableOutputCommandResults {
-    fn filter_results<'a>(results: &'a[CommandResult], show_all: bool) -> Vec<&CommandResult> {
+    fn filter_results<'a>(results: &'a [CommandResult], show_all: bool) -> Vec<&CommandResult> {
         if show_all {
             info!("Outputting all result.");
             results.iter().filter(|_| true).collect()
         } else {
             info!("Outputting only failed result.");
-            results.iter().filter(|x| x.exit_status != ExitStatus::Exited(0)).collect()
+            results
+                .iter()
+                .filter(|x| x.exit_status != ExitStatus::Exited(0))
+                .collect()
         }
     }
 }

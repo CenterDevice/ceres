@@ -14,11 +14,20 @@ ceres = "info"
 
 [github]
 
-token = "\< your github token \>"
+token = "\<your github token\>"
+
+[pivotal]
+
+token = "\<your pivotal token\>"
+
+[status_pages."\status page name\>"]
+id = "\<your status page id\>"
 
 [profiles."\<profile name\>"]
 
 ssh_user = "\<a user name\>"
+
+local_base_dir = "\<path to your infrastructure as code sub-directory of your CenterDevice infrastructure repo\>"
 
 [profiles."\<profile name\>".issue_tracker]
 
@@ -26,7 +35,11 @@ github_org = "\<your github org\>"
 
 github_repo = "\<your github repo\>"
 
-project_number = "\<number of corresponding github project\>"
+project_number = \<number of corresponding github project\>
+
+[profiles."\<profile name\>".story_tracker]
+
+project_id = \<number of corresponding pivotal project\>
 
 [profiles."\<profile name\>".provider]
 
@@ -46,7 +59,9 @@ project_number = "\<number of corresponding github project\>"
 
 urls = ["\<URL to your consul server or agent\>", ...]
 
+[profiles."\<profile name\>".health]
 
+base_domain = "\<base domain name of your CenterDevice instance\>"
 
 # SEE ALSO
   ceres(1)

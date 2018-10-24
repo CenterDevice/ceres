@@ -71,7 +71,9 @@ fn describe_instance(
         "default" => config.get_default_profile(),
         s => config.get_profile(s),
     }.chain_err(|| ErrorKind::ModuleFailed(NAME.to_owned()))?;
-    let Provider::Aws(ref provider) = profile.provider;
+    let Provider::Aws(provider) = profile.provider
+        .as_ref()
+        .ok_or(Error::from_kind(ErrorKind::ConfigMissingInProfile("provider".to_string())))?;
 
     let instance_id = args.value_of("instance_id").unwrap(); // safe
 
@@ -99,24 +101,24 @@ fn ssh_to_instance(
 
     let command = args.values_of("command_args")
         .map(|x| x.collect::<Vec<_>>().join(" "));
-    let login_name_str: String; // Borrow checker
+
     let mut ssh_opts: Vec<_> = args.values_of("ssh-opts")
-        .map(|x| x.collect::<Vec<_>>())
+        .map(|x| x
+             .map(|s| s.to_owned())
+             .collect::<Vec<_>>())
         .unwrap_or_else(Vec::new);
 
     if let Some(ref login_name) = profile.ssh_user {
-        login_name_str = format!("-l {}", login_name);
-        ssh_opts.insert(0, &login_name_str);
+        ssh_opts.insert(0, "-l".to_owned());
+        ssh_opts.insert(1, login_name.to_owned());
     };
-    let ssh_opts_str = ssh_opts.join(" ");
-
     if let Some(ip) = ip {
         let ip_addr: IpAddr = ip.parse()
             .chain_err(|| ErrorKind::ModuleFailed(String::from(NAME)))?;
-        utils::ssh_to_ip_address(
+        utils::ssh::exec_ssh_to_ip_address(
             ip_addr,
             command.as_ref().map(|x| x.as_str()),
-            Some(&ssh_opts_str),
+            Some(ssh_opts),
         ).chain_err(|| ErrorKind::ModuleFailed(String::from(NAME)))
     } else {
         Err(Error::from_kind(ErrorKind::ModuleFailed(String::from(

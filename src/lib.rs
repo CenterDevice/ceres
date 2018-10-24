@@ -1,17 +1,22 @@
 extern crate clams;
 #[macro_use]
 extern crate clams_derive;
+extern crate chrono;
+extern crate chrono_humanize;
 extern crate clap;
-extern crate colored;
 #[macro_use]
 extern crate error_chain;
-extern crate fern;
+extern crate futures;
 extern crate hubcaps;
-extern crate indicatif;
+extern crate ignore;
+extern crate itertools;
+#[macro_use]
+extern crate hyper;
 #[macro_use]
 extern crate log;
 extern crate prettytable;
 extern crate regex;
+extern crate reqwest;
 extern crate rusoto_core;
 extern crate rusoto_credential;
 extern crate rusoto_ec2;
@@ -19,6 +24,7 @@ extern crate rusoto_sts;
 extern crate serde;
 #[macro_use]
 extern crate serde_derive;
+#[macro_use]
 extern crate serde_json;
 extern crate service_world;
 extern crate subprocess;
@@ -41,7 +47,7 @@ macro_rules! sub_module {
         use modules::*;
 
         $(
-        mod $submodule;
+        pub mod $submodule;
         )*
 
         pub const NAME: &str = $name;
@@ -112,4 +118,3 @@ pub mod output;
 pub mod provider;
 pub mod run_config;
 pub mod utils;
-
