@@ -49,6 +49,8 @@ project_id = \<number of corresponding pivotal project\>
 
 *secret_access_key* = "\<secret access key\>"
 
+*token* = "\<session token\>"
+
 *region* = "\<AWS region string\>"
 
 *role_arn* = "\<role arn/>"
