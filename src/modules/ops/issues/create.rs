@@ -2,7 +2,6 @@ use clams::console::ask_for_confirmation;
 use clap::{App, Arg, ArgMatches, SubCommand};
 use hubcaps::{Credentials, Github};
 use hubcaps::issues::{Issue, IssueOptions};
-use std::env;
 use std::ffi::OsString;
 use std::fs::File;
 use std::io::Read;
@@ -114,7 +113,7 @@ fn do_call(args: &ArgMatches, run_config: &RunConfig, config: &Config) -> Result
     let labels = args.values_of_lossy("labels").unwrap_or(Vec::new());
 
     let file_path = if args.is_present("interactive") {
-        let editor = env::var_os("EDITOR").unwrap_or_else(|| "vi".to_string().into());
+        let editor = ::std::env::var_os("EDITOR").unwrap_or_else(|| "vi".to_string().into());
         let mut local_template = PathBuf::new();
         local_template.push(&issue_tracker.local_issue_template_path);
         local_template.push(&issue_tracker.default_issue_template_name);
