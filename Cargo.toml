@@ -31,7 +31,7 @@ hyper = "0.11.9" # Strongly connected to reqwest
 reqwest = { version = "0.8.6", features = ["unstable"] }
 rusoto_core = "0.31.0"
 rusoto_credential = "0.10.0"
-rusoto_ec2 = "0.31.0"
+rusoto_ec2 = "0.37.0"
 rusoto_sts = "0.31.0"
 serde = "^1.0"
 serde_derive = "^1.0"
