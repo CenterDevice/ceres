@@ -149,25 +149,25 @@ Add deployments in Travis build.
 ### Changed
 - `instances terminate` uses `warn!` macro instead of yellow `println!` to output warning in case of active dry mode.
 
-[Unreleased]: https://github.com/lukaspustina/ceres/compare/v0.0.24...HEAD
-[0.0.24]: https://github.com/lukaspustina/ceres/compare/v0.0.23...v0.0.24
-[0.0.23]: https://github.com/lukaspustina/ceres/compare/v0.0.22...v0.0.23
-[0.0.22]: https://github.com/lukaspustina/ceres/compare/v0.0.21...v0.0.22
-[0.0.21]: https://github.com/lukaspustina/ceres/compare/v0.0.20...v0.0.21
-[0.0.20]: https://github.com/lukaspustina/ceres/compare/v0.0.19...v0.0.20
-[0.0.19]: https://github.com/lukaspustina/ceres/compare/v0.0.18...v0.0.19
-[0.0.18]: https://github.com/lukaspustina/ceres/compare/v0.0.17...v0.0.18
-[0.0.17]: https://github.com/lukaspustina/ceres/compare/v0.0.16...v0.0.17
-[0.0.16]: https://github.com/lukaspustina/ceres/compare/v0.0.15...v0.0.16
-[0.0.15]: https://github.com/lukaspustina/ceres/compare/v0.0.14...v0.0.15
-[0.0.14]: https://github.com/lukaspustina/ceres/compare/v0.0.13...v0.0.14
-[0.0.13]: https://github.com/lukaspustina/ceres/compare/v0.0.12...v0.0.13
-[0.0.12]: https://github.com/lukaspustina/ceres/compare/v0.0.11...v0.0.12
-[0.0.11]: https://github.com/lukaspustina/ceres/compare/v0.0.10...v0.0.11
-[0.0.10]: https://github.com/lukaspustina/ceres/compare/v0.0.9...v0.0.10
-[0.0.9]: https://github.com/lukaspustina/ceres/compare/v0.0.8...v0.0.9
-[0.0.8]: https://github.com/lukaspustina/ceres/compare/v0.0.7...v0.0.8
-[0.0.7]: https://github.com/lukaspustina/ceres/compare/v0.0.6...v0.0.7
-[0.0.6]: https://github.com/lukaspustina/ceres/compare/v0.0.5...v0.0.6
-[0.0.5]: https://github.com/lukaspustina/ceres/compare/v0.0.4...v0.0.5
+[Unreleased]: https://github.com/centerdevice/ceres/compare/v0.0.24...HEAD
+[0.0.24]: https://github.com/centerdevice/ceres/compare/v0.0.23...v0.0.24
+[0.0.23]: https://github.com/centerdevice/ceres/compare/v0.0.22...v0.0.23
+[0.0.22]: https://github.com/centerdevice/ceres/compare/v0.0.21...v0.0.22
+[0.0.21]: https://github.com/centerdevice/ceres/compare/v0.0.20...v0.0.21
+[0.0.20]: https://github.com/centerdevice/ceres/compare/v0.0.19...v0.0.20
+[0.0.19]: https://github.com/centerdevice/ceres/compare/v0.0.18...v0.0.19
+[0.0.18]: https://github.com/centerdevice/ceres/compare/v0.0.17...v0.0.18
+[0.0.17]: https://github.com/centerdevice/ceres/compare/v0.0.16...v0.0.17
+[0.0.16]: https://github.com/centerdevice/ceres/compare/v0.0.15...v0.0.16
+[0.0.15]: https://github.com/centerdevice/ceres/compare/v0.0.14...v0.0.15
+[0.0.14]: https://github.com/centerdevice/ceres/compare/v0.0.13...v0.0.14
+[0.0.13]: https://github.com/centerdevice/ceres/compare/v0.0.12...v0.0.13
+[0.0.12]: https://github.com/centerdevice/ceres/compare/v0.0.11...v0.0.12
+[0.0.11]: https://github.com/centerdevice/ceres/compare/v0.0.10...v0.0.11
+[0.0.10]: https://github.com/centerdevice/ceres/compare/v0.0.9...v0.0.10
+[0.0.9]: https://github.com/centerdevice/ceres/compare/v0.0.8...v0.0.9
+[0.0.8]: https://github.com/centerdevice/ceres/compare/v0.0.7...v0.0.8
+[0.0.7]: https://github.com/centerdevice/ceres/compare/v0.0.6...v0.0.7
+[0.0.6]: https://github.com/centerdevice/ceres/compare/v0.0.5...v0.0.6
+[0.0.5]: https://github.com/centerdevice/ceres/compare/v0.0.4...v0.0.5
 

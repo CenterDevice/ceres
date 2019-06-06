@@ -78,5 +78,5 @@ base_domain = \"Base domain for distributor associated with this profile\"
 
 # COPYRIGHT AND LICENSE
 
-Copyright (c) 2018 Lukas Pustina. Licensed under the MIT License. See *https://github.com/lukaspustina/ceres/blob/master/LICENSE* for details.
+Copyright (c) CenterDevice. Licensed under the MIT License. See *https://github.com/centerdevice/ceres/blob/master/LICENSE* for details.
 

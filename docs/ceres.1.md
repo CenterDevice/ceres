@@ -20,7 +20,7 @@ ceres comes with different modules. It supports human readable as well as JSON o
 
 For ceres to work properly -- actually to work at all -- a configuration file is required that specifies the stage and its endpoints as well as required credentials for CenterDevice environments. See *ceres.conf* for details.
 
-The project home page currently *https://github.com/lukaspustina/ceres*.
+The project home page currently *https://github.com/centerdevice/ceres*.
 
 
 # COMMON OPTIONS
@@ -493,5 +493,5 @@ show-example-config
 
 # COPYRIGHT AND LICENSE
 
-Copyright (c) 2018 Lukas Pustina. Licensed under the MIT License. See *https://github.com/lukaspustina/ceres/blob/master/LICENSE* for details.
+Copyright (c) CenterDevice. Licensed under the MIT License. See *https://github.com/centerdevice/ceres/blob/master/LICENSE* for details.
 

@@ -2,7 +2,7 @@
 :toc: macro
 Ceres the goddess of agriculture, grain crops, fertility and motherly relationships.
 
-image:https://travis-ci.org/lukaspustina/ceres.svg?branch=master[link="https://travis-ci.org/lukaspustina/ceres"] image:https://codecov.io/gh/lukaspustina/ceres/branch/master/graph/badge.svg[link="https://codecov.io/gh/lukaspustina/ceres"] image:https://img.shields.io/github/release/lukaspustina/ceres.svg[link="https://github.com/lukaspustina/ceres/releases"] image:https://img.shields.io/crates/v/ceres.svg[link="https://crates.io/crates/ceres"] image:https://img.shields.io/badge/license-MIT-blue.svg?label=License[link="./LICENSE]
+image:https://travis-ci.org/centerdevice/ceres.svg?branch=master[link="https://travis-ci.org/centerdevice/ceres"] image:https://codecov.io/gh/centerdevice/ceres/branch/master/graph/badge.svg[link="https://codecov.io/gh/centerdevice/ceres"] image:https://img.shields.io/github/release/centerdevice/ceres.svg[link="https://github.com/centerdevice/ceres/releases"] image:https://img.shields.io/crates/v/ceres.svg[link="https://crates.io/crates/ceres"] image:https://img.shields.io/badge/license-MIT-blue.svg?label=License[link="./LICENSE]
 
 toc::[]
 
@@ -14,17 +14,17 @@ Please add my PackageCloud open source repository and install `ceres` via apt.
 
 [source,bash]
 ----
-curl -s https://packagecloud.io/install/repositories/lukaspustina/opensource/script.deb.sh | sudo bash
+curl -s https://packagecloud.io/install/repositories/centerdevice/opensource/script.deb.sh | sudo bash
 sudo apt-get install ceres
 ----
 
 === Linux Binaries [x86_64]
 
-There are binaries available at the https://github.com/lukaspustina/ceres/releases[GitHub release] page. The binaries are compiled on Ubuntu.
+There are binaries available at the https://github.com/centerdevice/ceres/releases[GitHub release] page. The binaries are compiled on Ubuntu.
 
 === macOS Binaries [x86_64]
 
-There are binaries available at the https://github.com/lukaspustina/ceres/releases[GitHub release] page.
+There are binaries available at the https://github.com/centerdevice/ceres/releases[GitHub release] page.
 
 === Brew
 
@@ -32,17 +32,17 @@ First, install https://www.rustup.rs[Rustup] to install a Rust compiler.
 
 ==== Latest Release
 
-`brew install lukaspustina/os/ceres`
+`brew install centerdevice/os/ceres`
 
 ==== HEAD
 
-`brew install lukaspustina/os/ceres --HEAD`
+`brew install centerdevice/os/ceres --HEAD`
 
 === Cargo
 
 First, install https://www.rustup.rs[Rustup] to install a Rust compiler.
 
-`cargo install ceres --git https://github.com/lukaspustina/ceres`
+`cargo install ceres --git https://github.com/centerdevice/ceres`
 
 === From Source
 
@@ -50,7 +50,7 @@ First, install https://www.rustup.rs[Rustup] to install a Rust compiler.
 
 [source,bash]
 ----
-git clone https://github.com/lukaspustina/ceres
+git clone https://github.com/centerdevice/ceres
 cd ceres
 make install
 ----
@@ -58,78 +58,22 @@ make install
 
 == Configuration
 
-`ceres` requires a configuration file in order to load profiles. By default, `ceres` tries to read `~/.ceres.conf`. See this link:examples/ceres.conf[example] for an example configuration.
+`ceres` requires a configuration file in order to load profiles. By default, `ceres` tries to read `~/.ceres.conf`. See this link:examples/ceres.conf[example] for an example configuration and the corresponding configuration link:docs/ceres.conf.5.md[description].
 
 
 == Use Cases
 
-=== Consul
+Ceres currently supports the following modules:
 
-[source,bash]
-----
-ceres --config ~/.ceres.conf --profile staging@cd consul list -o [humon|json|plain] --output-options=MetaData:ec2_instance_id --service mongo-config,mongo --tags centerdevice
-----
+* `centerdevice` Access CenterDevice from the CLI
+* `completions` Generate shell completion scripts
+* `consul` Do stuff of consul
+* `health` CenterDevice Health Status
+* `infrastructure` Do stuff with infrastructure repos
+* `instances` Do stuff with instances
+* `ops` Do ops stuff
+* `statuspages` Status information from statuspage.io
+* `stories` Manage stories
 
-=== Instances
-
-==== List AWS EC2 instances
-
-[source,bash]
-----
-ceres --config ~/.ceres.conf --profile staging@cd instances list -o [humon|json] --output-options=InstanceId,Tags=Name:AnsibleHostGroup,State --filter 'Instance=i-.*,Tags=Name:AnsibleHostGroup=batch_.*,State=stopped'
-----
-
-==== Run Remote Command
-
-The difference of this command compared to <<ssh>> command is that this command logs all output to separate files instead of printing to all output to the console.
-
-[source,bash]
-----
-ceres --config ~/.ceres.conf --profile staging@cd instances run --show-all --public-ip ssh-opt="-t" --no-progress-bar i-123456789 i-987654321 -- ls /
-----
-
-==== Ssh to AWS EC2 instances
-
-===== Open interactive shell
-
-[source,bash]
-----
-ceres --config ~/.ceres.conf --profile staging@cd instances ssh --public-ip --ssh-opt="-t" i-123456789
-----
-
-===== Run command on instance
-[[ssh]]
-
-[source,bash]
-----
-ceres --config ~/.ceres.conf --profile staging@cd instances ssh i-123456789 -- ls /
-----
-
-==== Terminate AWS EC2 instances
-
-[source,bash]
-----
-ceres --config ~/.ceres.conf --profile staging@cd instances terminate -o [humon|json] i-123456789 i-123456798
-----
-
-== Ops
-
-=== Create Ops Issue
-
-[source,bash]
-----
-ceres --config ~/.ceres.conf --profile staging@cd ops issues create --interactive --template ops_issue.md --filename ops_issue.md --label aws,cluster_b --show-in-browser -t "This is an issue"
-----
-
-=== Open Ops Issues in Webbrowser
-
-[source,bash]
-----
-ceres --config ~/.ceres.conf --profile staging@cd ops issues browse [--project]
-----
-
-== Todos
-
-* [ ] Add reason field to ModuleFailed error.
-* [ ] Move logic out of Modules into testable modules, e.g., ops issues create.
+See the link:docs/ceres.1.md[man page] for details.
 

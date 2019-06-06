@@ -3,12 +3,12 @@ name = "ceres"
 version = "0.0.24"
 authors = ["Lukas Pustina <lukas@pustina.net>"]
 description = "SRE Tool for CenterDevice"
-repository = "https://github.com/lukaspustina/ceres.git"
-homepage = "https://github.com/lukaspustina/ceres"
+repository = "https://github.com/centerdevice/ceres.git"
+homepage = "https://github.com/centerdevice/ceres"
 
 [badges]
-travis-ci = { repository = "lukaspustina/ceres", branch = "master" }
-codecov = { repository = "lukaspustina/ceres", branch = "master", service = "github" }
+travis-ci = { repository = "centerdevice/ceres", branch = "master" }
+codecov = { repository = "centerdevice/ceres", branch = "master", service = "github" }
 
 [dependencies]
 centerdevice = "0.3.0"
