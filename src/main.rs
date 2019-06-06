@@ -10,7 +10,6 @@ extern crate log;
 
 use clams::prelude::*;
 use clap::{App, AppSettings, Arg, ArgMatches, Shell, SubCommand};
-use std::io;
 
 use ceres::config::CeresConfig;
 use ceres::modules;
@@ -64,7 +63,7 @@ fn run() -> Result<()> {
     if let Some(config) = args.value_of("config") {
         config_locations.insert(0, config.into());
     }
-    let config = CeresConfig::smart_load(&config_locations)?;
+    let (config, config_path) = CeresConfig::smart_load(&config_locations)?;
 
     start_logging(&args, &config)?;
 
@@ -78,6 +77,7 @@ fn run() -> Result<()> {
     let run_config = RunConfig {
         color: !args.is_present("no-color"),
         active_profile: args.value_of("profile").unwrap().to_owned(), // Safe unwrap
+        active_config: config_path,
     };
     info!(
         "Active profile={}, default profile={}",
@@ -174,18 +174,20 @@ fn start_logging(args: &ArgMatches, config: &CeresConfig) -> Result<()> {
         .parse()
         .map_err(|e| Error::with_chain(e, ErrorKind::FailedToInitLogging))?;
     let ceres = Level(ceres_level);
-
     let ceres = ::std::cmp::max(ceres, verbosity);
 
-    init_logging(
-        io::stderr(),
+    let log_config = LogConfig::new(
+        std::io::stderr(),
         !args.is_present("no-color"),
         default,
         vec![ModLevel {
             module: "ceres".to_owned(),
             level: ceres,
         }],
-    ).chain_err(|| ErrorKind::FailedToInitLogging)?;
+        None,
+    );
+
+    init_logging(log_config).chain_err(|| ErrorKind::FailedToInitLogging)?;
 
     Ok(())
 }

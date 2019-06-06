@@ -11,14 +11,16 @@ travis-ci = { repository = "lukaspustina/ceres", branch = "master" }
 codecov = { repository = "lukaspustina/ceres", branch = "master", service = "github" }
 
 [dependencies]
-clams = "^0.0.9"
-clams-derive = "^0.0.4"
+centerdevice = "0.3.0"
+clams = "^0.0.16"
+clams-derive = "^0.0.6"
 clap = "^2.31"
 colored = "^1.6"
 chrono = { version = "0.4", features = ["serde"] }
 chrono-humanize = "0.0.11"
-error-chain = "^0.11"
+error-chain = "^0.12"
 log = "^0.4"
+failure = "0.1"
 fern = { version = "^0.5", features = ["colored"] }
 futures = "0.1"
 ignore = "0.4.2"
@@ -40,7 +42,7 @@ service_world = "^0.1"
 subprocess = "^0.1"
 tempfile = "^3"
 tokio-core = "^0.1"
-toml = "^0.4"
+toml = "^0.5"
 webbrowser = "^0.2"
 
 [dev-dependencies]

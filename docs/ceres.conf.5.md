@@ -63,6 +63,16 @@ urls = ["\<URL to your consul server or agent\>", ...]
 
 base_domain = "\<base domain name of your CenterDevice instance\>"
 
+[profiles."\<profile name\>".centerdevice]
+
+client_id = \"CenterDevice client id for ceres\"
+
+client_secret = \"CenterDevice client secret for ceres\"
+
+redirect_uri = \"CenterDevice client redirect URL for ceres\"
+
+base_domain = \"Base domain for distributor associated with this profile\"
+
 # SEE ALSO
   ceres(1)
 

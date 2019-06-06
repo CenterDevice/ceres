@@ -20,7 +20,7 @@ use provider::{
 
 const EMPTY: &str = "-";
 
-#[derive(Debug, Serialize, Deserialize, PartialEq)]
+#[derive(Debug, Clone, Serialize, Deserialize, PartialEq)]
 pub struct Aws {
     pub access_key_id: String,
     pub secret_access_key: String,

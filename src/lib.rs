@@ -1,3 +1,4 @@
+extern crate centerdevice;
 extern crate clams;
 #[macro_use]
 extern crate clams_derive;
@@ -6,6 +7,7 @@ extern crate chrono_humanize;
 extern crate clap;
 #[macro_use]
 extern crate error_chain;
+extern crate failure;
 extern crate futures;
 extern crate hubcaps;
 extern crate ignore;

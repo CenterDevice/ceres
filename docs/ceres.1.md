@@ -46,12 +46,27 @@ The project home page currently *https://github.com/lukaspustina/ceres*.
 
 # MODULES
 
-Currently, there is only one module called *instances*.
+
+## CENTERDEVICE
+
+The *centerdevice* module interacts with a CenterDevice instance and offers basic primitives.
+
+### centerdevice auth [*options*]
+
+  *centerdevice auth* authenticates against a particular CenterDevice instance.
+
+  -s, --show
+  : on successful authentication, ceres prints the received token to stdout.
+
+  -S, --save
+  : on successful authentication, ceres saves the token to its configuration file.
+
+  Attention: This will overwrite the entire configuration file and thus, comments will be lost and any order of elements will change.
 
 
 ## CONSUL
 
-The *consul* modules interacts with the consul cluster in the environment selected by the profile to use.
+The *consul* module interacts with the consul cluster in the environment selected by the profile to use.
 
 ### consul list [*options*]
 

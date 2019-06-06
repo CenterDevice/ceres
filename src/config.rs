@@ -3,7 +3,7 @@ use std::collections::HashMap;
 
 use provider;
 
-#[derive(Config, Debug, Default, Serialize, Deserialize, PartialEq)]
+#[derive(Config, Debug, Clone, Default, Serialize, Deserialize, PartialEq)]
 pub struct CeresConfig {
     pub default_profile: String,
     pub github: GitHub,
@@ -28,28 +28,28 @@ impl CeresConfig {
     }
 }
 
-#[derive(Debug, Default, Serialize, Deserialize, PartialEq)]
+#[derive(Debug, Clone, Default, Serialize, Deserialize, PartialEq)]
 pub struct Logging {
     pub default: String,
     pub ceres: String,
 }
 
-#[derive(Debug, Default, Serialize, Deserialize, PartialEq)]
+#[derive(Debug, Clone, Default, Serialize, Deserialize, PartialEq)]
 pub struct GitHub {
     pub token: String,
 }
 
-#[derive(Debug, Default, Serialize, Deserialize, PartialEq)]
+#[derive(Debug, Clone, Default, Serialize, Deserialize, PartialEq)]
 pub struct Pivotal {
     pub token: String,
 }
 
-#[derive(Debug, Default, Serialize, Deserialize, PartialEq)]
+#[derive(Debug, Clone, Default, Serialize, Deserialize, PartialEq)]
 pub struct StatusPage {
     pub id: String,
 }
 
-#[derive(Debug, Serialize, Deserialize, PartialEq)]
+#[derive(Debug, Clone, Serialize, Deserialize, PartialEq)]
 pub struct Profile {
     pub ssh_user: Option<String>,
     pub local_base_dir: Option<String>,
@@ -58,9 +58,10 @@ pub struct Profile {
     pub provider: Option<Provider>,
     pub consul: Option<Consul>,
     pub health: HealthCheck,
+    pub centerdevice: Option<CenterDevice>,
 }
 
-#[derive(Debug, Serialize, Deserialize, PartialEq)]
+#[derive(Debug, Clone, Serialize, Deserialize, PartialEq)]
 pub struct IssueTracker {
     pub github_org: String,
     pub github_repo: String,
@@ -69,26 +70,36 @@ pub struct IssueTracker {
     pub local_issue_template_path: String,
 }
 
-#[derive(Debug, Serialize, Deserialize, PartialEq)]
+#[derive(Debug, Clone, Serialize, Deserialize, PartialEq)]
 pub struct StoryTracker {
     pub project_id: u64,
 }
 
-#[derive(Debug, Serialize, Deserialize, PartialEq)]
+#[derive(Debug, Clone, Serialize, Deserialize, PartialEq)]
 #[serde(tag = "type")]
 pub enum Provider {
     #[serde(rename = "aws")]
     Aws(provider::aws::Aws),
 }
 
-#[derive(Debug, Serialize, Deserialize, PartialEq)]
+#[derive(Debug, Clone, Serialize, Deserialize, PartialEq)]
 pub struct Consul {
     pub urls: Vec<String>,
 }
 
-#[derive(Debug, Serialize, Deserialize, PartialEq)]
+#[derive(Debug, Clone, Serialize, Deserialize, PartialEq)]
 pub struct HealthCheck {
     pub base_domain: String,
+}
+
+#[derive(Debug, Clone, Serialize, Deserialize, PartialEq)]
+pub struct CenterDevice {
+    pub client_id: String,
+    pub client_secret: String,
+    pub redirect_uri: String,
+    pub base_domain: String,
+    pub access_token: Option<String>,
+    pub refresh_token: Option<String>,
 }
 
 error_chain! {
@@ -134,6 +145,14 @@ mod tests {
         let health = HealthCheck {
             base_domain: "instance_domain.com".to_owned(),
         };
+        let centerdevice = CenterDevice {
+            client_id: "aa-bb-cc".to_owned(),
+            client_secret: "dd-ee-ff".to_owned(),
+            redirect_uri: "https://exampled.com".to_owned(),
+            base_domain: "centerdevice.de".to_owned(),
+            access_token: None,
+            refresh_token: None,
+        };
         let prod_profile = Profile {
             ssh_user: Some("a_user".to_owned()),
             local_base_dir: Some("path/to/your/infrastructure/aws/prod/directory".to_owned()),
@@ -142,6 +161,7 @@ mod tests {
             provider: Some(Provider::Aws(aws_provider)),
             consul: Some(consul),
             health,
+            centerdevice: Some(centerdevice),
         };
         let mut profiles = HashMap::new();
         profiles.insert("prod".to_owned(), prod_profile);

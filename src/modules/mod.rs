@@ -9,6 +9,7 @@ pub trait Module {
 
 main_module!(
     consul,
+    centerdevice,
     health,
     infrastructure,
     instances,
