@@ -200,10 +200,10 @@ mod tests {
     fn load_from_file() {
         let config = CeresConfig::from_file("examples/ceres.conf").unwrap();
 
-        assert_that(&config.default_profile).is_equal_to("prod".to_owned());
+        assert_that(&config.default_profile).is_equal_to("staging".to_owned());
 
-        assert_that(&config.profiles).contains_key(String::from("prod"));
-        let default_profile = config.profiles.get("prod").unwrap();
+        assert_that(&config.profiles).contains_key(String::from("staging"));
+        let default_profile = config.profiles.get("staging").unwrap();
 
         let profile = default_profile;
         assert_that(&profile.ssh_user)
@@ -214,9 +214,9 @@ mod tests {
             .is_equal_to("path/to/your/infrastructure/aws/prod/directory".to_owned());
 
         let &Provider::Aws(aws) = &default_profile.provider.as_ref().expect("no AWS provider");
-        assert_that(&aws.access_key_id).is_equal_to("a key id".to_owned());
-        assert_that(&aws.secret_access_key).is_equal_to("an access key".to_owned());
+        assert_that(&aws.access_key_id).is_equal_to("XXXXX".to_owned());
+        assert_that(&aws.secret_access_key).is_equal_to("XXXXX".to_owned());
         assert_that(&aws.region).is_equal_to(Region::EuCentral1);
-        assert_that(&aws.role_arn).is_equal_to("a_role_arn".to_owned());
+        assert_that(&aws.role_arn).is_equal_to("arn:aws:iam::XXXXX:role/OrganizationAccountAccessRole".to_owned());
     }
 }
