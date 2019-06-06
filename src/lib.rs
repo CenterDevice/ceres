@@ -16,6 +16,8 @@ extern crate itertools;
 extern crate hyper;
 #[macro_use]
 extern crate log;
+extern crate mime;
+extern crate mime_guess;
 extern crate prettytable;
 extern crate regex;
 extern crate reqwest;

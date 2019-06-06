@@ -63,6 +63,29 @@ The *centerdevice* module interacts with a CenterDevice instance and offers basi
 
   Attention: This will overwrite the entire configuration file and thus, comments will be lost and any order of elements will change.
 
+### centerdevice upload [*options*] *FILE*
+
+  *FILE*
+  : file to upload
+
+  --author *author*
+  : Sets author of document
+
+  -c, --collection *collection*...
+  : Set collection id to add document to
+
+  -f, --filename *filename*
+  : Sets filename of document different from original filename
+
+  -m, --mime-type *mime-type*
+  Sets the mime type of document; will be guest if not specified
+
+  -t, --tag *tags*...
+  : Sets tag for document
+
+  --title *title*
+  : Sets title of document
+
 
 ## CONSUL
 

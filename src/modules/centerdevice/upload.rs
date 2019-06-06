@@ -1,65 +1,67 @@
-use clams::prelude::{Config as ClamsConfig};
 use clap::{App, Arg, ArgMatches, SubCommand};
-use centerdevice::{Client, ClientCredentials, Token};
-use centerdevice::client::auth::{Code, CodeProvider, IntoUrl};
-use centerdevice::errors::{Result as CenterDeviceResult};
+use centerdevice::CenterDevice;
+use centerdevice::client::{AuthorizedClient, ID};
+use centerdevice::client::upload::Upload;
 use failure::Fail;
-use std::io;
-use std::io::Write;
+use mime::Mime;
+use mime_guess;
+use std::path::Path;
+use std::convert::TryInto;
 
-use config::{CeresConfig as Config, CenterDevice as CenterDeviceConfig, Profile};
+use config::{CeresConfig as Config, CenterDevice as CenterDeviceConfig};
 use run_config::RunConfig;
 use modules::{Result as ModuleResult, Error as ModuleError, ErrorKind as ModuleErrorKind, Module};
 use modules::centerdevice::errors::*;
 
-pub const NAME: &str = "auth";
+pub const NAME: &str = "upload";
 
 pub struct SubModule;
 
 impl Module for SubModule {
     fn build_sub_cli() -> App<'static, 'static> {
         SubCommand::with_name(NAME)
-            .about("Authenticate with CenterDevice")
-            .arg(
-                Arg::with_name("show")
-                    .short("s")
-                    .long("show")
-                    .required_unless("save")
-                    .help("On successful authentication, print the received token to stdout"),
-            )
-            .arg(
-                Arg::with_name("save")
-                    .short("S")
-                    .long("save")
-                    .required_unless("show")
-                    .help("On successful authentication, save the received token to configuration file"),
+            .about("Uploads a document to CenterDevice")
+            .arg(Arg::with_name("mime-type")
+                .long("mime-type")
+                .short("m")
+                .takes_value(true)
+                .help("Sets the mime type of document; will be guest if not specified"))
+            .arg(Arg::with_name("filename")
+                .long("filename")
+                .short("f")
+                .takes_value(true)
+                .help("Sets filename of document different from original filename"))
+            .arg(Arg::with_name("title")
+                .long("title")
+                .takes_value(true)
+                .help("Sets title of document"))
+            .arg(Arg::with_name("author")
+                .long("author")
+                .takes_value(true)
+                .help("Sets author of document"))
+            .arg(Arg::with_name("tags")
+                .long("tag")
+                .short("t")
+                .takes_value(true)
+                .multiple(true)
+                .help("Sets tag for document"))
+            .arg(Arg::with_name("collection")
+                .long("collection")
+                .short("c")
+                .takes_value(true)
+                .multiple(true)
+                .help("Set collection id to add document to"))
+            .arg(Arg::with_name("file")
+                .index(1)
+                .required(true)
+                .help("file to upload")
             )
     }
 
     fn call(cli_args: Option<&ArgMatches>, run_config: &RunConfig, config: &Config) -> ModuleResult<()> {
         let args = cli_args.unwrap(); // Safe unwrap
         do_call(args, run_config, config)
-                    .map_err(|e| ModuleError::with_chain(e, ModuleErrorKind::ModuleFailed(NAME.to_owned())))
-    }
-}
-
-struct CliCodeProvider {}
-
-impl CodeProvider for CliCodeProvider {
-    fn get_code<T: IntoUrl>(&self, auth_url: T) -> CenterDeviceResult<Code> {
-        let auth_url = auth_url.into_url().expect("Failed to parse auth url");
-
-        println!("Please authenticate at the following URL, wait for the redirect, enter the code into the terminal, and then press return ...");
-        println!("\n\t{}\n", auth_url);
-        print!("Authentication code: ");
-        let _ = std::io::stdout().flush();
-        let mut input = String::new();
-        let _ = io::stdin().read_line(&mut input);
-        let code = input.trim();
-
-        let code = Code::new(code.to_string());
-
-        Ok(code)
+            .map_err(|e| ModuleError::with_chain(e, ModuleErrorKind::ModuleFailed(NAME.to_owned())))
     }
 }
 
@@ -72,77 +74,45 @@ fn do_call(args: &ArgMatches, run_config: &RunConfig, config: &Config) -> Result
         Error::from_kind(ErrorKind::NoCenterDeviceInProfile)
     )?;
 
-    let token = get_token(&centerdevice)?;
-    debug!("{:#?}", token);
+    // This happens here due to the borrow checker.
+    let tags: Vec<&str> = args.values_of("tags").unwrap_or_else(|| Default::default()).collect();
 
-    if args.is_present("show") {
-        println!("{:#?}", token);
-    }
+    let file_path = args.value_of("file").unwrap(); // Safe
 
-    if args.is_present("save") {
-        save_token(run_config, config, &token)
-            .chain_err(|| ErrorKind::FailedToSaveToken)?;
+    let mime_type: Mime = if let Some(mt) = args.value_of("mime-type") {
+        mt.parse().map_err(|_| ErrorKind::FailedToPrepareApiCall)?
+    } else {
+        mime_guess::get_mime_type(&file_path)
+    };
+
+    let path = Path::new(file_path);
+    let mut upload = Upload::new(path, mime_type)
+        .map_err(|e| Error::with_chain(e.compat(), ErrorKind::FailedToPrepareApiCall))?;
+
+    if let Some(title) = args.value_of("title") {
+        upload = upload.title(title);
     }
+    if let Some(author) = args.value_of("author") {
+        upload = upload.author(author);
+    }
+    if !tags.is_empty() {
+        upload = upload.tags(&tags);
+    }
+    debug!("{:#?}", upload);
+
+    info!("Uploading to {}.", centerdevice.base_domain);
+    let id = upload_file(centerdevice, upload)?;
+    info!("Successfully created document with id '{}'.", id);
 
     Ok(())
 }
 
-fn get_token(centerdevice: &CenterDeviceConfig) -> Result<Token> {
-    let client_credentials = ClientCredentials::new(
-        &centerdevice.client_id,
-        &centerdevice.client_secret,
-    );
-    let code_provider = CliCodeProvider {};
+fn upload_file(centerdevice: &CenterDeviceConfig, upload: Upload) -> Result<ID> {
+    let client: AuthorizedClient = centerdevice.try_into()?;
+    let result = client
+        .upload_file(upload)
+        .map_err(|e| Error::with_chain(e.compat(), ErrorKind::FailedToAccessCenterDeviceApi));
+    debug!("Upload result {:#?}", result);
 
-    info!("Authenticating with CenterDevice at {}", centerdevice.base_domain);
-    let client = Client::new(&centerdevice.base_domain, client_credentials)
-        .authorize_with_code_flow(&centerdevice.redirect_uri, &code_provider)
-        .map_err(|e| Error::with_chain(e.compat(), ErrorKind::FailedToAccessCenterDeviceApi))?;
-
-    info!("Successfully authenticated.");
-
-    Ok(client.token().clone())
-}
-
-fn save_token(run_config: &RunConfig, config: &Config, token: &Token) -> Result<()> {
-    let new_config = update_config(run_config, config, token)?;
-    new_config.save(run_config.active_config)
-        .chain_err(|| ErrorKind::FailedToSaveConfig)?;
-
-    Ok(())
-}
-
-fn update_config(run_config: &RunConfig, config: &Config, token: &Token) -> Result<Config> {
-    let profile = match run_config.active_profile.as_ref() {
-        "default" => config.get_default_profile(),
-        s => config.get_profile(s),
-    }.chain_err(|| ErrorKind::FailedToParseCmd("profile".to_string()))?;
-    let centerdevice = profile.centerdevice.as_ref().ok_or(
-        Error::from_kind(ErrorKind::NoCenterDeviceInProfile)
-    )?;
-
-    let centerdevice = CenterDeviceConfig {
-        access_token: Some(token.access_token().to_string()),
-        refresh_token: Some(token.refresh_token().to_string()),
-       ..(*centerdevice).clone()
-    };
-
-    let profile = Profile {
-        centerdevice: Some(centerdevice),
-        ..(*profile).clone()
-    };
-
-    let profile_name = match run_config.active_profile.as_ref() {
-        "default" => config.default_profile.clone(),
-        s => s.to_string(),
-    };
-    let mut profiles = config.profiles.clone();
-    profiles.insert(profile_name, profile);
-
-    let new_config = Config {
-        profiles,
-        ..(*config).clone()
-    };
-
-    Ok(new_config)
+    result
 }

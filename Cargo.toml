@@ -11,7 +11,8 @@ travis-ci = { repository = "centerdevice/ceres", branch = "master" }
 codecov = { repository = "centerdevice/ceres", branch = "master", service = "github" }
 
 [dependencies]
-centerdevice = "0.3.0"
+#centerdevice = "0.3.0"
+centerdevice = { path = "/Users/lukas/Documents/Work/CD/src/centerdevice-rs" }
 clams = "^0.0.16"
 clams-derive = "^0.0.6"
 clap = "^2.31"
@@ -27,6 +28,8 @@ ignore = "0.4.2"
 hubcaps = "^0.4"
 human-panic = "^1.0"
 itertools = "^0.7"
+mime = "0.2"
+mime_guess = "1.8"
 prettytable-rs = "^0.7"
 regex = "^1.0"
 hyper = "0.11.9" # Strongly connected to reqwest
