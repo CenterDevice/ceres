@@ -56,4 +56,4 @@ impl<'a> TryFrom<&'a CenterDeviceConfig> for AuthorizedClient<'a> {
     }
 }
 
-sub_module!("centerdevice", "Access CenterDevice from the CLI", auth, upload);
+sub_module!("centerdevice", "Access CenterDevice from the CLI", auth, delete, upload);

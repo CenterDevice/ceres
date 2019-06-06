@@ -63,6 +63,11 @@ The *centerdevice* module interacts with a CenterDevice instance and offers basi
 
   Attention: This will overwrite the entire configuration file and thus, comments will be lost and any order of elements will change.
 
+### centerdevice delete *DOCUMENT_ID*
+
+  DOCUMENT_ID
+  : ID of document to delete; multiple document ids may be used.
+
 ### centerdevice upload [*options*] *FILE*
 
   *FILE*
