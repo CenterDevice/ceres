@@ -68,6 +68,23 @@ The *centerdevice* module interacts with a CenterDevice instance and offers basi
   DOCUMENT_ID
   : ID of document to delete; multiple document ids may be used.
 
+### centerdevice download [*options*] *DOCUMENT_ID*
+
+  *DOCUMENT_ID*
+  : document id of file to download
+
+  -d, --dirname *dirname*...
+  : Directory to download document to; default is current working directory
+
+  -f, --filename *filename*
+  : Filename for download; default is original document filename
+
+  -m, --mime-type *mime-type*
+  Sets the mime type of document; will be guest if not specified
+
+  -P, --no-progress
+  : Do not show progress
+
 ### centerdevice upload [*options*] *FILE*
 
   *FILE*
