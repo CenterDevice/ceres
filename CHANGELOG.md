@@ -5,6 +5,9 @@ The format is based on [Keep a Changelog](http://keepachangelog.com/en/1.0.0/)
 and this project adheres to [Semantic Versioning](http://semver.org/spec/v2.0.0.html).
 
 ## [Unreleased]
+* Add -i option to cssh to allow connecting by instance id
+* Fix some documentation and help text mistakes
+
 
 ## [0.0.26] - 2019-06-13
 
