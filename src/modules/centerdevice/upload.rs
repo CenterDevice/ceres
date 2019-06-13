@@ -25,7 +25,7 @@ impl Module for SubModule {
                 .long("mime-type")
                 .short("m")
                 .takes_value(true)
-                .help("Sets the mime type of document; will be guest if not specified"))
+                .help("Sets the mime type of document; will be guessed if not specified"))
             .arg(Arg::with_name("filename")
                 .long("filename")
                 .short("f")

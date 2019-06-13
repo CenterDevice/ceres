@@ -10,9 +10,9 @@ crops, fertility and motherly relationships.
 .PP
 ceres [\f[I]options\f[R]] \f[I]MODULE\f[R]
 .PP
-mhost \[en]help
+ceres \[en]help
 .PP
-mhost \[en]version
+ceres \[en]version
 .SH DESCRIPTION
 .PP
 ceres is a CLI tool for common SRE and ops tasks for CenterDevice.
@@ -93,9 +93,6 @@ Directory to download document to; default is current working directory
 .TP
 .B -f, \[en]filename \f[I]filename\f[R]
 Filename for download; default is original document filename
-.PP
--m, \[en]mime-type \f[I]mime-type\f[R] Sets the mime type of document;
-will be guest if not specified
 .TP
 .B -P, \[en]no-progress
 Do not show progress
@@ -139,7 +136,7 @@ Set collection id to add document to
 Sets filename of document different from original filename
 .TP
 .B -m, \[en]mime-type \f[I]mime-type\f[R]
-Sets the mime type of document; will be guest if not specified
+Sets the mime type of document; will be guessed if not specified
 .TP
 .B -t, \[en]tag \f[I]tags\f[R]\&...
 Sets tag for document

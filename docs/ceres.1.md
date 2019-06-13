@@ -7,9 +7,9 @@ CenterDevice SRE (ceres) -- Ceres the goddess of agriculture, grain crops, ferti
 
 ceres [*options*] *MODULE*
 
-mhost --help
+ceres --help
 
-mhost --version
+ceres --version
 
 
 # DESCRIPTION
@@ -88,9 +88,6 @@ The *centerdevice* module interacts with a CenterDevice instance and offers basi
   -f, --filename *filename*
   : Filename for download; default is original document filename
 
-  -m, --mime-type *mime-type*
-  Sets the mime type of document; will be guest if not specified
-
   -P, --no-progress
   : Do not show progress
 
@@ -132,7 +129,7 @@ The *centerdevice* module interacts with a CenterDevice instance and offers basi
   : Sets filename of document different from original filename
 
   -m, --mime-type *mime-type*
-  : Sets the mime type of document; will be guest if not specified
+  : Sets the mime type of document; will be guessed if not specified
 
   -t, --tag *tags*...
   : Sets tag for document
