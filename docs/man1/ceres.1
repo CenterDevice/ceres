@@ -57,6 +57,12 @@ and offers basic primitives.
 .PP
 \f[I]centerdevice auth\f[R] authenticates against a particular
 CenterDevice instance.
+.PP
+Either \f[I]show\f[R] or \f[I]save\f[R] must be set; or both, if you
+like.
+.TP
+.B -r, \[en]refresh
+Just refresh token without re-authentication
 .TP
 .B -s, \[en]show
 on successful authentication, ceres prints the received token to stdout.

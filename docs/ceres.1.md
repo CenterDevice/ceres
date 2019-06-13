@@ -53,7 +53,12 @@ The *centerdevice* module interacts with a CenterDevice instance and offers basi
 
 ### centerdevice auth [*options*]
 
-  *centerdevice auth* authenticates against a particular CenterDevice instance.
+  *centerdevice auth* authenticates against a particular CenterDevice instance. 
+
+  Either *show* or *save* must be set; or both, if you like.
+
+  -r, --refresh
+  : Just refresh token without re-authentication
 
   -s, --show
   : on successful authentication, ceres prints the received token to stdout.

@@ -1,11 +1,13 @@
 use clams::prelude::{Config as ClamsConfig};
 use clap::{App, Arg, ArgMatches, SubCommand};
-use centerdevice::{Client, ClientCredentials, Token};
+use centerdevice::{CenterDevice, Client, ClientCredentials, Token};
+use centerdevice::client::AuthorizedClient;
 use centerdevice::client::auth::{Code, CodeProvider, IntoUrl};
 use centerdevice::errors::{Result as CenterDeviceResult};
 use failure::Fail;
 use std::io;
 use std::io::Write;
+use std::convert::TryInto;
 
 use config::{CeresConfig as Config, CenterDevice as CenterDeviceConfig, Profile};
 use run_config::RunConfig;
@@ -20,6 +22,12 @@ impl Module for SubModule {
     fn build_sub_cli() -> App<'static, 'static> {
         SubCommand::with_name(NAME)
             .about("Authenticate with CenterDevice")
+            .arg(
+                Arg::with_name("refresh")
+                    .short("r")
+                    .long("refresh")
+                    .help("Just refresh token without re-authentication"),
+            )
             .arg(
                 Arg::with_name("show")
                     .short("s")
@@ -72,7 +80,12 @@ fn do_call(args: &ArgMatches, run_config: &RunConfig, config: &Config) -> Result
         Error::from_kind(ErrorKind::NoCenterDeviceInProfile)
     )?;
 
-    let token = get_token(&centerdevice)?;
+    let token = if args.is_present("refresh") {
+        refresh_token(&centerdevice)?
+    } else {
+        get_token(&centerdevice)?
+    };
+
     debug!("{:#?}", token);
 
     if args.is_present("show") {
@@ -98,10 +111,19 @@ fn get_token(centerdevice: &CenterDeviceConfig) -> Result<Token> {
     let client = Client::new(&centerdevice.base_domain, client_credentials)
         .authorize_with_code_flow(&centerdevice.redirect_uri, &code_provider)
         .map_err(|e| Error::with_chain(e.compat(), ErrorKind::FailedToAccessCenterDeviceApi))?;
-
     info!("Successfully authenticated.");
 
     Ok(client.token().clone())
+}
+
+fn refresh_token(centerdevice: &CenterDeviceConfig) -> Result<Token> {
+    info!("Refreshing token with CenterDevice at {}", centerdevice.base_domain);
+    let client: AuthorizedClient = centerdevice.try_into()?;
+    let token = client.refresh_access_token()
+        .map_err(|e| Error::with_chain(e.compat(), ErrorKind::FailedToAccessCenterDeviceApi))?;
+    info!("Successfully re-energized.");
+
+    Ok(token)
 }
 
 fn save_token(run_config: &RunConfig, config: &Config, token: &Token) -> Result<()> {
