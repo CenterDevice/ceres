@@ -2,9 +2,10 @@
 
 function usage() {
     cat <<EOF
-    Usage: $(basename ${0}) -p|--profile profile -n|--name instance-name [[-t|--tags key=value] ...]
+    Usage: $(basename ${0}) -p|--profile profile <-n|--name instance-name|-i|--instance instance-id> [[-t|--tags key=value] ...]
       profile       : as per ceres config file
       instance-name : full or part of the instance name (as per the Name tag)
+      instance-id   : full or part of the instance id
       tags          : one or more key=value pairs to filter
 
     When more than 1 instance matches the criteria, an error is returned.
@@ -17,6 +18,11 @@ while [[ ${#} > 0 ]]; do
         -p | --profile )
             shift
             PROFILE="${1}"
+            shift
+            ;;
+        -i | --instance)
+            shift
+            INSTANCEID="${1}"
             shift
             ;;
         -n | --name )
@@ -39,14 +45,24 @@ while [[ ${#} > 0 ]]; do
     esac
 done
 
-if [[ -z "${NAME}" || -z "${PROFILE}" ]]; then
+if [[ -z "${PROFILE}" ]]; then
+  usage
+fi
+if [[ -z "${NAME}" && -z "${INSTANCEID}" ]]; then
   usage
 fi
 
-F="State=running,Tags=Name=.*${NAME}.*"
-for t in ${TAGS}; do
-    F="${F}:${t}"
-done
+if [[ ! -z "${NAME}" ]]; then
+  F="State=running,Tags=Name=.*${NAME}.*"
+  for t in ${TAGS}; do
+      F="${F}:${t}"
+  done
+else
+  F="State=running,InstanceId=.*${INSTANCEID}.*"
+  for t in ${TAGS}; do
+      F="${F}:${t}"
+  done
+fi
 
 INSTANCEID=( $(ceres --profile ${PROFILE} instances list --output plain --output-options InstanceId --filter "${F}") ) 
 if [[ ! -z "${LIST}" ]]; then
