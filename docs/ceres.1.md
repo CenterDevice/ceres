@@ -63,12 +63,16 @@ The *centerdevice* module interacts with a CenterDevice instance and offers basi
 
   Attention: This will overwrite the entire configuration file and thus, comments will be lost and any order of elements will change.
 
-### centerdevice delete *DOCUMENT_ID*
+### centerdevice delete *DOCUMENT_ID...*
+
+  *centerdevice delete* deletes one or more documents from a particular CenterDevice instance.
 
   DOCUMENT_ID
   : ID of document to delete; multiple document ids may be used.
 
 ### centerdevice download [*options*] *DOCUMENT_ID*
+
+  *centerdevice download* downloads a document from a particular CenterDevice instance.
 
   *DOCUMENT_ID*
   : document id of file to download
@@ -85,7 +89,30 @@ The *centerdevice* module interacts with a CenterDevice instance and offers basi
   -P, --no-progress
   : Do not show progress
 
+### centerdevice search [*options*] [-- *FULLTEXT* ...]
+
+  *centerdevice search* searches documents in a particular CenterDevice instance.
+
+  Attention: There is currently no pagination implemented, so ceres only retrieves the first page of results (usually 500 documents).
+
+  [*FULLTEXT*]
+  :Add fulltext to search; multiple words are allowed
+
+  -f, --filename *filename*...
+  : Add filename to search
+
+  -o, --output *output*
+  : Select output format [default: human]  [possible values: human, json, plain]
+
+  -t, --tag *tags*...
+  : Add tag to search
+
+  -p, --public-collections
+  : Include public collections in search
+
 ### centerdevice upload [*options*] *FILE*
+
+  *centerdevice upload* uploads a single file to a particular CenterDevice instance.
 
   *FILE*
   : file to upload
@@ -100,7 +127,7 @@ The *centerdevice* module interacts with a CenterDevice instance and offers basi
   : Sets filename of document different from original filename
 
   -m, --mime-type *mime-type*
-  Sets the mime type of document; will be guest if not specified
+  : Sets the mime type of document; will be guest if not specified
 
   -t, --tag *tags*...
   : Sets tag for document
