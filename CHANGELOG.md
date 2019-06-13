@@ -8,6 +8,7 @@ and this project adheres to [Semantic Versioning](http://semver.org/spec/v2.0.0.
 
 ### Added
 * Adds -i option to cssh to allow connecting by instance id
+* Adds centerdevice users
 
 ### Changed
 * centerdevice search shows number of hits

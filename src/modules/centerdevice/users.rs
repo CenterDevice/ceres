@@ -1,7 +1,7 @@
 use clap::{App, Arg, ArgMatches, SubCommand};
 use centerdevice::CenterDevice;
 use centerdevice::client::AuthorizedClient;
-use centerdevice::client::search::{Document, NamedSearch, Search, SearchResult};
+use centerdevice::client::users::{UsersQuery, User};
 use failure::Fail;
 use std::convert::TryInto;
 
@@ -10,36 +10,31 @@ use run_config::RunConfig;
 use modules::{Result as ModuleResult, Error as ModuleError, ErrorKind as ModuleErrorKind, Module};
 use modules::centerdevice::errors::*;
 use output::OutputType;
-use output::centerdevice::search::*;
+use output::centerdevice::users::*;
 
-pub const NAME: &str = "search";
+pub const NAME: &str = "users";
 
 pub struct SubModule;
 
 impl Module for SubModule {
     fn build_sub_cli() -> App<'static, 'static> {
         SubCommand::with_name(NAME)
-            .about("Search documents in CenterDevice")
-            .arg(Arg::with_name("filename")
-                .long("filename")
-                .short("f")
+            .about("Search users in CenterDevice")
+            .arg(Arg::with_name("name")
+                .long("name")
+                .short("n")
                 .takes_value(true)
-                .multiple(true)
-                .help("Adds filename to search"))
-            .arg(Arg::with_name("tags")
-                .long("tag")
-                .short("t")
+                .conflicts_with("id")
+                .help("Sets username to search"))
+            .arg(Arg::with_name("id")
+                .long("i")
+                .short("id")
                 .takes_value(true)
-                .multiple(true)
-                .help("Adds tag to search"))
-            .arg(Arg::with_name("public_collections")
-                .long("public-collections")
-                .short("p")
-                .help("Includes public collections in search"))
-            .arg(Arg::with_name("fulltext")
-                .index(1)
-                .multiple(true)
-                .help("Adds fulltext to search"))
+                .conflicts_with("name")
+                .help("Sets id to search"))
+            .arg(Arg::with_name("include-all")
+                .long("all")
+                .help("Includes blocked users"))
             .arg(Arg::with_name("output")
                 .long("output")
                 .short("o")
@@ -69,68 +64,69 @@ fn do_call(args: &ArgMatches, run_config: &RunConfig, config: &Config) -> Result
         .parse::<OutputType>()
         .chain_err(|| ErrorKind::FailedToParseOutputType)?;
 
-    let fulltext_str; // Borrow checker
-    let mut search = Search::new();
-    if let Some(filenames) = args.values_of("filenames") {
-        search = search.filenames(filenames.collect());
-    }
-    if let Some(tags) = args.values_of("tags") {
-        search = search.tags(tags.collect());
-    }
-    if args.is_present("public_collections") {
-        search = search.named_searches(NamedSearch::PublicCollections);
-    }
-    if let Some(fulltext) = args.values_of("fulltext") {
-        let fulltext: Vec<_> = fulltext.collect();
-        fulltext_str = fulltext.as_slice().join(" ");
-        search = search.fulltext(&fulltext_str);
-    }
+    let query = UsersQuery {
+        all: args.is_present("include-all"),
+    };
+    debug!("{:#?}", query);
 
-    debug!("{:#?}", search);
+    info!("Searching users at {}.", centerdevice.base_domain);
+    let mut result = search_users(centerdevice, query)?;
+    let found = result.len();
 
-    info!("Searching documents at {}.", centerdevice.base_domain);
-    let result = search_documents(centerdevice, search)?;
-    info!("Successfully found {} and retrieved {} documents.", result.hits, result.documents.len());
+    if let Some(name) = args.value_of("name") {
+        let name = name.to_lowercase();
+        result = result.into_iter()
+            .filter(|x|
+                x.first_name.to_lowercase().contains(&name)
+                    || x.last_name.to_lowercase().contains(&name)
+                    || x.email.to_lowercase().contains(&name)
+            )
+            .collect()
+    }
+    if let Some(id) = args.value_of("id") {
+        result = result.into_iter()
+            .filter(|x| x.id == id)
+            .collect()
+    }
+    info!("Successfully found {} and filtered {} users.", found, result.len());
 
     info!("Outputting search results");
-    output_results(output_type, &result.documents)?;
+    output_results(output_type, &result)?;
 
     Ok(())
 }
 
-fn search_documents(centerdevice: &CenterDeviceConfig, search: Search) -> Result<SearchResult> {
+fn search_users(centerdevice: &CenterDeviceConfig, query: UsersQuery) -> Result<Vec<User>> {
     let client: AuthorizedClient = centerdevice.try_into()?;
     let result = client
-        .search_documents(search)
+        .search_users(query)
+        .map(|x| x.users)
         .map_err(|e| Error::with_chain(e.compat(), ErrorKind::FailedToAccessCenterDeviceApi));
     debug!("Search result {:#?}", result);
 
     result
 }
 
-fn output_results(
-    output_type: OutputType,
-    status: &[Document]
-) -> Result<()> {
+fn output_results(output_type: OutputType, status: &[User]) -> Result<()> {
     let mut stdout = ::std::io::stdout();
 
     match output_type {
         OutputType::Human => {
-            let output = TableOutputSearchResult;
+            let output = TableOutputUsers;
 
             output
                 .output(&mut stdout, status)
                 .chain_err(|| ErrorKind::FailedOutput)
         },
         OutputType::Json => {
-            let output = JsonOutputSearchResult;
+            let output = JsonOutputUsers;
 
             output
                 .output(&mut stdout, status)
                 .chain_err(|| ErrorKind::FailedOutput)
         },
         OutputType::Plain => {
-            let output = PlainOutputSearchResult;
+            let output = PlainOutputUsers;
 
             output
                 .output(&mut stdout, status)
