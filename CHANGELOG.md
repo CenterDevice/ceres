@@ -6,6 +6,11 @@ and this project adheres to [Semantic Versioning](http://semver.org/spec/v2.0.0.
 
 ## [Unreleased]
 
+## [0.0.26] - 2019-06-13
+
+### Add
+* Basic CenterDevice client for auth, upload, download, delete, and search.
+
 ## [0.0.24] - 2018-10-24
 - Add optional 'token' parameter to AWS provider
 
@@ -149,7 +154,8 @@ Add deployments in Travis build.
 ### Changed
 - `instances terminate` uses `warn!` macro instead of yellow `println!` to output warning in case of active dry mode.
 
-[Unreleased]: https://github.com/centerdevice/ceres/compare/v0.0.24...HEAD
+[Unreleased]: https://github.com/centerdevice/ceres/compare/v0.0.26...HEAD
+[0.0.26]: https://github.com/centerdevice/ceres/compare/v0.0.24...v0.0.26
 [0.0.24]: https://github.com/centerdevice/ceres/compare/v0.0.23...v0.0.24
 [0.0.23]: https://github.com/centerdevice/ceres/compare/v0.0.22...v0.0.23
 [0.0.22]: https://github.com/centerdevice/ceres/compare/v0.0.21...v0.0.22
