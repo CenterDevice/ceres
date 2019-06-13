@@ -46,6 +46,10 @@ pub struct TableOutputSearchResult;
 
 impl OutputSearchResult for TableOutputSearchResult {
     fn output<T: Write>(&self, writer: &mut T, result: &[Document]) -> Result<()> {
+        if result.is_empty() {
+            return Ok(())
+        }
+
         let mut table = Table::new();
         table.set_format(*format::consts::FORMAT_NO_LINESEP_WITH_TITLE);
 

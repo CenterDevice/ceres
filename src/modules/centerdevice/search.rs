@@ -25,20 +25,21 @@ impl Module for SubModule {
                 .short("f")
                 .takes_value(true)
                 .multiple(true)
-                .help("Add filename to search"))
+                .help("Adds filename to search"))
             .arg(Arg::with_name("tags")
                 .long("tag")
                 .short("t")
                 .takes_value(true)
                 .multiple(true)
-                .help("Add tag to search"))
+                .help("Adds tag to search"))
             .arg(Arg::with_name("public_collections")
                 .long("public-collections")
                 .short("p")
                 .help("Includes public collections in search"))
             .arg(Arg::with_name("fulltext")
                 .index(1)
-                .help("Add fulltext to search"))
+                .multiple(true)
+                .help("Adds fulltext to search"))
             .arg(Arg::with_name("output")
                 .long("output")
                 .short("o")
@@ -68,6 +69,7 @@ fn do_call(args: &ArgMatches, run_config: &RunConfig, config: &Config) -> Result
         .parse::<OutputType>()
         .chain_err(|| ErrorKind::FailedToParseOutputType)?;
 
+    let fulltext_str; // Borrow checker
     let mut search = Search::new();
     if let Some(filenames) = args.values_of("filenames") {
         search = search.filenames(filenames.collect());
@@ -78,8 +80,10 @@ fn do_call(args: &ArgMatches, run_config: &RunConfig, config: &Config) -> Result
     if args.is_present("public_collections") {
         search = search.named_searches(NamedSearch::PublicCollections);
     }
-    if let Some(fulltext) = args.value_of("fulltext") {
-        search = search.fulltext(fulltext);
+    if let Some(fulltext) = args.values_of("fulltext") {
+        let fulltext: Vec<_> = fulltext.collect();
+        fulltext_str = fulltext.as_slice().join(" ");
+        search = search.fulltext(&fulltext_str);
     }
 
     debug!("{:#?}", search);
@@ -88,7 +92,7 @@ fn do_call(args: &ArgMatches, run_config: &RunConfig, config: &Config) -> Result
     let documents = search_documents(centerdevice, search)?;
     info!("Successfully found {}.", documents.len());
 
-    info!("Outputting Page Status");
+    info!("Outputting search results");
     output_results(output_type, &documents)?;
 
     Ok(())
