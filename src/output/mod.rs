@@ -1,5 +1,6 @@
 use std::str::FromStr;
 
+pub mod centerdevice;
 pub mod consul;
 pub mod health;
 pub mod infrastructure;

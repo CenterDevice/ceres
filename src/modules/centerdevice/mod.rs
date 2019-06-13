@@ -25,6 +25,14 @@ mod errors {
             TokenMissing{
                 description("No token found in configuration")
             }
+            FailedToParseOutputType {
+                description("Failed to parse output type")
+                display("Failed to parse output type")
+            }
+            FailedOutput {
+                description("Failed to output")
+                display("Failed to output")
+            }
         }
     }
 }
@@ -56,4 +64,4 @@ impl<'a> TryFrom<&'a CenterDeviceConfig> for AuthorizedClient<'a> {
     }
 }
 
-sub_module!("centerdevice", "Access CenterDevice from the CLI", auth, delete, download, upload);
+sub_module!("centerdevice", "Access CenterDevice from the CLI", auth, delete, download, search, upload);
