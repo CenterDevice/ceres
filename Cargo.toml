@@ -11,7 +11,7 @@ travis-ci = { repository = "centerdevice/ceres", branch = "master" }
 codecov = { repository = "centerdevice/ceres", branch = "master", service = "github" }
 
 [dependencies]
-centerdevice = "0.3.7"
+centerdevice = "0.3.8"
 clams = "^0.0.16"
 clams-derive = "^0.0.6"
 clap = "^2.31"

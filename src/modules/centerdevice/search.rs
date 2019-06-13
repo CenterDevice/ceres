@@ -1,7 +1,7 @@
 use clap::{App, Arg, ArgMatches, SubCommand};
 use centerdevice::CenterDevice;
 use centerdevice::client::AuthorizedClient;
-use centerdevice::client::search::{Document, NamedSearch, Search};
+use centerdevice::client::search::{Document, NamedSearch, Search, SearchResult};
 use failure::Fail;
 use std::convert::TryInto;
 
@@ -89,20 +89,19 @@ fn do_call(args: &ArgMatches, run_config: &RunConfig, config: &Config) -> Result
     debug!("{:#?}", search);
 
     info!("Searching documents at {}.", centerdevice.base_domain);
-    let documents = search_documents(centerdevice, search)?;
-    info!("Successfully found {}.", documents.len());
+    let result = search_documents(centerdevice, search)?;
+    info!("Successfully found {} and retrieved {} documents.", result.hits, result.documents.len());
 
     info!("Outputting search results");
-    output_results(output_type, &documents)?;
+    output_results(output_type, &result.documents)?;
 
     Ok(())
 }
 
-fn search_documents(centerdevice: &CenterDeviceConfig, search: Search) -> Result<Vec<Document>> {
+fn search_documents(centerdevice: &CenterDeviceConfig, search: Search) -> Result<SearchResult> {
     let client: AuthorizedClient = centerdevice.try_into()?;
     let result = client
         .search_documents(search)
-        .map(|x| x.documents.unwrap_or_else(|| Default::default()))
         .map_err(|e| Error::with_chain(e.compat(), ErrorKind::FailedToAccessCenterDeviceApi));
     debug!("Search result {:#?}", result);
 
