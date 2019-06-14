@@ -63,8 +63,8 @@ impl OutputSearchResult for TableOutputSearchResult {
             Cell::new("Version Date"),
         ]));
 
+        let format_str = "%a, %d.%m.%Y %H:%M:%S";
         for (i, d) in result.iter().enumerate() {
-            let format_str = "%a, %d.%m.%Y %H:%M:%S";
             let document_date = d.document_date.format(format_str).to_string();
             let upload_date = d.upload_date.format(format_str).to_string();
             let version_date = d.version_date.format(format_str).to_string();

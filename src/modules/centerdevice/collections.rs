@@ -1,7 +1,7 @@
 use clap::{App, Arg, ArgMatches, SubCommand};
 use centerdevice::CenterDevice;
 use centerdevice::client::AuthorizedClient;
-use centerdevice::client::users::{UsersQuery, User};
+use centerdevice::client::collections::{CollectionsQuery, Collection};
 use failure::Fail;
 use std::convert::TryInto;
 
@@ -10,31 +10,31 @@ use run_config::RunConfig;
 use modules::{Result as ModuleResult, Error as ModuleError, ErrorKind as ModuleErrorKind, Module};
 use modules::centerdevice::errors::*;
 use output::OutputType;
-use output::centerdevice::users::*;
+use output::centerdevice::collections::*;
 
-pub const NAME: &str = "users";
+pub const NAME: &str = "collections";
 
 pub struct SubModule;
 
 impl Module for SubModule {
     fn build_sub_cli() -> App<'static, 'static> {
         SubCommand::with_name(NAME)
-            .about("Search users in CenterDevice")
+            .about("Search collections in CenterDevice")
             .arg(Arg::with_name("name")
                 .long("name")
                 .short("n")
                 .takes_value(true)
                 .conflicts_with("id")
-                .help("Sets username to search"))
-            .arg(Arg::with_name("id")
-                .long("id")
+                .help("Sets collection name to search"))
+            .arg(Arg::with_name("ids")
+                .long("ids")
                 .short("i")
                 .takes_value(true)
                 .conflicts_with("name")
-                .help("Sets id to search"))
-            .arg(Arg::with_name("include-all")
+                .help("Sets ids to search"))
+            .arg(Arg::with_name("include-public")
                 .long("all")
-                .help("Includes blocked users"))
+                .help("Includes public collections"))
             .arg(Arg::with_name("output")
                 .long("output")
                 .short("o")
@@ -64,31 +64,21 @@ fn do_call(args: &ArgMatches, run_config: &RunConfig, config: &Config) -> Result
         .parse::<OutputType>()
         .chain_err(|| ErrorKind::FailedToParseOutputType)?;
 
-    let query = UsersQuery {
-        all: args.is_present("include-all"),
-    };
+    let mut query = CollectionsQuery::new();
+    if args.is_present("include-public") {
+        query = query.include_public();
+    }
+    if let Some(name) = args.value_of("name") {
+        query = query.name(name);
+    }
+    if let Some(ids) = args.values_of("ids") {
+        query = query.ids(ids.collect())
+    }
     debug!("{:#?}", query);
 
-    info!("Searching users at {}.", centerdevice.base_domain);
-    let mut result = search_users(centerdevice, query)?;
-    let found = result.len();
-
-    if let Some(name) = args.value_of("name") {
-        let name = name.to_lowercase();
-        result = result.into_iter()
-            .filter(|x|
-                x.first_name.to_lowercase().contains(&name)
-                    || x.last_name.to_lowercase().contains(&name)
-                    || x.email.to_lowercase().contains(&name)
-            )
-            .collect()
-    }
-    if let Some(id) = args.value_of("id") {
-        result = result.into_iter()
-            .filter(|x| x.id == id)
-            .collect()
-    }
-    info!("Successfully found {} and filtered {} users.", found, result.len());
+    info!("Searching collections at {}.", centerdevice.base_domain);
+    let result = search_collections(centerdevice, query)?;
+    info!("Successfully found {} collections.", result.len());
 
     info!("Outputting search results");
     output_results(output_type, &result)?;
@@ -96,37 +86,37 @@ fn do_call(args: &ArgMatches, run_config: &RunConfig, config: &Config) -> Result
     Ok(())
 }
 
-fn search_users(centerdevice: &CenterDeviceConfig, query: UsersQuery) -> Result<Vec<User>> {
+fn search_collections(centerdevice: &CenterDeviceConfig, query: CollectionsQuery) -> Result<Vec<Collection>> {
     let client: AuthorizedClient = centerdevice.try_into()?;
     let result = client
-        .search_users(query)
-        .map(|x| x.users)
+        .search_collections(query)
+        .map(|x| x.collections)
         .map_err(|e| Error::with_chain(e.compat(), ErrorKind::FailedToAccessCenterDeviceApi));
     debug!("Search result {:#?}", result);
 
     result
 }
 
-fn output_results(output_type: OutputType, results: &[User]) -> Result<()> {
+fn output_results(output_type: OutputType, results: &[Collection]) -> Result<()> {
     let mut stdout = ::std::io::stdout();
 
     match output_type {
         OutputType::Human => {
-            let output = TableOutputUsers;
+            let output = TableOutputCollections;
 
             output
                 .output(&mut stdout, results)
                 .chain_err(|| ErrorKind::FailedOutput)
         },
         OutputType::Json => {
-            let output = JsonOutputUsers;
+            let output = JsonOutputCollections;
 
             output
                 .output(&mut stdout, results)
                 .chain_err(|| ErrorKind::FailedOutput)
         },
         OutputType::Plain => {
-            let output = PlainOutputUsers;
+            let output = PlainOutputCollections;
 
             output
                 .output(&mut stdout, results)

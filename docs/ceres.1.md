@@ -68,6 +68,9 @@ The *centerdevice* module interacts with a CenterDevice instance and offers basi
 
   Attention: This will overwrite the entire configuration file and thus, comments will be lost and any order of elements will change.
 
+### centerdevice collections [*options*] *FILE*
+
+
 ### centerdevice delete *DOCUMENT_ID...*
 
   *centerdevice delete* deletes one or more documents from a particular CenterDevice instance.
@@ -136,6 +139,8 @@ The *centerdevice* module interacts with a CenterDevice instance and offers basi
 
   --title *title*
   : Sets title of document
+
+### centerdevice users [*options*] *FILE*
 
 
 ## CONSUL

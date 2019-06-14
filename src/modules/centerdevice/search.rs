@@ -108,10 +108,7 @@ fn search_documents(centerdevice: &CenterDeviceConfig, search: Search) -> Result
     result
 }
 
-fn output_results(
-    output_type: OutputType,
-    status: &[Document]
-) -> Result<()> {
+fn output_results(output_type: OutputType, results: &[Document]) -> Result<()> {
     let mut stdout = ::std::io::stdout();
 
     match output_type {
@@ -119,21 +116,21 @@ fn output_results(
             let output = TableOutputSearchResult;
 
             output
-                .output(&mut stdout, status)
+                .output(&mut stdout, results)
                 .chain_err(|| ErrorKind::FailedOutput)
         },
         OutputType::Json => {
             let output = JsonOutputSearchResult;
 
             output
-                .output(&mut stdout, status)
+                .output(&mut stdout, results)
                 .chain_err(|| ErrorKind::FailedOutput)
         },
         OutputType::Plain => {
             let output = PlainOutputSearchResult;
 
             output
-                .output(&mut stdout, status)
+                .output(&mut stdout, results)
                 .chain_err(|| ErrorKind::FailedOutput)
         },
     }
