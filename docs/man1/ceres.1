@@ -73,6 +73,29 @@ file.
 .PP
 Attention: This will overwrite the entire configuration file and thus,
 comments will be lost and any order of elements will change.
+.SS centerdevice collections [\f[I]options\f[R]]
+.PP
+\f[I]centerdevice collections\f[R] lists all visible collections in a
+particular CneterDevice instance.
+.PP
+Without parameters, all visible, non-public collections will be shown.
+\f[I]-i\f[R] selects a single collection by id; multiple ids may be
+passed coma-separated.
+\f[I]-n\f[R] takes the exact name of a collections and conflicts with
+\f[I]-i\f[R].
+.TP
+.B \[en]all
+Includes public collections
+.TP
+.B -i, \[en]ids \f[I]ids\f[R]
+Sets ids to search
+.TP
+.B -n, \[en]name \f[I]name\f[R]
+Sets collection name to search
+.TP
+.B -o, \[en]output \f[I]output\f[R]
+Selects output format [default: human] [possible values: human, json,
+plain]
 .SS centerdevice delete \f[I]DOCUMENT_ID\&...\f[R]
 .PP
 \f[I]centerdevice delete\f[R] deletes one or more documents from a
@@ -143,6 +166,26 @@ Sets tag for document
 .TP
 .B \[en]title \f[I]title\f[R]
 Sets title of document
+.SS centerdevice users [\f[I]options\f[R]] \f[I]FILE\f[R]
+.PP
+\f[I]centerdevice users\f[R] list all users of a tenant in a particular
+Centerdevice instance.
+.PP
+Without any parameters, all visible, non-blocked users will be listed.
+\f[I]-n\f[R] and \f[I]-i\f[R] conflict with each other.
+.TP
+.B \[en]all
+Includes blocked users
+.TP
+.B -i, \[en]id \f[I]id\f[R]
+Sets id to search
+.TP
+.B -n, \[en]name \f[I]name\f[R]
+Sets username to search
+.TP
+.B -o, \[en]output \f[I]output\f[R]
+Selects output format [default: human] [possible values: human, json,
+plain]
 .SS CONSUL
 .PP
 The \f[I]consul\f[R] module interacts with the consul cluster in the

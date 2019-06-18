@@ -68,8 +68,23 @@ The *centerdevice* module interacts with a CenterDevice instance and offers basi
 
   Attention: This will overwrite the entire configuration file and thus, comments will be lost and any order of elements will change.
 
-### centerdevice collections [*options*] *FILE*
+### centerdevice collections [*options*]
 
+  *centerdevice collections* lists all visible collections in a particular CneterDevice instance.
+
+  Without parameters, all visible, non-public collections will be shown. *-i* selects a single collection by id; multiple ids may be passed coma-separated. *-n* takes the exact name of a collections and conflicts with *-i*.
+
+  --all
+  : Includes public collections
+
+  -i, --ids *ids*
+  : Sets ids to search
+
+  -n, --name *name*
+  : Sets collection name to search
+
+  -o, --output *output*
+  : Selects output format [default: human]  [possible values: human, json, plain]
 
 ### centerdevice delete *DOCUMENT_ID...*
 
@@ -141,6 +156,22 @@ The *centerdevice* module interacts with a CenterDevice instance and offers basi
   : Sets title of document
 
 ### centerdevice users [*options*] *FILE*
+
+  *centerdevice users* list all users of a tenant in a particular Centerdevice instance.
+
+  Without any parameters, all visible, non-blocked users will be listed. *-n* and *-i* conflict with each other.
+
+  --all
+  : Includes blocked users
+
+  -i, --id *id*
+  : Sets id to search
+
+  -n, --name *name*
+  : Sets username to search
+
+  -o, --output *output*
+  : Selects output format [default: human]  [possible values: human, json, plain]
 
 
 ## CONSUL
