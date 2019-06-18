@@ -4,10 +4,12 @@ use centerdevice::client::AuthorizedClient;
 use centerdevice::client::collections::{CollectionsQuery, Collection};
 use failure::Fail;
 use std::convert::TryInto;
+use std::collections::HashMap;
 
-use config::{CeresConfig as Config, CenterDevice as CenterDeviceConfig};
+use config::{CeresConfig as Config};
 use run_config::RunConfig;
 use modules::{Result as ModuleResult, Error as ModuleError, ErrorKind as ModuleErrorKind, Module};
+use modules::centerdevice::AuthorizedClientExt;
 use modules::centerdevice::errors::*;
 use output::OutputType;
 use output::centerdevice::collections::*;
@@ -35,6 +37,10 @@ impl Module for SubModule {
             .arg(Arg::with_name("include-public")
                 .long("all")
                 .help("Includes public collections"))
+            .arg(Arg::with_name("resolve-ids")
+                .long("resolve-ids")
+                .short("R")
+                .help("Resolves ids"))
             .arg(Arg::with_name("output")
                 .long("output")
                 .short("o")
@@ -76,18 +82,26 @@ fn do_call(args: &ArgMatches, run_config: &RunConfig, config: &Config) -> Result
     }
     debug!("{:#?}", query);
 
+    let client: AuthorizedClient = centerdevice.try_into()?;
+
     info!("Searching collections at {}.", centerdevice.base_domain);
-    let result = search_collections(centerdevice, query)?;
+    let result = search_collections(&client, query)?;
     info!("Successfully found {} collections.", result.len());
 
-    info!("Outputting search results");
-    output_results(output_type, &result)?;
+    if args.is_present("resolve-ids") {
+        info!("Retrieving users from {}.", centerdevice.base_domain);
+        let user_map = client.get_user_map()?;
+        info!("Outputting search results with resolved ids");
+        output_results(output_type, &result, Some(&user_map))?;
+    } else {
+        info!("Outputting search results");
+        output_results(output_type, &result, None)?;
+    }
 
     Ok(())
 }
 
-fn search_collections(centerdevice: &CenterDeviceConfig, query: CollectionsQuery) -> Result<Vec<Collection>> {
-    let client: AuthorizedClient = centerdevice.try_into()?;
+fn search_collections(client: &AuthorizedClient, query: CollectionsQuery) -> Result<Vec<Collection>> {
     let result = client
         .search_collections(query)
         .map(|x| x.collections)
@@ -97,12 +111,12 @@ fn search_collections(centerdevice: &CenterDeviceConfig, query: CollectionsQuery
     result
 }
 
-fn output_results(output_type: OutputType, results: &[Collection]) -> Result<()> {
+fn output_results(output_type: OutputType, results: &[Collection], user_map: Option<&HashMap<String, String>>) -> Result<()> {
     let mut stdout = ::std::io::stdout();
 
     match output_type {
         OutputType::Human => {
-            let output = TableOutputCollections;
+            let output = TableOutputCollections { user_map };
 
             output
                 .output(&mut stdout, results)

@@ -77,6 +77,9 @@ The *centerdevice* module interacts with a CenterDevice instance and offers basi
   --all
   : Includes public collections
 
+  -R, --resolve-ids
+  : Resolves ids to human readable names
+
   -i, --ids *ids*
   : Sets ids to search
 
@@ -117,6 +120,9 @@ The *centerdevice* module interacts with a CenterDevice instance and offers basi
 
   [*FULLTEXT*]
   :Add fulltext to search; multiple words are allowed
+
+  -R, --resolve-ids
+  : Resolves ids to human readable names
 
   -f, --filename *filename*...
   : Add filename to search

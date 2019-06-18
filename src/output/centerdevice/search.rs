@@ -7,6 +7,7 @@ use prettytable::{
 };
 use serde_json;
 use std::io::Write;
+use std::collections::HashMap;
 
 use output::*;
 
@@ -28,13 +29,14 @@ impl OutputSearchResult for PlainOutputSearchResult {
     fn output<T: Write>(&self, writer: &mut T, result: &[Document]) -> Result<()> {
         for d in result {
             let line = format!(
-                "{} {} {} {} {} {}\n",
+                "{} {} {} {} {} {} {}\n",
                 d.id,
                 d.filename,
                 d.document_date,
                 d.upload_date,
                 d.version,
                 d.version_date,
+                d.owner,
             );
             let _ = writer.write(line.as_bytes());
         }
@@ -42,9 +44,11 @@ impl OutputSearchResult for PlainOutputSearchResult {
     }
 }
 
-pub struct TableOutputSearchResult;
+pub struct TableOutputSearchResult<'a> {
+    pub user_map: Option<&'a HashMap<String, String>>
+}
 
-impl OutputSearchResult for TableOutputSearchResult {
+impl<'a> OutputSearchResult for TableOutputSearchResult<'a> {
     fn output<T: Write>(&self, writer: &mut T, result: &[Document]) -> Result<()> {
         if result.is_empty() {
             return Ok(());
@@ -61,6 +65,7 @@ impl OutputSearchResult for TableOutputSearchResult {
             Cell::new("Upload Date"),
             Cell::new("Version"),
             Cell::new("Version Date"),
+            Cell::new("Version Owner"),
         ]));
 
         let format_str = "%a, %d.%m.%Y %H:%M:%S";
@@ -77,10 +82,17 @@ impl OutputSearchResult for TableOutputSearchResult {
                 Cell::new(&upload_date),
                 Cell::new_align(d.version.to_string().as_ref(), Alignment::RIGHT),
                 Cell::new(&version_date),
+                Cell::new(self.map_user_id_to_name(&d.owner)),
             ]);
             table.add_row(row);
         }
 
         table.print(writer).chain_err(|| ErrorKind::OutputFailed)
+    }
+}
+
+impl<'a> TableOutputSearchResult<'a> {
+    fn map_user_id_to_name<'b: 'a>(&self, id: &'b str) -> &'a str {
+        super::map_user_id_to_name(self.user_map, id)
     }
 }

@@ -4,10 +4,12 @@ use centerdevice::client::AuthorizedClient;
 use centerdevice::client::search::{Document, NamedSearch, Search, SearchResult};
 use failure::Fail;
 use std::convert::TryInto;
+use std::collections::HashMap;
 
-use config::{CeresConfig as Config, CenterDevice as CenterDeviceConfig};
+use config::{CeresConfig as Config};
 use run_config::RunConfig;
 use modules::{Result as ModuleResult, Error as ModuleError, ErrorKind as ModuleErrorKind, Module};
+use modules::centerdevice::AuthorizedClientExt;
 use modules::centerdevice::errors::*;
 use output::OutputType;
 use output::centerdevice::search::*;
@@ -40,6 +42,10 @@ impl Module for SubModule {
                 .index(1)
                 .multiple(true)
                 .help("Adds fulltext to search"))
+            .arg(Arg::with_name("resolve-ids")
+                .long("resolve-ids")
+                .short("R")
+                .help("Resolves ids"))
             .arg(Arg::with_name("output")
                 .long("output")
                 .short("o")
@@ -85,21 +91,27 @@ fn do_call(args: &ArgMatches, run_config: &RunConfig, config: &Config) -> Result
         fulltext_str = fulltext.as_slice().join(" ");
         search = search.fulltext(&fulltext_str);
     }
-
     debug!("{:#?}", search);
 
+    let client: AuthorizedClient = centerdevice.try_into()?;
     info!("Searching documents at {}.", centerdevice.base_domain);
-    let result = search_documents(centerdevice, search)?;
+    let result = search_documents(&client, search)?;
     info!("Successfully found {} and retrieved {} documents.", result.hits, result.documents.len());
 
-    info!("Outputting search results");
-    output_results(output_type, &result.documents)?;
+    if args.is_present("resolve-ids") {
+        info!("Retrieving users from {}.", centerdevice.base_domain);
+        let user_map = client.get_user_map()?;
+        info!("Outputting search results with resolved ids");
+        output_results(output_type, &result.documents, Some(&user_map))?;
+    } else {
+        info!("Outputting search results");
+        output_results(output_type, &result.documents, None)?;
+    }
 
     Ok(())
 }
 
-fn search_documents(centerdevice: &CenterDeviceConfig, search: Search) -> Result<SearchResult> {
-    let client: AuthorizedClient = centerdevice.try_into()?;
+fn search_documents(client: &AuthorizedClient, search: Search) -> Result<SearchResult> {
     let result = client
         .search_documents(search)
         .map_err(|e| Error::with_chain(e.compat(), ErrorKind::FailedToAccessCenterDeviceApi));
@@ -108,12 +120,12 @@ fn search_documents(centerdevice: &CenterDeviceConfig, search: Search) -> Result
     result
 }
 
-fn output_results(output_type: OutputType, results: &[Document]) -> Result<()> {
+fn output_results(output_type: OutputType, results: &[Document], user_map: Option<&HashMap<String, String>>) -> Result<()> {
     let mut stdout = ::std::io::stdout();
 
     match output_type {
         OutputType::Human => {
-            let output = TableOutputSearchResult;
+            let output = TableOutputSearchResult { user_map };
 
             output
                 .output(&mut stdout, results)

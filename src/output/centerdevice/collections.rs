@@ -7,6 +7,7 @@ use prettytable::{
 };
 use serde_json;
 use std::io::Write;
+use std::collections::HashMap;
 
 use output::*;
 
@@ -43,9 +44,11 @@ impl OutputCollections for PlainOutputCollections {
     }
 }
 
-pub struct TableOutputCollections;
+pub struct TableOutputCollections<'a> {
+    pub user_map: Option<&'a HashMap<String, String>>
+}
 
-impl OutputCollections for TableOutputCollections {
+impl<'a> OutputCollections for TableOutputCollections<'a> {
     fn output<T: Write>(&self, writer: &mut T, result: &[Collection]) -> Result<()> {
         if result.is_empty() {
             return Ok(());
@@ -72,7 +75,7 @@ impl OutputCollections for TableOutputCollections {
                 Cell::new_align(i.to_string().as_ref(), Alignment::RIGHT),
                 Cell::new(c.id.as_ref()),
                 Cell::new(c.name.as_ref()),
-                Cell::new(c.owner.as_ref()),
+                Cell::new(self.map_user_id_to_name(c.owner.as_ref())),
                 Cell::new(format!("{:?}", c.public).as_ref()),
                 Cell::new(format!("{:?}", c.auditing).as_ref()),
                 Cell::new(format!("{:?}", c.archived_date.is_some()).as_ref()),
@@ -82,5 +85,11 @@ impl OutputCollections for TableOutputCollections {
         }
 
         table.print(writer).chain_err(|| ErrorKind::OutputFailed)
+    }
+}
+
+impl<'a> TableOutputCollections<'a> {
+    fn map_user_id_to_name<'b: 'a>(&self, id: &'b str) -> &'a str {
+        super::map_user_id_to_name(self.user_map, id)
     }
 }

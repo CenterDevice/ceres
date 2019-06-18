@@ -6,10 +6,14 @@ and this project adheres to [Semantic Versioning](http://semver.org/spec/v2.0.0.
 
 ## [Unreleased]
 
+
+## [0.0.27] - 2019-06-21
+
 ### Added
-* Adds -i option to cssh to allow connecting by instance id
-* Adds centerdevice users
-* Adds centerdevice collections
+* -i option to cssh to allow connecting by instance id
+* centerdevice users
+* centerdevice collections
+* -R for centerdevice users and collections to resolves ids to human readable names
 
 ### Changed
 * centerdevice search shows number of hits
@@ -166,7 +170,8 @@ Add deployments in Travis build.
 ### Changed
 - `instances terminate` uses `warn!` macro instead of yellow `println!` to output warning in case of active dry mode.
 
-[Unreleased]: https://github.com/centerdevice/ceres/compare/v0.0.26...HEAD
+[Unreleased]: https://github.com/centerdevice/ceres/compare/v0.0.27...HEAD
+[0.0.27]: https://github.com/centerdevice/ceres/compare/v0.0.25...v0.0.27
 [0.0.26]: https://github.com/centerdevice/ceres/compare/v0.0.24...v0.0.26
 [0.0.24]: https://github.com/centerdevice/ceres/compare/v0.0.23...v0.0.24
 [0.0.23]: https://github.com/centerdevice/ceres/compare/v0.0.22...v0.0.23
