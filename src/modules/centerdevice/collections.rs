@@ -26,7 +26,7 @@ impl Module for SubModule {
                 .long("name")
                 .short("n")
                 .takes_value(true)
-                .conflicts_with("id")
+                .conflicts_with("ids")
                 .help("Sets collection name to search"))
             .arg(Arg::with_name("ids")
                 .long("ids")
