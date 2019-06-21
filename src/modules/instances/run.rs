@@ -91,13 +91,13 @@ fn do_call(args: &ArgMatches, run_config: &RunConfig, config: &Config) -> Result
     }.chain_err(|| ErrorKind::ModuleFailed(NAME.to_owned()))?;
 
     // Parse my args
-    let instance_ids: Vec<&str> =  args.values_of("instance_ids").unwrap_or_else(|| Default::default()).collect();
+    let instance_ids: Vec<&str> =  args.values_of("instance_ids").unwrap_or_else(Default::default).collect();
     let instance_ids: Vec<_> = read_instance_ids(&instance_ids)
         .chain_err(|| ErrorKind::ModuleFailed(String::from(NAME)))?;
     let public_ip = args.is_present("public-ip");
 
-    let ssh_opts: Vec<&str> = args.values_of("ssh-opts").unwrap_or_else(|| Default::default()).collect();
-    let remote_commands_args: Vec<&str> = args.values_of("command_args").unwrap_or_else(|| Default::default()).collect();
+    let ssh_opts: Vec<&str> = args.values_of("ssh-opts").unwrap_or_else(Default::default).collect();
+    let remote_commands_args: Vec<&str> = args.values_of("command_args").unwrap_or_else(Default::default).collect();
 
     let timeout = Duration::from_secs(
         args.value_of("timeout").unwrap() // safe unwrap
@@ -133,7 +133,7 @@ fn do_call(args: &ArgMatches, run_config: &RunConfig, config: &Config) -> Result
 fn describe_instances(instance_ids: &[String], profile: &Profile) -> Result<Vec<InstanceDescriptor>> {
     let Provider::Aws(provider) = profile.provider
         .as_ref()
-        .ok_or(Error::from_kind(ErrorKind::ConfigMissingInProfile("provider".to_string())))?;
+        .ok_or_else(|| Error::from_kind(ErrorKind::ConfigMissingInProfile("provider".to_string())))?;
     let res: Result<Vec<InstanceDescriptor>> = instance_ids.iter().
         map(|id| provider
             .describe_instance(id)

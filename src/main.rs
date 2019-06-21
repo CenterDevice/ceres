@@ -5,7 +5,6 @@ extern crate clap;
 extern crate error_chain;
 #[macro_use]
 extern crate human_panic;
-#[macro_use]
 extern crate log;
 
 use clams::prelude::*;

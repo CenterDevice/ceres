@@ -142,7 +142,7 @@ macro_rules! list_resources {
             let asps: Result<Vec<_>> = find_resources(local_base_dir)?
                 .iter()
                 .flat_map(|x| x.strip_prefix(local_base_dir))
-                .map(|x| Resource::from_path(x))
+                .map(Resource::from_path)
                 .collect();
             let asps = asps?;
 

@@ -589,13 +589,12 @@ pub mod filter {
             tags.insert("Name".to_owned(), Some("my_instance".to_owned()));
             tags.insert("Intent".to_owned(), Some("my_project".to_owned()));
 
-            let instance = InstanceDescriptor {
+            InstanceDescriptor {
                 instance_id: Some("i-12345".to_owned()),
                 image_id: Some("ami-12345".to_owned()),
                 tags: Some(tags),
                 ..Default::default()
-            };
-            instance
+            }
         }
 
         #[test]

@@ -72,8 +72,8 @@ pub mod command {
     }
 
     impl ExitStatus {
-        pub fn success(&self) -> bool {
-            if let &ExitStatus::Exited(0) = self {
+        pub fn success(self) -> bool {
+            if let ExitStatus::Exited(0) = self {
                 true
             } else {
                 false
@@ -140,15 +140,12 @@ pub mod command {
                 if let Some(ref progress) = progress {
                     progress();
                 }
-                match status {
-                    Some(exit_status) => {
-                        return Ok(CommandResult {
-                            id: self.id,
-                            log: self.log,
-                            exit_status: exit_status.into(),
-                        })
-                    }
-                    None => {}
+                if let Some(exit_status) = status {
+                    return Ok(CommandResult {
+                        id: self.id,
+                        log: self.log,
+                        exit_status: exit_status.into(),
+                    })
                 }
             }
         }
@@ -213,7 +210,7 @@ pub mod run {
             let spinner_style = ProgressStyle::default_clams_spinner();
             let pb = m.add(ProgressBar::new_spinner());
             pb.set_style(spinner_style);
-            pb.set_prefix(&format!("{}", &cmd.id));
+            pb.set_prefix(&cmd.id.to_string());
             pb.set_message(&cmd.cmd);
 
             let log_path = cmd.log.clone();
@@ -230,17 +227,17 @@ pub mod run {
 
                 let res = cmd.run(Some(progress));
 
-                let finish_msg = match &res {
-                    &Ok(CommandResult {
+                let finish_msg = match res {
+                    Ok(CommandResult {
                         exit_status: ExitStatus::Exited(0),
                         ..
                     }) => format!("{}.", "Done".green()),
-                    &Ok(CommandResult {
+                    Ok(CommandResult {
                         exit_status: ExitStatus::Exited(n),
                         ..
                     }) => format!("{} with exit status {}.", "Failed".red(), n),
-                    &Ok(ref result) => format!("{} with {:?}", "Failed".red(), result.exit_status),
-                    &Err(ref e) => format!("{} ({:?})", "Error".red(), e),
+                    Ok(ref result) => format!("{} with {:?}", "Failed".red(), result.exit_status),
+                    Err(ref e) => format!("{} ({:?})", "Error".red(), e),
                 };
                 pb.finish_with_message(&finish_msg);
 

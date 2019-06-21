@@ -77,7 +77,7 @@ fn do_call(args: &ArgMatches, run_config: &RunConfig, config: &Config) -> Result
 
    let f = get_tasks(&client, project_id, story_id, &token)
       .and_then(|tasks|
-         if tasks.len() == 0 || force {
+         if tasks.is_empty() || force {
             future::ok(())
          } else {
             future::err(Error::from_kind(ErrorKind::StoryHasTasksAlready))

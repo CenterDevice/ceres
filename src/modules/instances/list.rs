@@ -73,7 +73,7 @@ fn list_instances(
     }.chain_err(|| ErrorKind::ModuleFailed(NAME.to_owned()))?;
     let Provider::Aws(provider) = profile.provider
         .as_ref()
-        .ok_or(Error::from_kind(ErrorKind::ConfigMissingInProfile("provider".to_string())))?;
+        .ok_or_else(|| Error::from_kind(ErrorKind::ConfigMissingInProfile("provider".to_string())))?;
 
     provider
         .describe_instances()

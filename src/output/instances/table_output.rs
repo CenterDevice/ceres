@@ -206,7 +206,7 @@ impl OutputCommandResults for TableOutputCommandResults {
             table.add_row(Row::new(vec![
                 Cell::new(&r.id),
                 Cell::new(&format!("{:?}", r.exit_status)),
-                Cell::new(&format!("{}", r.log.to_str().unwrap_or_else(|| "- n/a -"))),
+                Cell::new(&r.log.to_str().unwrap_or_else(|| "- n/a -").to_string()),
             ]));
         }
 

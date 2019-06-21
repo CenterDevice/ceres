@@ -59,7 +59,7 @@ fn resources_by_project(resources: &[Resource]) -> HashMap<&str, Vec<&str>> {
     let mut map = HashMap::new();
 
     for resource in resources {
-        let mut v = map.entry(resource.project.as_ref()).or_insert(Vec::new());
+        let mut v = map.entry(resource.project.as_ref()).or_insert_with(Vec::new);
         v.push(resource.name.as_ref());
     }
 

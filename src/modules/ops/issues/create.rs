@@ -110,7 +110,7 @@ fn do_call(args: &ArgMatches, run_config: &RunConfig, config: &Config) -> Result
     }
 
     let title = args.value_of("title").unwrap(); // Safe unwrap
-    let labels = args.values_of_lossy("labels").unwrap_or(Vec::new());
+    let labels = args.values_of_lossy("labels").unwrap_or_default();
 
     let file_path = if args.is_present("interactive") {
         let editor = ::std::env::var_os("EDITOR").unwrap_or_else(|| "vi".to_string().into());

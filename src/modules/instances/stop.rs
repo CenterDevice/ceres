@@ -79,7 +79,7 @@ fn stop_instances(
     }.chain_err(|| ErrorKind::ModuleFailed(NAME.to_owned()))?;
     let Provider::Aws(provider) = profile.provider
         .as_ref()
-        .ok_or(Error::from_kind(ErrorKind::ConfigMissingInProfile("provider".to_string())))?;
+        .ok_or_else(|| Error::from_kind(ErrorKind::ConfigMissingInProfile("provider".to_string())))?;
 
     let dry = args.is_present("dry");
     let force = args.is_present("force");
@@ -104,7 +104,7 @@ fn stop_instances(
         (false, true) => {}
     }
 
-    let instance_ids: Vec<&str> = args.values_of("instance_ids").unwrap_or_else(|| Default::default()).collect();
+    let instance_ids: Vec<&str> = args.values_of("instance_ids").unwrap_or_else(Default::default).collect();
     let instance_ids: Vec<_> = read_instance_ids(&instance_ids)
         .chain_err(|| ErrorKind::ModuleFailed(String::from(NAME)))?;
 

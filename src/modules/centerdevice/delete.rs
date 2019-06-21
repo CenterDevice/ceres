@@ -37,11 +37,11 @@ fn do_call(args: &ArgMatches, run_config: &RunConfig, config: &Config) -> Result
         "default" => config.get_default_profile(),
         s => config.get_profile(s),
     }.chain_err(|| ErrorKind::FailedToParseCmd("profile".to_string()))?;
-    let centerdevice = profile.centerdevice.as_ref().ok_or(
-        Error::from_kind(ErrorKind::NoCenterDeviceInProfile)
+    let centerdevice = profile.centerdevice.as_ref().ok_or_else(
+        || Error::from_kind(ErrorKind::NoCenterDeviceInProfile)
     )?;
 
-    let document_ids: Vec<&str> = args.values_of("document-ids").unwrap_or_else(|| Default::default()).collect();
+    let document_ids: Vec<&str> = args.values_of("document-ids").unwrap_or_else(Default::default).collect();
 
     info!("Deleting documents at {}.", centerdevice.base_domain);
     delete_documents(centerdevice, &document_ids)?;

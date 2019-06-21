@@ -212,62 +212,55 @@ impl From<ec2::Instance> for InstanceDescriptor {
 }
 
 fn block_device_mapping_to_string(bdm: &ec2::InstanceBlockDeviceMapping) -> String {
-    let empty = String::from(EMPTY);
     format!(
         "dev={}, id={}",
-        bdm.device_name.as_ref().unwrap_or(&empty),
+        bdm.device_name.clone().unwrap_or_else(|| String::from(EMPTY)),
         bdm.ebs
             .as_ref()
             .unwrap()
             .volume_id
-            .as_ref()
-            .unwrap_or(&empty),
+            .clone()
+            .unwrap_or_else(|| String::from(EMPTY))
     )
 }
 
 fn iam_instance_profile_to_string(iip: &ec2::IamInstanceProfile) -> String {
-    let empty = String::from(EMPTY);
     format!(
         "id={}, arn={}",
-        iip.id.as_ref().unwrap_or(&empty),
-        iip.arn.as_ref().unwrap_or(&empty),
+        iip.id.clone().unwrap_or_else(|| String::from(EMPTY)),
+        iip.arn.clone().unwrap_or_else(|| String::from(EMPTY))
     )
 }
 
 fn monitoring_to_string(m: &ec2::Monitoring) -> String {
-    let empty = String::from(EMPTY);
-    format!("{}", m.state.as_ref().unwrap_or(&empty))
+    m.state.clone().unwrap_or_else(|| String::from(EMPTY))
 }
 
 fn placement_to_string(p: &ec2::Placement) -> String {
-    let empty = String::from(EMPTY);
     format!(
         "affinity={}, AZ={}, group={}, host={}, tenancy={}",
-        p.affinity.as_ref().unwrap_or(&empty),
-        p.availability_zone.as_ref().unwrap_or(&empty),
-        p.group_name.as_ref().unwrap_or(&empty),
-        p.host_id.as_ref().unwrap_or(&empty),
-        p.tenancy.as_ref().unwrap_or(&empty),
+        p.affinity.clone().unwrap_or_else(|| String::from(EMPTY)),
+        p.availability_zone.clone().unwrap_or_else(|| String::from(EMPTY)),
+        p.group_name.clone().unwrap_or_else(|| String::from(EMPTY)),
+        p.host_id.clone().unwrap_or_else(|| String::from(EMPTY)),
+        p.tenancy.clone().unwrap_or_else(|| String::from(EMPTY))
     )
 }
 
 fn group_identifier_to_string(sg: &ec2::GroupIdentifier) -> String {
-    let empty = String::from(EMPTY);
     format!(
         "id={}, name={}",
-        sg.group_id.as_ref().unwrap_or(&empty),
-        sg.group_name.as_ref().unwrap_or(&empty),
+        sg.group_id.clone().unwrap_or_else(|| String::from(EMPTY)),
+        sg.group_name.clone().unwrap_or_else(|| String::from(EMPTY))
     )
 }
 
 fn instance_state_to_string(state: &ec2::InstanceState) -> String {
-    let empty = String::from(EMPTY);
-    format!("{}", state.name.as_ref().unwrap_or(&empty))
+    state.name.clone().unwrap_or_else(|| String::from(EMPTY))
 }
 
 fn state_reason_to_string(reason: &ec2::StateReason) -> String {
-    let empty = String::from(EMPTY);
-    format!("'{}'", reason.message.as_ref().unwrap_or(&empty))
+    reason.message.clone().unwrap_or_else(|| String::from(EMPTY))
 }
 
 fn vec_tags_to_hashmap(tags: Vec<ec2::Tag>) -> HashMap<String, Option<String>> {

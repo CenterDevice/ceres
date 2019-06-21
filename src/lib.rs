@@ -1,6 +1,5 @@
 extern crate centerdevice;
 extern crate clams;
-#[macro_use]
 extern crate clams_derive;
 extern crate chrono;
 extern crate chrono_humanize;

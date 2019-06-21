@@ -94,7 +94,7 @@ fn do_call(args: &ArgMatches, run_config: &RunConfig, config: &Config) -> Result
     let force = args.is_present("force");
     let public_ip = args.is_present("public-ip");
 
-    let ssh_opts: Vec<&str> = args.values_of("ssh-opts").unwrap_or_else(|| Default::default()).collect();
+    let ssh_opts: Vec<&str> = args.values_of("ssh-opts").unwrap_or_else(Default::default).collect();
 
     let timeout = Duration::from_secs(
         args.value_of("timeout").unwrap() // safe unwrap
@@ -154,7 +154,7 @@ fn do_call(args: &ArgMatches, run_config: &RunConfig, config: &Config) -> Result
 fn find_instances(profile: &Profile) -> Result<Vec<InstanceDescriptor>> {
     let Provider::Aws(provider) = profile.provider
         .as_ref()
-        .ok_or(Error::from_kind(ErrorKind::ConfigMissingInProfile("provider".to_string())))?;
+        .ok_or_else(|| Error::from_kind(ErrorKind::ConfigMissingInProfile("provider".to_string())))?;
 
     let all = provider.describe_instances()
         .chain_err(|| ErrorKind::ModuleFailed(NAME.to_owned()))?;

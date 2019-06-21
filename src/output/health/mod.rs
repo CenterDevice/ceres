@@ -36,8 +36,8 @@ impl OutputHealthCheck for PlainOutputHealthCheck {
                             "{} {} {} {} {}\n",
                             hc.name,
                             resource_name,
-                            resource.time_stamp.map(|x| format!("{}", x)).unwrap_or("-".to_string()),
-                            resource.stampling_time.map(|x| format!("{}", x)).unwrap_or("-".to_string()),
+                            resource.time_stamp.map(|x| format!("{}", x)).unwrap_or_else(|| "-".to_string()),
+                            resource.stampling_time.map(|x| format!("{}", x)).unwrap_or_else(|| "-".to_string()),
                             resource.healthy,
                         );
                         let _ = writer.write(line.as_bytes());
@@ -132,15 +132,13 @@ fn make_row(hc_name: &str, previous_hc_name: &Option<&str>, resource_name: &str,
         Cell::new("-")
     };
 
-    let row = Row::new(vec![
+    Row::new(vec![
         service_cell,
-        Cell::new(resource_name.as_ref()),
+        Cell::new(resource_name),
         healthy_cell,
         since_cell,
         updated_at_cell,
-    ]);
-
-    row
+    ])
 }
 
 fn since(updated_at: DateTime<Local>) -> String {

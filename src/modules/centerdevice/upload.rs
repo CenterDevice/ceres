@@ -70,12 +70,12 @@ fn do_call(args: &ArgMatches, run_config: &RunConfig, config: &Config) -> Result
         "default" => config.get_default_profile(),
         s => config.get_profile(s),
     }.chain_err(|| ErrorKind::FailedToParseCmd("profile".to_string()))?;
-    let centerdevice = profile.centerdevice.as_ref().ok_or(
-        Error::from_kind(ErrorKind::NoCenterDeviceInProfile)
+    let centerdevice = profile.centerdevice.as_ref().ok_or_else(
+        || Error::from_kind(ErrorKind::NoCenterDeviceInProfile)
     )?;
 
     // This happens here due to the borrow checker.
-    let tags: Vec<&str> = args.values_of("tags").unwrap_or_else(|| Default::default()).collect();
+    let tags: Vec<&str> = args.values_of("tags").unwrap_or_else(Default::default).collect();
 
     let file_path = args.value_of("file").unwrap(); // Safe
 

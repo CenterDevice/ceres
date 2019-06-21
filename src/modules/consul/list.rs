@@ -68,7 +68,7 @@ fn do_call(args: &ArgMatches, run_config: &RunConfig, config: &Config) -> Result
     let tags = args.values_of_lossy("tags");
     let url = profile.consul
         .as_ref()
-        .ok_or(Error::from_kind(ErrorKind::ConfigMissingInProfile("consul".to_string())))?
+        .ok_or_else(|| Error::from_kind(ErrorKind::ConfigMissingInProfile("consul".to_string())))?
         .urls
         .first()
         .chain_err(|| ErrorKind::ModuleFailed(String::from(NAME)))?;
