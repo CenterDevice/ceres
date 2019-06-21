@@ -1,5 +1,4 @@
 extern crate ceres;
 
 #[test]
-fn noop_okay() {
-}
+fn noop_okay() {}

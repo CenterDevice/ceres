@@ -1,5 +1,4 @@
-use std::collections::HashMap;
-use std::io::Write;
+use std::{collections::HashMap, io::Write};
 
 use output::instances::*;
 use provider::{InstanceDescriptor, InstanceDescriptorFields};
@@ -78,7 +77,8 @@ fn value_for_field(field: &InstanceDescriptorFields, instance: &InstanceDescript
         )),
         InstanceDescriptorFields::VirtualizationType => instance.virtualization_type.clone(),
         InstanceDescriptorFields::VpcId => instance.vpc_id.clone(),
-    }.unwrap_or_else(|| String::from("-"))
+    }
+    .unwrap_or_else(|| String::from("-"))
 }
 
 /// Format a `HashMap` of `String` -> `Option<String>` into a single line, pretty string.

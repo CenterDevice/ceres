@@ -217,6 +217,7 @@ mod tests {
         assert_that(&aws.access_key_id).is_equal_to("XXXXX".to_owned());
         assert_that(&aws.secret_access_key).is_equal_to("XXXXX".to_owned());
         assert_that(&aws.region).is_equal_to(Region::EuCentral1);
-        assert_that(&aws.role_arn).is_equal_to("arn:aws:iam::XXXXX:role/OrganizationAccountAccessRole".to_owned());
+        assert_that(&aws.role_arn)
+            .is_equal_to("arn:aws:iam::XXXXX:role/OrganizationAccountAccessRole".to_owned());
     }
 }

@@ -1,5 +1,4 @@
-use std::collections::HashMap;
-use std::str::FromStr;
+use std::{collections::HashMap, str::FromStr};
 
 pub mod aws;
 
@@ -101,8 +100,8 @@ pub struct InstanceDescriptor {
     pub key_name: Option<String>,
     pub launch_time: Option<String>,
     pub monitoring: Option<String>,
-    // network_interfaces contains a lot of useful information but it's a data structure rabbit hole,
-    // but the most important information is already available in InstanceDescriptor.
+    // network_interfaces contains a lot of useful information but it's a data structure rabbit
+    // hole, but the most important information is already available in InstanceDescriptor.
     //pub network_interfaces: Option<Vec<InstanceNetworkInterface>>,
     pub placement: Option<String>,
     pub platform: Option<String>,
@@ -256,8 +255,7 @@ pub mod filter {
     use regex::Regex;
 
     use provider::{InstanceDescriptor, InstanceDescriptorFields};
-    use std::collections::HashMap;
-    use std::str::FromStr;
+    use std::{collections::HashMap, str::FromStr};
 
     macro_rules! filter_builder {
         ($($field:tt),+) => {
@@ -415,8 +413,8 @@ pub mod filter {
 
         fn from_str(s: &str) -> ::std::result::Result<Self, Self::Err> {
             let tags = s.split(',');
-            let kvs: Result<Vec<(&str, Option<&str>)>> =
-                tags.map(|tag| {
+            let kvs: Result<Vec<(&str, Option<&str>)>> = tags
+                .map(|tag| {
                     let mut splits: Vec<_> = tag.splitn(2, '=').collect();
                     match splits.len() {
                         2 => Ok((splits.remove(0), Some(splits.remove(0)))),
@@ -426,7 +424,8 @@ pub mod filter {
                             "splitting fields failed".to_owned(),
                         ))),
                     }
-                }).collect();
+                })
+                .collect();
             let kvs = kvs?;
 
             let mut f_builder = FilterBuilder::new();

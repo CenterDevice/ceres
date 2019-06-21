@@ -1,8 +1,6 @@
 use chrono::prelude::*;
 use chrono_humanize::HumanTime;
-use prettytable::cell::Cell;
-use prettytable::row::Row;
-use prettytable::{color, format, Attr, Table};
+use prettytable::{cell::Cell, color, format, row::Row, Attr, Table};
 use serde_json;
 use std::io::Write;
 

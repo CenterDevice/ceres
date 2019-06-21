@@ -1,13 +1,12 @@
 use centerdevice::client::search::Document;
 use prettytable::{
-    Table,
     cell::Cell,
-    row::Row,
     format::{self, Alignment},
+    row::Row,
+    Table,
 };
 use serde_json;
-use std::io::Write;
-use std::collections::HashMap;
+use std::{collections::HashMap, io::Write};
 
 use output::*;
 
@@ -45,7 +44,7 @@ impl OutputSearchResult for PlainOutputSearchResult {
 }
 
 pub struct TableOutputSearchResult<'a> {
-    pub user_map: Option<&'a HashMap<String, String>>
+    pub user_map: Option<&'a HashMap<String, String>>,
 }
 
 impl<'a> OutputSearchResult for TableOutputSearchResult<'a> {

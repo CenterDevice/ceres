@@ -1,5 +1,4 @@
-use std::net::IpAddr;
-use std::path::PathBuf;
+use std::{net::IpAddr, path::PathBuf};
 
 pub mod cli {
     use serde_json;
@@ -42,8 +41,7 @@ pub mod cli {
 pub mod command {
     use super::*;
 
-    use std::fs::File;
-    use std::time::Duration;
+    use std::{fs::File, time::Duration};
     use subprocess::{Exec, ExitStatus as SubprocessExitStatus, Redirection};
 
     #[derive(Debug)]
@@ -145,7 +143,7 @@ pub mod command {
                         id: self.id,
                         log: self.log,
                         exit_status: exit_status.into(),
-                    })
+                    });
                 }
             }
         }
@@ -156,14 +154,12 @@ pub mod run {
     use super::*;
 
     use clams::prelude::*;
-    use std::fs::File;
-    use std::sync::mpsc::channel;
-    use std::thread;
+    use std::{fs::File, sync::mpsc::channel, thread};
 
-    use output::instances::{
-        JsonOutputCommandResults, OutputCommandResults, TableOutputCommandResults,
+    use output::{
+        instances::{JsonOutputCommandResults, OutputCommandResults, TableOutputCommandResults},
+        OutputType,
     };
-    use output::OutputType;
     use utils::command::{Command, CommandResult, ExitStatus};
 
     pub fn run(commands: Vec<Command>, use_progress_bar: bool) -> Result<Vec<CommandResult>> {
@@ -173,7 +169,8 @@ pub mod run {
         } else {
             debug!("Running commands without progress bar.");
             run_without_progress(commands)
-        }.chain_err(|| ErrorKind::FailedToRunCommands)
+        }
+        .chain_err(|| ErrorKind::FailedToRunCommands)
     }
 
     pub fn run_without_progress(commands: Vec<Command>) -> Result<Vec<CommandResult>> {
@@ -443,8 +440,10 @@ mod tests {
     use super::*;
 
     use spectral::prelude::*;
-    use std::fs::File;
-    use std::io::{BufRead, BufReader};
+    use std::{
+        fs::File,
+        io::{BufRead, BufReader},
+    };
     use tempfile::NamedTempFile;
 
     #[test]

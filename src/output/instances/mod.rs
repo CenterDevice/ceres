@@ -8,12 +8,10 @@ pub mod json_output;
 pub mod plain_output;
 pub mod table_output;
 
-pub use self::json_output::{
-    JsonOutputCommandResults, JsonOutputInstances, JsonOutputStateChanges,
-};
-pub use self::plain_output::PlainOutputInstances;
-pub use self::table_output::{
-    TableOutputCommandResults, TableOutputInstances, TableOutputStatusChanges,
+pub use self::{
+    json_output::{JsonOutputCommandResults, JsonOutputInstances, JsonOutputStateChanges},
+    plain_output::PlainOutputInstances,
+    table_output::{TableOutputCommandResults, TableOutputInstances, TableOutputStatusChanges},
 };
 
 pub trait OutputInstances {

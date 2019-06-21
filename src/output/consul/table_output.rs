@@ -1,7 +1,4 @@
-use prettytable::cell::Cell;
-use prettytable::format;
-use prettytable::row::Row;
-use prettytable::Table;
+use prettytable::{cell::Cell, format, row::Row, Table};
 use service_world::consul::Catalog;
 use std::io::Write;
 
@@ -44,7 +41,8 @@ impl OutputCatalogResult for TableOutputCatalogResult {
         ));
 
         // We have to create / allocate the Strings first since `Table` only accepts `&str` and some
-        // `InstanceDescriptorFields` need to allocate representations first, e.g., `InstanceDescriptorFields::Tags`
+        // `InstanceDescriptorFields` need to allocate representations first, e.g.,
+        // `InstanceDescriptorFields::Tags`
         let mut rows = Vec::new();
         for service in catalog.services() {
             if let Some(nodes) = catalog.nodes_by_service(service) {

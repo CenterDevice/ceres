@@ -1,13 +1,12 @@
 use centerdevice::client::collections::Collection;
 use prettytable::{
-    Table,
     cell::Cell,
-    row::Row,
     format::{self, Alignment},
+    row::Row,
+    Table,
 };
 use serde_json;
-use std::io::Write;
-use std::collections::HashMap;
+use std::{collections::HashMap, io::Write};
 
 use output::*;
 
@@ -35,7 +34,9 @@ impl OutputCollections for PlainOutputCollections {
                 c.owner,
                 c.public,
                 c.auditing,
-                c.archived_date.map(|x| x.to_rfc3339()).unwrap_or_else(|| "-".to_string()),
+                c.archived_date
+                    .map(|x| x.to_rfc3339())
+                    .unwrap_or_else(|| "-".to_string()),
             );
             let _ = writer.write(line.as_bytes());
         }
@@ -45,7 +46,7 @@ impl OutputCollections for PlainOutputCollections {
 }
 
 pub struct TableOutputCollections<'a> {
-    pub user_map: Option<&'a HashMap<String, String>>
+    pub user_map: Option<&'a HashMap<String, String>>,
 }
 
 impl<'a> OutputCollections for TableOutputCollections<'a> {
@@ -69,7 +70,10 @@ impl<'a> OutputCollections for TableOutputCollections<'a> {
 
         let format_str = "%a, %d.%m.%Y %H:%M:%S";
         for (i, c) in result.iter().enumerate() {
-            let archived_date = c.archived_date.map(|x| x.format(format_str).to_string()).unwrap_or_else(|| "-".to_string());
+            let archived_date = c
+                .archived_date
+                .map(|x| x.format(format_str).to_string())
+                .unwrap_or_else(|| "-".to_string());
 
             let row = Row::new(vec![
                 Cell::new_align(i.to_string().as_ref(), Alignment::RIGHT),

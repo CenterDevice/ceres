@@ -1,9 +1,9 @@
 use centerdevice::client::users::User;
 use prettytable::{
-    Table,
     cell::Cell,
-    row::Row,
     format::{self, Alignment},
+    row::Row,
+    Table,
 };
 use serde_json;
 use std::io::Write;

@@ -5,12 +5,11 @@ use rusoto_ec2::{
     StopInstancesError, StopInstancesRequest, TerminateInstancesError, TerminateInstancesRequest,
 };
 use rusoto_sts::{StsAssumeRoleSessionCredentialsProvider, StsClient};
-use serde::de::{self, Deserializer, Visitor};
-use serde::ser::Serializer;
-use std::collections::HashMap;
-use std::default::Default;
-use std::fmt;
-use std::str::FromStr;
+use serde::{
+    de::{self, Deserializer, Visitor},
+    ser::Serializer,
+};
+use std::{collections::HashMap, default::Default, fmt, str::FromStr};
 
 use provider::{
     DescribeInstance, DescribeInstances, Error as ProviderError, ErrorKind as ProviderErrorKind,
@@ -25,10 +24,7 @@ pub struct Aws {
     pub access_key_id: String,
     pub secret_access_key: String,
     pub token: Option<String>,
-    #[serde(
-        serialize_with = "ser_region",
-        deserialize_with = "de_ser_region"
-    )]
+    #[serde(serialize_with = "ser_region", deserialize_with = "de_ser_region")]
     pub region: Region,
     pub role_arn: String,
 }
@@ -214,7 +210,9 @@ impl From<ec2::Instance> for InstanceDescriptor {
 fn block_device_mapping_to_string(bdm: &ec2::InstanceBlockDeviceMapping) -> String {
     format!(
         "dev={}, id={}",
-        bdm.device_name.clone().unwrap_or_else(|| String::from(EMPTY)),
+        bdm.device_name
+            .clone()
+            .unwrap_or_else(|| String::from(EMPTY)),
         bdm.ebs
             .as_ref()
             .unwrap()
@@ -240,7 +238,9 @@ fn placement_to_string(p: &ec2::Placement) -> String {
     format!(
         "affinity={}, AZ={}, group={}, host={}, tenancy={}",
         p.affinity.clone().unwrap_or_else(|| String::from(EMPTY)),
-        p.availability_zone.clone().unwrap_or_else(|| String::from(EMPTY)),
+        p.availability_zone
+            .clone()
+            .unwrap_or_else(|| String::from(EMPTY)),
         p.group_name.clone().unwrap_or_else(|| String::from(EMPTY)),
         p.host_id.clone().unwrap_or_else(|| String::from(EMPTY)),
         p.tenancy.clone().unwrap_or_else(|| String::from(EMPTY))
@@ -260,7 +260,10 @@ fn instance_state_to_string(state: &ec2::InstanceState) -> String {
 }
 
 fn state_reason_to_string(reason: &ec2::StateReason) -> String {
-    reason.message.clone().unwrap_or_else(|| String::from(EMPTY))
+    reason
+        .message
+        .clone()
+        .unwrap_or_else(|| String::from(EMPTY))
 }
 
 fn vec_tags_to_hashmap(tags: Vec<ec2::Tag>) -> HashMap<String, Option<String>> {
@@ -338,10 +341,11 @@ fn start(aws: &Aws, dry: bool, instance_ids: &[InstanceId]) -> Result<Vec<StateC
             )))
         }
         result => result,
-    }.chain_err(|| ErrorKind::AwsApiError)?;
-    let starting_instances = result
-        .starting_instances
-        .ok_or_else(|| Error::from_kind(ErrorKind::AwsApiResultError("start failed".to_string())))?;
+    }
+    .chain_err(|| ErrorKind::AwsApiError)?;
+    let starting_instances = result.starting_instances.ok_or_else(|| {
+        Error::from_kind(ErrorKind::AwsApiResultError("start failed".to_string()))
+    })?;
 
     let state_changes: Vec<StateChange> =
         starting_instances.into_iter().map(|x| x.into()).collect();
@@ -395,7 +399,8 @@ fn stop(
             )))
         }
         result => result,
-    }.chain_err(|| ErrorKind::AwsApiError)?;
+    }
+    .chain_err(|| ErrorKind::AwsApiError)?;
     let stopping_instances = result
         .stopping_instances
         .ok_or_else(|| Error::from_kind(ErrorKind::AwsApiResultError("stop failed".to_string())))?;
@@ -445,7 +450,8 @@ fn destroy(aws: &Aws, dry: bool, instance_ids: &[InstanceId]) -> Result<Vec<Stat
             )))
         }
         result => result,
-    }.chain_err(|| ErrorKind::AwsApiError)?;
+    }
+    .chain_err(|| ErrorKind::AwsApiError)?;
     let terminating_instances = result.terminating_instances.ok_or_else(|| {
         Error::from_kind(ErrorKind::AwsApiResultError(
             "termination failed".to_string(),

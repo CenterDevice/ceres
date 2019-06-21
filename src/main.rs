@@ -10,9 +10,7 @@ extern crate log;
 use clams::prelude::*;
 use clap::{App, AppSettings, Arg, ArgMatches, Shell, SubCommand};
 
-use ceres::config::CeresConfig;
-use ceres::modules;
-use ceres::run_config::RunConfig;
+use ceres::{config::CeresConfig, modules, run_config::RunConfig};
 
 const DEFAULT_CONFIG_FILE_NAME: &str = "ceres.conf";
 

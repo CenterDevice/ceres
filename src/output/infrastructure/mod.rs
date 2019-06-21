@@ -1,10 +1,6 @@
-use prettytable::cell::Cell;
-use prettytable::format;
-use prettytable::row::Row;
-use prettytable::Table;
+use prettytable::{cell::Cell, format, row::Row, Table};
 use serde_json;
-use std::collections::HashMap;
-use std::io::Write;
+use std::{collections::HashMap, io::Write};
 
 use modules::infrastructure::Resource;
 use output::*;
@@ -59,7 +55,9 @@ fn resources_by_project(resources: &[Resource]) -> HashMap<&str, Vec<&str>> {
     let mut map = HashMap::new();
 
     for resource in resources {
-        let mut v = map.entry(resource.project.as_ref()).or_insert_with(Vec::new);
+        let mut v = map
+            .entry(resource.project.as_ref())
+            .or_insert_with(Vec::new);
         v.push(resource.name.as_ref());
     }
 

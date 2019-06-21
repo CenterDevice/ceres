@@ -1,8 +1,6 @@
 use chrono::prelude::*;
 use chrono_humanize::HumanTime;
-use prettytable::cell::Cell;
-use prettytable::row::Row;
-use prettytable::{color, format, Attr, Table};
+use prettytable::{cell::Cell, color, format, row::Row, Attr, Table};
 use serde_json;
 use std::io::Write;
 
@@ -36,8 +34,14 @@ impl OutputHealthCheck for PlainOutputHealthCheck {
                             "{} {} {} {} {}\n",
                             hc.name,
                             resource_name,
-                            resource.time_stamp.map(|x| format!("{}", x)).unwrap_or_else(|| "-".to_string()),
-                            resource.stampling_time.map(|x| format!("{}", x)).unwrap_or_else(|| "-".to_string()),
+                            resource
+                                .time_stamp
+                                .map(|x| format!("{}", x))
+                                .unwrap_or_else(|| "-".to_string()),
+                            resource
+                                .stampling_time
+                                .map(|x| format!("{}", x))
+                                .unwrap_or_else(|| "-".to_string()),
                             resource.healthy,
                         );
                         let _ = writer.write(line.as_bytes());
@@ -98,12 +102,15 @@ impl OutputHealthCheck for TableOutputHealthCheck {
     }
 }
 
-fn make_row(hc_name: &str, previous_hc_name: &Option<&str>, resource_name: &str, resource: &HealthSample) -> Row {
+fn make_row(
+    hc_name: &str,
+    previous_hc_name: &Option<&str>,
+    resource_name: &str,
+    resource: &HealthSample,
+) -> Row {
     let service_cell = match previous_hc_name {
         Some(name) if name == &hc_name => Cell::new(""),
-        Some(_) | None => {
-            Cell::new(hc_name)
-        }
+        Some(_) | None => Cell::new(hc_name),
     };
 
     let healthy_cell = if resource.healthy {
@@ -113,8 +120,7 @@ fn make_row(hc_name: &str, previous_hc_name: &Option<&str>, resource_name: &str,
     };
 
     let updated_at: Option<DateTime<Local>> = resource.time_stamp.map(|x| {
-        let naive_datetime =
-            NaiveDateTime::from_timestamp(x / 1000, 0);
+        let naive_datetime = NaiveDateTime::from_timestamp(x / 1000, 0);
         Local.from_utc_datetime(&naive_datetime)
     });
 

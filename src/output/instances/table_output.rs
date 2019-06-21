@@ -1,9 +1,5 @@
-use prettytable::cell::Cell;
-use prettytable::format;
-use prettytable::row::Row;
-use prettytable::Table;
-use std::collections::HashMap;
-use std::io::Write;
+use prettytable::{cell::Cell, format, row::Row, Table};
+use std::{collections::HashMap, io::Write};
 use utils::command::ExitStatus;
 
 use output::instances::*;
@@ -42,7 +38,8 @@ impl OutputInstances for TableOutputInstances {
         ));
 
         // We have to create / allocate the Strings first since `Table` only accepts `&str` and some
-        // `InstanceDescriptorFields` need to allocate representations first, e.g., `InstanceDescriptorFields::Tags`
+        // `InstanceDescriptorFields` need to allocate representations first, e.g.,
+        // `InstanceDescriptorFields::Tags`
         let mut rows = Vec::new();
         for instance in instances {
             let row = self
@@ -125,7 +122,8 @@ fn value_for_field(field: &InstanceDescriptorFields, instance: &InstanceDescript
         }
         InstanceDescriptorFields::VirtualizationType => instance.virtualization_type.clone(),
         InstanceDescriptorFields::VpcId => instance.vpc_id.clone(),
-    }.unwrap_or_else(|| String::from("-"))
+    }
+    .unwrap_or_else(|| String::from("-"))
 }
 
 /// Format a `HashMap` of `String` -> `Option<String>` into a single line, pretty string.
