@@ -1,4 +1,4 @@
-all: check build test tests
+all: check build test tests docs
 
 todos:
 	rg --vimgrep -g '!Makefile' -i todo 
@@ -15,6 +15,9 @@ test:
 tests:
 	cd $@ && $(MAKE)
 
+clean-package:
+	cargo clean -p $$(cargo read-manifest | jq -r .name)
+
 use_case_tests: use_cases
 	make -C $<
 
@@ -23,9 +26,13 @@ docs: man
 man:
 	$(MAKE) -C docs
 
-release: release-bump all docs
+release: clean-package release-test release-bump all
 	git commit -am "Bump to version $$(cargo read-manifest | jq .version)"
 	git tag v$$(cargo read-manifest | jq -r .version)
+
+release-test: check test clippy
+	cargo +nightly fmt -- --check
+	cargo publish --dry-run
 
 release-bump:
 	cargo bump
@@ -37,18 +44,18 @@ install:
 	cargo install --force
 
 clippy:
-	rustup run nightly cargo clippy
+	cargo clippy --all --all-targets -- -D warnings $$(source ".clippy.args")
 
 fmt:
-	rustup run nightly cargo fmt
+	cargo +nightly fmt
 
 duplicate_libs:
 	cargo tree -d
 
 _update-clippy_n_fmt:
 	rustup update
-	rustup run nightly cargo install clippy --force
-	rustup component add rustfmt-preview --toolchain=nightly
+	rustup component add clippy
+	rustup component add rustfmt --toolchain=nightly
 
 _cargo_install:
 	cargo install -f cargo-tree
