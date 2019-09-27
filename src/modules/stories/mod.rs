@@ -19,11 +19,14 @@ mod errors {
             StoryIsNotEstimated {
                 description("This story is not yet estimated")
             }
+            OutputFailed {
+                description("Output failed")
+            }
         }
     }
 }
 
 header! { (XTrackerToken, "X-TrackerToken") => [String] }
 
-sub_module!("stories", "Manage stories", prepare, start);
+sub_module!("stories", "Manage stories", export, prepare, start);
 

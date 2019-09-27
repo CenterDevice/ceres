@@ -1,17 +1,11 @@
+use modules::stories::export::Story;
+
+use std::io::Write;
 use std::str::FromStr;
 
-pub mod centerdevice;
-pub mod consul;
-pub mod health;
-pub mod infrastructure;
-pub mod instances;
-pub mod statuspages;
-pub mod stories;
-
 pub enum OutputType {
-    Human,
     Json,
-    Plain,
+    MarkDown,
 }
 
 impl FromStr for OutputType {
@@ -19,15 +13,27 @@ impl FromStr for OutputType {
 
     fn from_str(s: &str) -> ::std::result::Result<Self, Self::Err> {
         match s.to_owned().to_uppercase().as_ref() {
-            "HUMAN" => Ok(OutputType::Human),
             "JSON" => Ok(OutputType::Json),
-            "PLAIN" => Ok(OutputType::Plain),
+            "MARKDOWN" => Ok(OutputType::MarkDown),
             _ => Err(Error::from_kind(ErrorKind::OutputParsingFailed(
                 s.to_owned(),
             ))),
         }
     }
 }
+
+pub mod json_output;
+pub mod markdown_output;
+
+pub use self::{
+    json_output::JsonOutputStory,
+    markdown_output::MarkDownOutputStory,
+};
+
+pub trait OutputStory {
+    fn output<T: Write>(&self, writer: &mut T, story: &Story) -> Result<()>;
+}
+
 
 error_chain! {
     errors {
