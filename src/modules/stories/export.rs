@@ -3,6 +3,7 @@ use futures::{Future, Stream};
 use futures::future::{self, result};
 use reqwest::header::{ContentType, Connection};
 use reqwest::unstable::async::{Client as ReqwestClient};
+use serde::de::DeserializeOwned;
 use serde_json;
 use tokio_core;
 
@@ -82,8 +83,12 @@ fn do_call(args: &ArgMatches, run_config: &RunConfig, config: &Config) -> Result
    let story = core.run(work)?;
    debug!("{:#?}", story);
 
+   let work = get_project_members(&client, project_id, &token);
+   let members = core.run(work)?;
+   debug!("{:#?}", members);
+
    info!("Outputting instance descriptions");
-   output_story(args, run_config, config, &story)?;
+   output_story(args, run_config, config, &story, &members)?;
 
    Ok(())
 }
@@ -196,13 +201,32 @@ pub struct Transition {
     pub performed_by_id: u64,
 }
 
+#[derive(Debug, PartialEq, Serialize, Deserialize)]
+pub struct ProjectMember {
+    pub person: Person,
+}
+
 fn get_story(client: &ReqwestClient, project_id: u64, story_id: u64, token: &str) -> impl Future<Item = Story, Error = Error> {
    let url = format!(
       "https://www.pivotaltracker.com/services/v5/projects/{project_id}/stories/{story_id}?fields=project_id,name,description,requested_by,url,story_type,estimate,current_state,created_at,updated_at,accepted_at,owners,labels,tasks,pull_requests,comments,transitions",
       project_id=project_id,
       story_id=story_id);
+   get(&url, client, token)
+}
+
+fn get_project_members(client: &ReqwestClient, project_id: u64, token: &str) -> impl Future<Item = Vec<ProjectMember>, Error = Error> {
+   let url = format!(
+      "https://www.pivotaltracker.com/services/v5/projects/{project_id}/memberships?fields=person",
+      project_id=project_id);
+   get(&url, client, token)
+}
+
+fn get<T>(url: &str, client: &ReqwestClient, token: &str) -> impl Future<Item = T, Error = Error> 
+where
+    T: DeserializeOwned
+{
     client
-        .get(&url)
+        .get(url)
         .header(Connection::close())
         .header(XTrackerToken(token.to_string()))
         .send()
@@ -214,9 +238,7 @@ fn get_story(client: &ReqwestClient, project_id: u64, story_id: u64, token: &str
         .map_err(|_| Error::from_kind(ErrorKind::FailedToQueryPivotalApi))
         .and_then(|body| {
             trace!("Parsing body.");
-            let body = std::str::from_utf8(&body).unwrap(); // TODO: UNSAFE
-            trace!("Body: {}", body);
-            let res = serde_json::from_str::<Story>(&body)
+            let res = serde_json::from_slice::<T>(&body)
                 .chain_err(|| Error::from_kind(ErrorKind::FailedToQueryPivotalApi));
             result(res)
         })
@@ -227,6 +249,7 @@ fn output_story(
     _: &RunConfig,
     _: &Config,
     story: &Story,
+    members: &[ProjectMember],
 ) -> Result<()> {
     let output_type = args.value_of("output").unwrap() // Safe
         .parse::<OutputType>()
@@ -238,14 +261,14 @@ fn output_story(
             let output = JsonOutputStory;
 
             output
-                .output(&mut stdout, story)
+                .output(&mut stdout, story, members)
                 .chain_err(|| Error::from_kind(ErrorKind::OutputFailed))
         },
         OutputType::MarkDown => {
             let output = MarkDownOutputStory;
 
             output
-                .output(&mut stdout, story)
+                .output(&mut stdout, story, members)
                 .chain_err(|| Error::from_kind(ErrorKind::OutputFailed))
         }
     }

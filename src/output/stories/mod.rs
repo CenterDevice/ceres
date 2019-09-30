@@ -1,4 +1,4 @@
-use modules::stories::export::Story;
+use modules::stories::export::{Story, ProjectMember};
 
 use std::io::Write;
 use std::str::FromStr;
@@ -31,9 +31,8 @@ pub use self::{
 };
 
 pub trait OutputStory {
-    fn output<T: Write>(&self, writer: &mut T, story: &Story) -> Result<()>;
+    fn output<T: Write>(&self, writer: &mut T, story: &Story, members: &[ProjectMember]) -> Result<()>;
 }
-
 
 error_chain! {
     errors {

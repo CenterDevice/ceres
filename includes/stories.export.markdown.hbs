@@ -4,8 +4,8 @@
 **State**: {{current_state}}  
 **Story type**: {{story_type}}  
 **Points**: {{estimate}}  
-**Requester**: {{requested_by.name}}  
-**Owners**: {{#each owners as |owner|}}{{owner.name}}{{/each}}  
+**Requester**: {{requested_by}}  
+**Owners**: {{#each owners as |owner|}}{{owner}}{{/each}}  
 
 ## Description
 {{description}}
@@ -22,13 +22,13 @@
 {{/each}}
 
 ## Comments
-{{#each comments as |comment|}}**{{comment.person_id}} commented on {{comment.created_at}} ({{comment.updated_at}}){{#if comment.commit_type}} via {{comment.commit_type}}{{/if}}**  
+{{#each comments as |comment|}}**{{comment.person}} commented on {{comment.created_at}} ({{comment.updated_at}}){{#if comment.commit_type}} via {{comment.commit_type}}{{/if}}**  
 {{comment.text}}
 
 {{/each}}
 
 ## History
 {{#each transitions as |transition|}}
-  * {{transition.performed_by_id}} **{{transition.state}}** this story on {{transition.occurred_at}}  {{/each}}
-  * {{requested_by.name}} **created** this story on {{created_at}}
+  * {{transition.performed_by}} **{{transition.state}}** this story on {{transition.occurred_at}}  {{/each}}
+  * {{requested_by}} **created** this story on {{created_at}}
 
