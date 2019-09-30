@@ -1,5 +1,4 @@
 use handlebars::Handlebars;
-use serde_json;
 use std::collections::HashMap;
 
 use output::stories::*;
@@ -24,7 +23,7 @@ fn members_to_lookup(members: &[ProjectMember]) -> HashMap<u64, &str> {
 }
 
 fn render<T: Write>(writer: &mut T, story: &formatting::Story) -> Result<()> {
-    let mut reg = Handlebars::new();
+    let reg = Handlebars::new();
 
     let template = include_str!("../../../includes/stories.export.markdown.hbs");
 

@@ -393,7 +393,7 @@ macro_rules! build_resource {
         fn run_commands(commands: Vec<Command>, progress_bar: bool) -> Result<Vec<CommandResult>> {
             let mut results = Vec::new();
             for c in commands.into_iter() {
-                let mut res = run::run(vec![c], progress_bar)
+                let res = run::run(vec![c], progress_bar)
                     .chain_err(|| ErrorKind::FailedToRunCommand)?;
                 if res.iter().filter(|x| !x.exit_status.success()).count() > 0 {
                     results.push(res);

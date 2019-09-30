@@ -1,7 +1,7 @@
 use clap::{App, Arg, ArgMatches, SubCommand};
 use futures::{Future, Stream};
-use futures::future::{self, result};
-use reqwest::header::{ContentType, Connection};
+use futures::future::result;
+use reqwest::header::Connection;
 use reqwest::unstable::async::{Client as ReqwestClient};
 use serde::de::DeserializeOwned;
 use serde_json;
