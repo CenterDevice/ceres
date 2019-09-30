@@ -6,6 +6,10 @@ and this project adheres to [Semantic Versioning](http://semver.org/spec/v2.0.0.
 
 ## [Unreleased]
 
+## [0.0.28] - 2019-09-30
+
+### Added
+* Pivotal Tracker ticket export for markdown and JSON
 
 ## [0.0.27] - 2019-06-21
 
@@ -170,7 +174,8 @@ Add deployments in Travis build.
 ### Changed
 - `instances terminate` uses `warn!` macro instead of yellow `println!` to output warning in case of active dry mode.
 
-[Unreleased]: https://github.com/centerdevice/ceres/compare/v0.0.27...HEAD
+[Unreleased]: https://github.com/centerdevice/ceres/compare/v0.0.28...HEAD
+[0.0.28]: https://github.com/centerdevice/ceres/compare/v0.0.27...v0.0.28
 [0.0.27]: https://github.com/centerdevice/ceres/compare/v0.0.25...v0.0.27
 [0.0.26]: https://github.com/centerdevice/ceres/compare/v0.0.24...v0.0.26
 [0.0.24]: https://github.com/centerdevice/ceres/compare/v0.0.23...v0.0.24
