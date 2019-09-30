@@ -740,6 +740,23 @@ Available options are \f[I]human\f[R] and \f[I]json\f[R]
 .PP
 The \f[I]stories\f[R] modules interacts with the story trackers, i.e.,
 currently PivotalTracker.
+.SS stories export [\f[I]options\f[R]] \f[I]STORY_ID\f[R]
+.PP
+\f[I]stories export\f[R] exports a story in JSON or Markdown format
+including its history, pull-requests, and comments.
+.TP
+.B \f[I]STORY_ID\f[R]
+The id of the story to export.
+The id may start with a `#' the same way, PivotalTracker uses ids.
+If used with `#', then the id needs to be surrounded by tickets to allow
+for shell escaping, e.g., `#12345'.
+.TP
+.B -o, \[en]output \f[I]output\f[R]
+Selects output format [default: markdown] [possible values: json,
+markdown]
+.TP
+.B -p, \[en]project-id \f[I]project-id\f[R]
+Pivotal Tracker project id; default is profile story tracker id
 .SS stories prepare [\f[I]options\f[R]] \f[I]STORY_ID\f[R]
 .PP
 \f[I]stories prepare\f[R] prepares a story.

@@ -24,6 +24,7 @@ failure = "0.1"
 fern = { version = "^0.5", features = ["colored"] }
 futures = "0.1"
 ignore = "0.4.2"
+handlebars = "2.0"
 hubcaps = "^0.4"
 human-panic = "^1.0"
 itertools = "^0.7"

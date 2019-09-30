@@ -566,6 +566,20 @@ The *statuspages* modules interacts with the statuspage.io status pages.
 
 The *stories* modules interacts with the story trackers, i.e., currently PivotalTracker.
 
+### stories export [*options*] *STORY_ID*
+
+  *stories export* exports a story in JSON or Markdown format including its history, pull-requests, and comments.
+
+  *STORY_ID*
+  : The id of the story to export. The id may start with a '#' the same way, PivotalTracker uses ids. If used with '#', then the id needs to be surrounded by tickets to allow for shell escaping, e.g., '#12345'.
+
+  -o, --output *output*
+  : Selects output format [default: markdown]  [possible values: json, markdown]
+
+  -p, --project-id *project-id*
+  : Pivotal Tracker project id; default is profile story tracker id
+
+
 ### stories prepare [*options*] *STORY_ID*
 
   *stories prepare* prepares a story. Currently, the 13 steps from the infrastructure story process are added as tasks. These tasks are only added, if the story does not have any other tasks. This behavior can be change with the *--force* flag.

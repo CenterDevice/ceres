@@ -8,6 +8,7 @@ extern crate clap;
 extern crate error_chain;
 extern crate failure;
 extern crate futures;
+extern crate handlebars;
 extern crate hubcaps;
 extern crate ignore;
 extern crate itertools;
