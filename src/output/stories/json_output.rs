@@ -9,4 +9,3 @@ impl OutputStory for JsonOutputStory {
         serde_json::to_writer_pretty(writer, story).chain_err(|| ErrorKind::OutputFailed)
     }
 }
-

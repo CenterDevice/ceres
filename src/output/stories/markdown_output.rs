@@ -6,7 +6,12 @@ use output::stories::*;
 pub struct MarkDownOutputStory;
 
 impl OutputStory for MarkDownOutputStory {
-    fn output<T: Write>(&self, writer: &mut T, story: &Story, members: &[ProjectMember]) -> Result<()> {
+    fn output<T: Write>(
+        &self,
+        writer: &mut T,
+        story: &Story,
+        members: &[ProjectMember],
+    ) -> Result<()> {
         let lookup = members_to_lookup(&members);
 
         use self::formatting::FromWithPersonLookup;
@@ -27,9 +32,12 @@ fn render<T: Write>(writer: &mut T, story: &formatting::Story) -> Result<()> {
 
     let template = include_str!("../../../includes/stories.export.markdown.hbs");
 
-    let md = reg.render_template(template, story)
+    let md = reg
+        .render_template(template, story)
         .chain_err(|| ErrorKind::OutputFailed)?;
-    writer.write(md.as_bytes()).chain_err(|| ErrorKind::OutputFailed)?;
+    writer
+        .write(md.as_bytes())
+        .chain_err(|| ErrorKind::OutputFailed)?;
 
     Ok(())
 }
@@ -37,7 +45,7 @@ fn render<T: Write>(writer: &mut T, story: &formatting::Story) -> Result<()> {
 mod formatting {
     use std::collections::HashMap;
 
-    use modules::stories::export::{self, Label, PullRequest, StoryType, StoryState, Task};
+    use modules::stories::export::{self, Label, PullRequest, StoryState, StoryType, Task};
 
     pub trait FromWithPersonLookup<'a, T> {
         fn from_with(_: &'a T, persons: &HashMap<u64, &'a str>) -> Self;
@@ -84,8 +92,16 @@ mod formatting {
                 labels: s.labels.as_ref(),
                 tasks: s.tasks.as_ref(),
                 pull_requests: s.pull_requests.as_ref(),
-                comments: s.comments.iter().map(|c| Comment::from_with(c, persons)).collect(),
-                transitions: s.transitions.iter().map(|c| Transition::from_with(c, persons)).collect(),
+                comments: s
+                    .comments
+                    .iter()
+                    .map(|c| Comment::from_with(c, persons))
+                    .collect(),
+                transitions: s
+                    .transitions
+                    .iter()
+                    .map(|c| Transition::from_with(c, persons))
+                    .collect(),
             }
         }
     }
@@ -125,7 +141,7 @@ mod formatting {
             Transition {
                 state: &t.state,
                 occurred_at: &t.occurred_at,
-                performed_by: persons.get(&t.performed_by_id).unwrap_or(&"<unknown>")
+                performed_by: persons.get(&t.performed_by_id).unwrap_or(&"<unknown>"),
             }
         }
     }

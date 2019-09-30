@@ -1,7 +1,6 @@
-use modules::stories::export::{Story, ProjectMember};
+use modules::stories::export::{ProjectMember, Story};
 
-use std::io::Write;
-use std::str::FromStr;
+use std::{io::Write, str::FromStr};
 
 pub enum OutputType {
     Json,
@@ -25,13 +24,15 @@ impl FromStr for OutputType {
 pub mod json_output;
 pub mod markdown_output;
 
-pub use self::{
-    json_output::JsonOutputStory,
-    markdown_output::MarkDownOutputStory,
-};
+pub use self::{json_output::JsonOutputStory, markdown_output::MarkDownOutputStory};
 
 pub trait OutputStory {
-    fn output<T: Write>(&self, writer: &mut T, story: &Story, members: &[ProjectMember]) -> Result<()>;
+    fn output<T: Write>(
+        &self,
+        writer: &mut T,
+        story: &Story,
+        members: &[ProjectMember],
+    ) -> Result<()>;
 }
 
 error_chain! {
