@@ -108,7 +108,7 @@ mod formatting {
 
     #[derive(Debug, Serialize)]
     pub struct Comment<'a> {
-        pub text: &'a str,
+        pub text: String,
         pub person: &'a str,
         pub commit_identifier: Option<&'a String>,
         pub commit_type: Option<&'a String>,
@@ -119,7 +119,8 @@ mod formatting {
     impl<'b, 'a: 'b> FromWithPersonLookup<'a, export::Comment> for Comment<'b> {
         fn from_with(c: &'a export::Comment, persons: &HashMap<u64, &'a str>) -> Self {
             Comment {
-                text: &c.text,
+                // TODO: This fall back message must not be true; it's just a heuristic right now
+                text: c.text.as_ref().map(|t| t.to_string()).unwrap_or_else(|| "_Some Attachemnt_".to_string()),
                 person: persons.get(&c.person_id).unwrap_or(&"<unknown>"),
                 commit_identifier: c.commit_identifier.as_ref(),
                 commit_type: c.commit_type.as_ref(),

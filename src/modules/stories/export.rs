@@ -186,7 +186,7 @@ pub struct PullRequest {
 #[derive(Debug, PartialEq, Serialize, Deserialize)]
 pub struct Comment {
     pub id: u64,
-    pub text: String,
+    pub text: Option<String>,
     pub person_id: u64,
     pub commit_identifier: Option<String>,
     pub commit_type: Option<String>,
