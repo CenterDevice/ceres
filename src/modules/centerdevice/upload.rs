@@ -133,7 +133,7 @@ fn upload_file(centerdevice: &CenterDeviceConfig, upload: Upload) -> Result<ID> 
     result
 }
 
-fn output_id(output_type: OutputType, id: &ID) -> Result<()> {
+fn output_id(output_type: OutputType, id: &str) -> Result<()> {
     let mut stdout = ::std::io::stdout();
 
     match output_type {

@@ -1,4 +1,3 @@
-use centerdevice::client::ID;
 use prettytable::{
     cell::Cell,
     format,
@@ -11,16 +10,16 @@ use std::io::Write;
 use output::*;
 
 pub trait OutputUploadId {
-    fn output<T: Write>(&self, writer: &mut T, id: &ID) -> Result<()>;
+    fn output<T: Write>(&self, writer: &mut T, id: &str) -> Result<()>;
 }
 
 pub struct JsonOutputUploadId;
 
 impl OutputUploadId for JsonOutputUploadId {
-    fn output<T: Write>(&self, writer: &mut T, id: &ID) -> Result<()> {
+    fn output<T: Write>(&self, writer: &mut T, id: &str) -> Result<()> {
         #[derive(Serialize)]
         struct JsonID<'a> {
-            id: &'a ID,
+            id: &'a str
         }
         let id = JsonID { id: &id };
 
@@ -31,9 +30,8 @@ impl OutputUploadId for JsonOutputUploadId {
 pub struct PlainOutputUploadId;
 
 impl OutputUploadId for PlainOutputUploadId {
-    fn output<T: Write>(&self, writer: &mut T, id: &ID) -> Result<()> {
-        let line = format!("{}", id,);
-        writer.write(line.as_bytes()).chain_err(|| ErrorKind::OutputFailed)?;
+    fn output<T: Write>(&self, writer: &mut T, id: &str) -> Result<()> {
+        writer.write(id.to_string().as_bytes()).chain_err(|| ErrorKind::OutputFailed)?;
 
         Ok(())
     }
@@ -42,7 +40,7 @@ impl OutputUploadId for PlainOutputUploadId {
 pub struct TableOutputUploadId;
 
 impl OutputUploadId for TableOutputUploadId {
-    fn output<T: Write>(&self, writer: &mut T, id: &ID) -> Result<()> {
+    fn output<T: Write>(&self, writer: &mut T, id: &str) -> Result<()> {
         let mut table = Table::new();
         table.set_format(*format::consts::FORMAT_NO_LINESEP_WITH_TITLE);
 
