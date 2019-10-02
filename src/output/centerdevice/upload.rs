@@ -1,9 +1,4 @@
-use prettytable::{
-    cell::Cell,
-    format,
-    row::Row,
-    Table,
-};
+use prettytable::{cell::Cell, format, row::Row, Table};
 use serde_json;
 use std::io::Write;
 
@@ -19,7 +14,7 @@ impl OutputUploadId for JsonOutputUploadId {
     fn output<T: Write>(&self, writer: &mut T, id: &str) -> Result<()> {
         #[derive(Serialize)]
         struct JsonID<'a> {
-            id: &'a str
+            id: &'a str,
         }
         let id = JsonID { id: &id };
 
@@ -31,7 +26,9 @@ pub struct PlainOutputUploadId;
 
 impl OutputUploadId for PlainOutputUploadId {
     fn output<T: Write>(&self, writer: &mut T, id: &str) -> Result<()> {
-        writer.write(id.to_string().as_bytes()).chain_err(|| ErrorKind::OutputFailed)?;
+        writer
+            .write(id.to_string().as_bytes())
+            .chain_err(|| ErrorKind::OutputFailed)?;
 
         Ok(())
     }
