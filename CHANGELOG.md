@@ -6,6 +6,8 @@ and this project adheres to [Semantic Versioning](http://semver.org/spec/v2.0.0.
 
 ## [Unreleased]
 
+## [0.0.30] - 2019-10-02
+
 ### Fixes
 * [#125](https://github.com/CenterDevice/ceres/issues/125): Fehlerhafte Ceres Dokumentation für den CenterDevice Upload 
 * [#126](https://github.com/CenterDevice/ceres/issues/126): Ceres CenterDevice Aufrufe sollten JSON als Output zurückgeben
@@ -183,7 +185,8 @@ Add deployments in Travis build.
 ### Changed
 - `instances terminate` uses `warn!` macro instead of yellow `println!` to output warning in case of active dry mode.
 
-[Unreleased]: https://github.com/centerdevice/ceres/compare/v0.0.29...HEAD
+[Unreleased]: https://github.com/centerdevice/ceres/compare/v0.0.30...HEAD
+[0.0.30]: https://github.com/centerdevice/ceres/compare/v0.0.29...v0.0.30
 [0.0.29]: https://github.com/centerdevice/ceres/compare/v0.0.28...v0.0.29
 [0.0.28]: https://github.com/centerdevice/ceres/compare/v0.0.27...v0.0.28
 [0.0.27]: https://github.com/centerdevice/ceres/compare/v0.0.25...v0.0.27
