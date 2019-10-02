@@ -6,6 +6,9 @@ and this project adheres to [Semantic Versioning](http://semver.org/spec/v2.0.0.
 
 ## [Unreleased]
 
+### Fixes
+* [#125](https://github.com/CenterDevice/ceres/issues/125): Fehlerhafte Ceres Dokumentation für den CenterDevice Upload 
+
 ## [0.0.29] - 2019-10-01
 
 ### Fixes
