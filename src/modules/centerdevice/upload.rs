@@ -44,18 +44,20 @@ impl Module for SubModule {
                 .short("t")
                 .takes_value(true)
                 .multiple(true)
+                .use_delimiter(true)
+                .number_of_values(1)
                 .help("Sets tag for document"))
             .arg(Arg::with_name("collection")
                 .long("collection")
                 .short("c")
                 .takes_value(true)
                 .multiple(true)
+                .use_delimiter(true)
+                .number_of_values(1)
                 .help("Set collection id to add document to"))
             .arg(Arg::with_name("file")
-                .index(1)
                 .required(true)
-                .help("file to upload")
-            )
+                .help("file to upload"))
     }
 
     fn call(cli_args: Option<&ArgMatches>, run_config: &RunConfig, config: &Config) -> ModuleResult<()> {
