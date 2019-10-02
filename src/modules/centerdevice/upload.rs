@@ -12,6 +12,8 @@ use config::{CeresConfig as Config, CenterDevice as CenterDeviceConfig};
 use run_config::RunConfig;
 use modules::{Result as ModuleResult, Error as ModuleError, ErrorKind as ModuleErrorKind, Module};
 use modules::centerdevice::errors::*;
+use output::OutputType;
+use output::centerdevice::upload::*;
 
 pub const NAME: &str = "upload";
 
@@ -55,6 +57,13 @@ impl Module for SubModule {
                 .use_delimiter(true)
                 .number_of_values(1)
                 .help("Set collection id to add document to"))
+            .arg(Arg::with_name("output")
+                .long("output")
+                .short("o")
+                .takes_value(true)
+                .default_value("human")
+                .possible_values(&["human", "json", "plain"])
+                .help("Selects output format"))
             .arg(Arg::with_name("file")
                 .required(true)
                 .help("file to upload"))
@@ -86,6 +95,9 @@ fn do_call(args: &ArgMatches, run_config: &RunConfig, config: &Config) -> Result
     } else {
         mime_guess::get_mime_type(&file_path)
     };
+    let output_type = args.value_of("output").unwrap() // Safe
+        .parse::<OutputType>()
+        .chain_err(|| ErrorKind::FailedToParseOutputType)?;
 
     let path = Path::new(file_path);
     let mut upload = Upload::new(path, mime_type)
@@ -106,6 +118,8 @@ fn do_call(args: &ArgMatches, run_config: &RunConfig, config: &Config) -> Result
     let id = upload_file(centerdevice, upload)?;
     info!("Successfully created document with id '{}'.", id);
 
+    output_id(output_type, &id)?;
+
     Ok(())
 }
 
@@ -117,4 +131,32 @@ fn upload_file(centerdevice: &CenterDeviceConfig, upload: Upload) -> Result<ID> 
     debug!("Upload result {:#?}", result);
 
     result
+}
+
+fn output_id(output_type: OutputType, id: &ID) -> Result<()> {
+    let mut stdout = ::std::io::stdout();
+
+    match output_type {
+        OutputType::Human => {
+            let output = TableOutputUploadId;
+
+            output
+                .output(&mut stdout, id)
+                .chain_err(|| ErrorKind::FailedOutput)
+        },
+        OutputType::Json => {
+            let output = JsonOutputUploadId;
+
+            output
+                .output(&mut stdout, id)
+                .chain_err(|| ErrorKind::FailedOutput)
+        },
+        OutputType::Plain => {
+            let output = PlainOutputUploadId;
+
+            output
+                .output(&mut stdout, id)
+                .chain_err(|| ErrorKind::FailedOutput)
+        },
+    }
 }

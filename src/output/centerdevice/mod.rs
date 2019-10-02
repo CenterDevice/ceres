@@ -2,6 +2,7 @@ use std::collections::HashMap;
 
 pub mod collections;
 pub mod search;
+pub mod upload;
 pub mod users;
 
 fn map_user_id_to_name<'a, 'b: 'a>(
