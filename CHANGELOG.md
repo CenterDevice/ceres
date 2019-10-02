@@ -8,6 +8,7 @@ and this project adheres to [Semantic Versioning](http://semver.org/spec/v2.0.0.
 
 ### Fixes
 * [#125](https://github.com/CenterDevice/ceres/issues/125): Fehlerhafte Ceres Dokumentation für den CenterDevice Upload 
+* [#126](https://github.com/CenterDevice/ceres/issues/126): Ceres CenterDevice Aufrufe sollten JSON als Output zurückgeben
 
 ## [0.0.29] - 2019-10-01
 
