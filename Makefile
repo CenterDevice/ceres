@@ -31,6 +31,7 @@ release: clean-package release-test release-bump all
 	git tag v$$(cargo read-manifest | jq -r .version)
 
 release-test: check test clippy
+	cargo audit --deny-warnings
 	cargo +nightly fmt -- --check
 	cargo publish --dry-run
 
