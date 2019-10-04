@@ -408,7 +408,6 @@ pub mod ssh {
 
         ssh_args
     }
-
 }
 
 error_chain! {
