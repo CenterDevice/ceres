@@ -2,7 +2,7 @@ on:
   push: 
   pull_request:
   schedule:
-    - cron:  '* 01 * * *'
+    - cron:  '01 01 * * *'
 
 name: CI
 
