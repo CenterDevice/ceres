@@ -14,8 +14,8 @@ jobs:
       fail-fast: false
       matrix:
         os:
-          # - name: ubuntu-latest
-          #  allow_fail: true
+          - name: ubuntu-latest
+            allow_fail: false
           - name: macOS-latest
             allow_fail: false
         rust:
@@ -50,7 +50,7 @@ jobs:
     strategy:
       matrix:
         os:
-          # - name: ubuntu-latest
+          - name: ubuntu-latest
           - name: macOS-latest
         rust:
           - name: stable
@@ -79,7 +79,7 @@ jobs:
     strategy:
       matrix:
         os:
-          # - name: ubuntu-latest
+          - name: ubuntu-latest
           - name: macOS-latest
     steps:
       - name: Checkout sources
@@ -143,8 +143,8 @@ jobs:
       fail-fast: false
       matrix:
         os:
-          # - name: ubuntu-latest
-          #  allow_fail: true
+          - name: ubuntu-latest
+            allow_fail: false
           - name: macOS-latest
             allow_fail: false
         rust:
