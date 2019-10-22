@@ -15,16 +15,17 @@ use modules::stories::errors::*;
 pub const NAME: &str = "prepare";
 
 pub const TASKS: &[&str] = &[
-    "Detail Planning",
-    "Feature Branch erzeugen",
-    "Fachliche Entwicklung inklusive Tests und Dokumentation",
-    "Review anfordern",
-    "Fachliche Abnahme anfordern",
-    "Vorbereitungen für Deployment treffen",
-    "Genehmigung für Deployment anfordern",
-    "Pull Request Merge durchführen",
-    "Deployment durchführen",
-    "Verfügbarkeit in Prod prüfen",
+    "Detail Planning including Risk Assessment",
+    "Document Risk Assessment",
+    "Prepare Feature Branch",
+    "Functional Development including Tests and Documentation",
+    "Request Code Review",
+    "Request Functional Review",
+    "Prepare Deployment",
+    "Request Deployment Approval",
+    "Merge Pull Request",
+    "Execute Deployment",
+    "Check Availability in Production",
 ];
 
 pub struct SubModule;
