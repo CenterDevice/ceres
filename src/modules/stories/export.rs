@@ -1,10 +1,5 @@
 use clap::{App, Arg, ArgMatches, SubCommand};
-use futures::{Future, Stream};
-use futures::future::result;
-use reqwest::header::Connection;
 use reqwest::unstable::async::{Client as ReqwestClient};
-use serde::de::DeserializeOwned;
-use serde_json;
 use tokio_core;
 
 use config::CeresConfig as Config;
@@ -12,7 +7,7 @@ use run_config::RunConfig;
 use output::stories::OutputType;
 use output::stories::{JsonOutputStory, MarkDownOutputStory, OutputStory};
 use modules::{Result as ModuleResult, Error as ModuleError, ErrorKind as ModuleErrorKind, Module};
-use modules::stories::XTrackerToken;
+use modules::stories::pivotal_api::*;
 use modules::stories::errors::*;
 
 pub const NAME: &str = "export";
@@ -91,157 +86,6 @@ fn do_call(args: &ArgMatches, run_config: &RunConfig, config: &Config) -> Result
    output_story(args, run_config, config, &story, &members)?;
 
    Ok(())
-}
-
-#[derive(Debug, Serialize, Deserialize)]
-pub struct Story {
-   pub id: u64,
-   pub project_id: Option<u64>,
-   pub name: Option<String>,
-   pub description: Option<String>,
-   pub url: Option<String>,
-   pub story_type: Option<StoryType>,
-   pub current_state: Option<StoryState>,
-   pub estimate: Option<f32>,
-   pub created_at: Option<String>,
-   pub updated_at: Option<String>,
-   pub accepted_at: Option<String>,
-   pub requested_by: Person,
-   pub owners: Vec<Person>,
-   pub labels: Vec<Label>,
-   pub tasks: Vec<Task>,
-   pub pull_requests: Vec<PullRequest>,
-   pub comments: Vec<Comment>,
-   pub transitions: Vec<Transition>,
-}
-
-#[derive(Debug, PartialEq, Serialize, Deserialize)]
-pub enum StoryType {
-    #[serde(rename = "feature")]
-    Feature,
-    #[serde(rename = "bug")]
-    Bug,
-    #[serde(rename = "chore")]
-    Chore,
-    #[serde(rename = "release")]
-    Release,
-}
-
-#[derive(Debug, PartialEq, Serialize, Deserialize)]
-pub enum StoryState {
-   #[serde(rename = "accepted")]
-   Accepted,
-   #[serde(rename = "delivered")]
-   Delivered,
-   #[serde(rename = "finished")]
-   Finished,
-   #[serde(rename = "started")]
-   Started,
-   #[serde(rename = "rejected")]
-   Rejected,
-   #[serde(rename = "planned")]
-   Planned,
-   #[serde(rename = "unstarted")]
-   Unstarted,
-   #[serde(rename = "unscheduled")]
-   Unscheduled,
-}
-
-#[derive(Debug, PartialEq, Serialize, Deserialize)]
-pub struct Person {
-    pub id: u64,
-    pub name: String,
-    pub email: String,
-    pub initials: String,
-    pub username: String,
-}
-
-#[derive(Debug, PartialEq, Serialize, Deserialize)]
-pub struct Label {
-    pub id: u64,
-    pub name: String,
-}
-
-#[derive(Debug, PartialEq, Serialize, Deserialize)]
-pub struct Task {
-    pub id: u64,
-    pub description: String,
-    pub complete: bool,
-    pub position: u64,
-    pub created_at: String,
-    pub updated_at: String,
-}
-
-#[derive(Debug, PartialEq, Serialize, Deserialize)]
-pub struct PullRequest {
-    pub id: u64,
-    pub owner: String,
-    pub repo: String,
-    pub number: u64,
-    pub host_url: String,
-    pub created_at: String,
-    pub updated_at: String,
-}
-
-#[derive(Debug, PartialEq, Serialize, Deserialize)]
-pub struct Comment {
-    pub id: u64,
-    pub text: Option<String>,
-    pub person_id: u64,
-    pub commit_identifier: Option<String>,
-    pub commit_type: Option<String>,
-    pub created_at: String,
-    pub updated_at: String,
-}
-
-#[derive(Debug, PartialEq, Serialize, Deserialize)]
-pub struct Transition {
-    pub state: StoryState,
-    pub occurred_at: String,
-    pub performed_by_id: u64,
-}
-
-#[derive(Debug, PartialEq, Serialize, Deserialize)]
-pub struct ProjectMember {
-    pub person: Person,
-}
-
-fn get_story(client: &ReqwestClient, project_id: u64, story_id: u64, token: &str) -> impl Future<Item = Story, Error = Error> {
-   let url = format!(
-      "https://www.pivotaltracker.com/services/v5/projects/{project_id}/stories/{story_id}?fields=project_id,name,description,requested_by,url,story_type,estimate,current_state,created_at,updated_at,accepted_at,owners,labels,tasks,pull_requests,comments,transitions",
-      project_id=project_id,
-      story_id=story_id);
-   get(&url, client, token)
-}
-
-fn get_project_members(client: &ReqwestClient, project_id: u64, token: &str) -> impl Future<Item = Vec<ProjectMember>, Error = Error> {
-   let url = format!(
-      "https://www.pivotaltracker.com/services/v5/projects/{project_id}/memberships?fields=person",
-      project_id=project_id);
-   get(&url, client, token)
-}
-
-fn get<T>(url: &str, client: &ReqwestClient, token: &str) -> impl Future<Item = T, Error = Error> 
-where
-    T: DeserializeOwned
-{
-    client
-        .get(url)
-        .header(Connection::close())
-        .header(XTrackerToken(token.to_string()))
-        .send()
-        .and_then(|res| {
-            trace!("Received response with status = {}.", res.status());
-            let body = res.into_body();
-            body.concat2()
-        })
-        .map_err(|_| Error::from_kind(ErrorKind::FailedToQueryPivotalApi))
-        .and_then(|body| {
-            trace!("Parsing body.");
-            let res = serde_json::from_slice::<T>(&body)
-                .chain_err(|| Error::from_kind(ErrorKind::FailedToQueryPivotalApi));
-            result(res)
-        })
 }
 
 fn output_story(

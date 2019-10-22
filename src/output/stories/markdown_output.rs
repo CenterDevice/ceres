@@ -45,7 +45,7 @@ fn render<T: Write>(writer: &mut T, story: &formatting::Story) -> Result<()> {
 mod formatting {
     use std::collections::HashMap;
 
-    use modules::stories::export::{self, Label, PullRequest, StoryState, StoryType, Task};
+    use modules::stories::pivotal_api::{self, Label, PullRequest, StoryState, StoryType, Task};
 
     pub trait FromWithPersonLookup<'a, T> {
         fn from_with(_: &'a T, persons: &HashMap<u64, &'a str>) -> Self;
@@ -73,8 +73,8 @@ mod formatting {
         pub transitions: Vec<Transition<'a>>,
     }
 
-    impl<'b, 'a: 'b> FromWithPersonLookup<'a, export::Story> for Story<'b> {
-        fn from_with(s: &'a export::Story, persons: &HashMap<u64, &'a str>) -> Self {
+    impl<'b, 'a: 'b> FromWithPersonLookup<'a, pivotal_api::Story> for Story<'b> {
+        fn from_with(s: &'a pivotal_api::Story, persons: &HashMap<u64, &'a str>) -> Self {
             Story {
                 id: s.id,
                 project_id: s.project_id.as_ref(),
@@ -116,8 +116,8 @@ mod formatting {
         pub updated_at: &'a str,
     }
 
-    impl<'b, 'a: 'b> FromWithPersonLookup<'a, export::Comment> for Comment<'b> {
-        fn from_with(c: &'a export::Comment, persons: &HashMap<u64, &'a str>) -> Self {
+    impl<'b, 'a: 'b> FromWithPersonLookup<'a, pivotal_api::Comment> for Comment<'b> {
+        fn from_with(c: &'a pivotal_api::Comment, persons: &HashMap<u64, &'a str>) -> Self {
             Comment {
                 // TODO: This fall back message must not be true; it's just a heuristic right now
                 text: c
@@ -141,8 +141,8 @@ mod formatting {
         pub performed_by: &'a str,
     }
 
-    impl<'b, 'a: 'b> FromWithPersonLookup<'a, export::Transition> for Transition<'b> {
-        fn from_with(t: &'a export::Transition, persons: &HashMap<u64, &'a str>) -> Self {
+    impl<'b, 'a: 'b> FromWithPersonLookup<'a, pivotal_api::Transition> for Transition<'b> {
+        fn from_with(t: &'a pivotal_api::Transition, persons: &HashMap<u64, &'a str>) -> Self {
             Transition {
                 state: &t.state,
                 occurred_at: &t.occurred_at,

@@ -9,6 +9,7 @@ use tokio_core;
 use config::CeresConfig as Config;
 use run_config::RunConfig;
 use modules::{Result as ModuleResult, Error as ModuleError, ErrorKind as ModuleErrorKind, Module};
+use modules::stories::pivotal_api::*;
 use modules::stories::XTrackerToken;
 use modules::stories::errors::*;
 
@@ -76,9 +77,9 @@ fn do_call(args: &ArgMatches, run_config: &RunConfig, config: &Config) -> Result
      .chain_err(|| ErrorKind::FailedToQueryPivotalApi)?;
    let client = ReqwestClient::new(&core.handle());
 
-   let f = get_tasks(&client, project_id, story_id, &token)
-      .and_then(|tasks|
-         if tasks.is_empty() || force {
+   let f = get_story(&client, project_id, story_id, &token)
+      .and_then(|story|
+         if story.tasks.is_empty() || force {
             future::ok(())
          } else {
             future::err(Error::from_kind(ErrorKind::StoryHasTasksAlready))
@@ -100,82 +101,3 @@ fn do_call(args: &ArgMatches, run_config: &RunConfig, config: &Config) -> Result
 
    Ok(())
 }
-
-#[derive(Debug, Deserialize)]
-pub struct TaskResponse {
-   pub id: u64,
-   pub story_id: u64,
-   pub kind: String,
-   pub position: u64,
-   pub description: String,
-   pub complete: bool,
-   pub created_at: String,
-   pub updated_at: String,
-}
-
-fn get_tasks(client: &ReqwestClient, project_id: u64, story_id: u64, token: &str) -> impl Future<Item = Vec<TaskResponse>, Error = Error> {
-   let url = format!(
-      "https://www.pivotaltracker.com/services/v5/projects/{project_id}/stories/{story_id}/tasks",
-      project_id=project_id,
-      story_id=story_id);
-    client
-        .get(&url)
-        .header(Connection::close())
-        .header(XTrackerToken(token.to_string()))
-        .send()
-        .and_then(|res| {
-            trace!("Received response with status = {}.", res.status());
-            let body = res.into_body();
-            body.concat2()
-        })
-        .map_err(|_| Error::from_kind(ErrorKind::FailedToQueryPivotalApi))
-        .and_then(|body| {
-            trace!("Parsing body.");
-            let res = serde_json::from_slice::<Vec<TaskResponse>>(&body)
-                .chain_err(|| Error::from_kind(ErrorKind::FailedToQueryPivotalApi));
-            result(res)
-        })
-}
-
-fn create_task(
-   client: &ReqwestClient,
-   project_id: u64,
-   story_id: u64,
-   token: &str,
-   position: usize,
-   description: &str,
-) -> impl Future<Item = TaskResponse, Error = Error> {
-      let url = format!(
-      "https://www.pivotaltracker.com/services/v5/projects/{project_id}/stories/{story_id}/tasks",
-      project_id=project_id,
-      story_id=story_id);
-
-   let data = json!({
-      "description": format!("{}. {}", position, description),
-      "position": position
-   }).to_string();
-
-   trace!("Task: {:?}", data);
-
-   client
-      .post(&url)
-      .header(Connection::close())
-      .header(ContentType::json())
-      .header(XTrackerToken(token.to_string()))
-      .body(data)
-      .send()
-      .and_then(|res| {
-          trace!("Received response with status = {}.", res.status());
-          let body = res.into_body();
-          body.concat2()
-      })
-      .map_err(|_| Error::from_kind(ErrorKind::FailedToQueryPivotalApi))
-      .and_then(|body| {
-         let body = String::from_utf8_lossy(&body).to_string();
-         trace!("Parsing body {:?}", &body);
-         let task = serde_json::from_slice::<TaskResponse>(&body.as_bytes())
-            .chain_err(|| Error::from_kind(ErrorKind::FailedToQueryPivotalApi));
-         result(task)
-      })
-}
-

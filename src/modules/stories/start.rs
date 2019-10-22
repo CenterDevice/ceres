@@ -1,15 +1,13 @@
 use clap::{App, Arg, ArgMatches, SubCommand};
-use futures::{Future, Stream};
-use futures::future::{self, result};
-use reqwest::header::{ContentType, Connection};
+use futures::Future;
+use futures::future;
 use reqwest::unstable::async::{Client as ReqwestClient};
-use serde_json;
 use tokio_core;
 
 use config::CeresConfig as Config;
 use run_config::RunConfig;
 use modules::{Result as ModuleResult, Error as ModuleError, ErrorKind as ModuleErrorKind, Module};
-use modules::stories::XTrackerToken;
+use modules::stories::pivotal_api::*;
 use modules::stories::errors::*;
 
 pub const NAME: &str = "start";
@@ -66,7 +64,7 @@ fn do_call(args: &ArgMatches, run_config: &RunConfig, config: &Config) -> Result
       .and_then(|story|
          if story.estimate.is_none() {
             future::err(Error::from_kind(ErrorKind::StoryIsNotEstimated))
-         } else if story.current_state == StoryState::Unstarted || force {
+         } else if story.current_state == Some(StoryState::Unstarted) || force {
             future::ok(story)
          } else {
             future::err(Error::from_kind(ErrorKind::StoryAlreadyStarted))
@@ -80,98 +78,5 @@ fn do_call(args: &ArgMatches, run_config: &RunConfig, config: &Config) -> Result
    debug!("{:#?}", result);
 
    Ok(())
-}
-
-#[derive(Debug, PartialEq, Serialize, Deserialize)]
-pub enum StoryState {
-   #[serde(rename = "accepted")]
-   Accepted,
-   #[serde(rename = "delivered")]
-   Delivered,
-   #[serde(rename = "finished")]
-   Finished,
-   #[serde(rename = "started")]
-   Started,
-   #[serde(rename = "rejected")]
-   Rejected,
-   #[serde(rename = "planned")]
-   Planned,
-   #[serde(rename = "unstarted")]
-   Unstarted,
-   #[serde(rename = "unscheduled")]
-   Unscheduled,
-}
-
-#[derive(Debug, Deserialize)]
-pub struct StoryResponse {
-   pub id: u64,
-   pub kind: String,
-   pub current_state: StoryState,
-   pub estimate: Option<f32>,
-}
-
-fn get_story(client: &ReqwestClient, project_id: u64, story_id: u64, token: &str) -> impl Future<Item = StoryResponse, Error = Error> {
-   let url = format!(
-      "https://www.pivotaltracker.com/services/v5/projects/{project_id}/stories/{story_id}",
-      project_id=project_id,
-      story_id=story_id);
-    client
-        .get(&url)
-        .header(Connection::close())
-        .header(XTrackerToken(token.to_string()))
-        .send()
-        .and_then(|res| {
-            trace!("Received response with status = {}.", res.status());
-            let body = res.into_body();
-            body.concat2()
-        })
-        .map_err(|_| Error::from_kind(ErrorKind::FailedToQueryPivotalApi))
-        .and_then(|body| {
-            trace!("Parsing body.");
-            let res = serde_json::from_slice::<StoryResponse>(&body)
-                .chain_err(|| Error::from_kind(ErrorKind::FailedToQueryPivotalApi));
-            result(res)
-        })
-}
-
-fn start_story(
-   client: &ReqwestClient,
-   project_id: u64,
-   story_id: u64,
-   token: &str,
-) -> impl Future<Item = StoryResponse, Error = Error> {
-      let url = format!(
-      "https://www.pivotaltracker.com/services/v5/projects/{project_id}/stories/{story_id}",
-      project_id=project_id,
-      story_id=story_id);
-
-   #[derive(Debug, Serialize)]
-   struct StoryRequest {
-      current_state: StoryState,
-   }
-   let data = serde_json::to_string( &StoryRequest { current_state: StoryState::Started } ).unwrap(); // This is safe
-
-   trace!("Story StoryRequest: {:?}", data);
-
-   client
-      .put(&url)
-      .header(Connection::close())
-      .header(ContentType::json())
-      .header(XTrackerToken(token.to_string()))
-      .body(data)
-      .send()
-      .and_then(|res| {
-          trace!("Received response with status = {}.", res.status());
-          let body = res.into_body();
-          body.concat2()
-      })
-      .map_err(|_| Error::from_kind(ErrorKind::FailedToQueryPivotalApi))
-      .and_then(|body| {
-         let body = String::from_utf8_lossy(&body).to_string();
-         trace!("Parsing body {:?}", &body);
-         let task = serde_json::from_slice::<StoryResponse>(&body.as_bytes())
-            .chain_err(|| Error::from_kind(ErrorKind::FailedToQueryPivotalApi));
-         result(task)
-      })
 }
 
