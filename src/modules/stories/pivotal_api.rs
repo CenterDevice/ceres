@@ -21,12 +21,18 @@ pub struct Story {
    pub created_at: Option<String>,
    pub updated_at: Option<String>,
    pub accepted_at: Option<String>,
-   pub requested_by: Person,
+   pub requested_by: Option<Person>,
+   #[serde(default)]
    pub owners: Vec<Person>,
+   #[serde(default)]
    pub labels: Vec<Label>,
+   #[serde(default)]
    pub tasks: Vec<Task>,
+   #[serde(default)]
    pub pull_requests: Vec<PullRequest>,
+   #[serde(default)]
    pub comments: Vec<Comment>,
+   #[serde(default)]
    pub transitions: Vec<Transition>,
 }
 
@@ -200,6 +206,7 @@ pub fn start_story(
       })
 }
 
+
 pub fn create_task(
    client: &ReqwestClient,
    project_id: u64,
@@ -222,6 +229,47 @@ pub fn create_task(
 
    client
       .post(&url)
+      .header(Connection::close())
+      .header(ContentType::json())
+      .header(XTrackerToken(token.to_string()))
+      .body(data)
+      .send()
+      .and_then(|res| {
+          trace!("Received response with status = {}.", res.status());
+          let body = res.into_body();
+          body.concat2()
+      })
+      .map_err(|_| Error::from_kind(ErrorKind::FailedToQueryPivotalApi))
+      .and_then(|body| {
+         let body = String::from_utf8_lossy(&body).to_string();
+         trace!("Parsing body {:?}", &body);
+         let task = serde_json::from_slice::<Story>(&body.as_bytes())
+            .chain_err(|| Error::from_kind(ErrorKind::FailedToQueryPivotalApi));
+         result(task)
+      })
+}
+
+
+pub fn set_description(
+   client: &ReqwestClient,
+   project_id: u64,
+   story_id: u64,
+   token: &str,
+   description: &str,
+) -> impl Future<Item = Story, Error = Error> {
+      let url = format!(
+      "https://www.pivotaltracker.com/services/v5/projects/{project_id}/stories/{story_id}",
+      project_id=project_id,
+      story_id=story_id);
+
+   let data = json!({
+      "description": description.to_string(),
+   }).to_string();
+
+   trace!("Description: {:?}", data);
+
+   client
+      .put(&url)
       .header(Connection::close())
       .header(ContentType::json())
       .header(XTrackerToken(token.to_string()))

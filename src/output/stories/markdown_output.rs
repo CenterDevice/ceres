@@ -87,7 +87,7 @@ mod formatting {
                 created_at: s.created_at.as_ref(),
                 updated_at: s.updated_at.as_ref(),
                 accepted_at: s.accepted_at.as_ref(),
-                requested_by: &s.requested_by.name,
+                requested_by: s.requested_by.as_ref().map(|p| p.name.as_str()).unwrap_or(&"<unset>"),
                 owners: s.owners.iter().map(|p| &p.name).collect(),
                 labels: s.labels.as_ref(),
                 tasks: s.tasks.as_ref(),

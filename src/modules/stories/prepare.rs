@@ -1,16 +1,13 @@
 use clap::{App, Arg, ArgMatches, SubCommand};
-use futures::{Future, Stream};
-use futures::future::{self, result};
-use reqwest::header::{ContentType, Connection};
+use futures::Future;
+use futures::future;
 use reqwest::unstable::async::{Client as ReqwestClient};
-use serde_json;
 use tokio_core;
 
 use config::CeresConfig as Config;
 use run_config::RunConfig;
 use modules::{Result as ModuleResult, Error as ModuleError, ErrorKind as ModuleErrorKind, Module};
 use modules::stories::pivotal_api::*;
-use modules::stories::XTrackerToken;
 use modules::stories::errors::*;
 
 pub const NAME: &str = "prepare";
@@ -28,6 +25,11 @@ pub const TASKS: &[&str] = &[
     "Execute Deployment",
     "Check Availability in Production",
 ];
+
+pub const NO_RISK_ASSESSMET: &str = r#"# Risk Assessment
+
+There is no specific risk according to the common risk criteria defined in the DevOps handbook, chapter "Development Process".
+"#;
 
 pub struct SubModule;
 
@@ -80,12 +82,13 @@ fn do_call(args: &ArgMatches, run_config: &RunConfig, config: &Config) -> Result
    let f = get_story(&client, project_id, story_id, &token)
       .and_then(|story|
          if story.tasks.is_empty() || force {
-            future::ok(())
+            future::ok(story)
          } else {
             future::err(Error::from_kind(ErrorKind::StoryHasTasksAlready))
          }
       );
-   core.run(f)?;
+   let story: Story = core.run(f)?;
+   debug!("{:#?}", story);
 
    info!("Creating tasks");
    let result: Result<Vec<_>> = TASKS
@@ -96,7 +99,13 @@ fn do_call(args: &ArgMatches, run_config: &RunConfig, config: &Config) -> Result
          core.run(f)
       })
       .collect();
+   let result = result?;
+   debug!("{:#?}", result);
 
+   info!("Adding description");
+   let description = format!("{}\n\n{}\n", story.description.unwrap_or_else(|| "".to_string()), NO_RISK_ASSESSMET);
+   let f = set_description(&client, project_id, story_id, &token, &description);
+   let result = core.run(f)?;
    debug!("{:#?}", result);
 
    Ok(())
