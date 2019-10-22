@@ -218,7 +218,7 @@ source = "registry+https://github.com/rust-lang/crates.io-index"
 
 [[package]]
 name = "centerdevice"
-version = "0.3.11"
+version = "0.3.12"
 source = "registry+https://github.com/rust-lang/crates.io-index"
 dependencies = [
  "chrono 0.4.9 (registry+https://github.com/rust-lang/crates.io-index)",
@@ -239,7 +239,7 @@ dependencies = [
 name = "ceres"
 version = "0.0.30"
 dependencies = [
- "centerdevice 0.3.11 (registry+https://github.com/rust-lang/crates.io-index)",
+ "centerdevice 0.3.12 (registry+https://github.com/rust-lang/crates.io-index)",
  "chrono 0.4.9 (registry+https://github.com/rust-lang/crates.io-index)",
  "chrono-humanize 0.0.11 (registry+https://github.com/rust-lang/crates.io-index)",
  "clams 0.0.16 (registry+https://github.com/rust-lang/crates.io-index)",
@@ -3165,7 +3165,7 @@ dependencies = [
 "checksum bytes 0.4.12 (registry+https://github.com/rust-lang/crates.io-index)" = "206fdffcfa2df7cbe15601ef46c813fce0965eb3286db6b56c583b814b51c81c"
 "checksum c2-chacha 0.2.2 (registry+https://github.com/rust-lang/crates.io-index)" = "7d64d04786e0f528460fc884753cf8dddcc466be308f6026f8e355c41a0e4101"
 "checksum cc 1.0.45 (registry+https://github.com/rust-lang/crates.io-index)" = "4fc9a35e1f4290eb9e5fc54ba6cf40671ed2a2514c3eeb2b2a908dda2ea5a1be"
-"checksum centerdevice 0.3.11 (registry+https://github.com/rust-lang/crates.io-index)" = "326f6a84935da643f2f8059079ff5fa291171df7d48a78c9ae793ca5c4986727"
+"checksum centerdevice 0.3.12 (registry+https://github.com/rust-lang/crates.io-index)" = "978d091ec8523148b70ef0ed4f345544dfa22e61c8d966c91b6d04f6720807f7"
 "checksum cfg-if 0.1.10 (registry+https://github.com/rust-lang/crates.io-index)" = "4785bdd1c96b2a846b2bd7cc02e86b6b3dbf14e7e53446c4f54c92a361040822"
 "checksum cgmath 0.16.1 (registry+https://github.com/rust-lang/crates.io-index)" = "64a4b57c8f4e3a2e9ac07e0f6abc9c24b6fc9e1b54c3478cfb598f3d0023e51c"
 "checksum chrono 0.4.9 (registry+https://github.com/rust-lang/crates.io-index)" = "e8493056968583b0193c1bb04d6f7684586f3726992d6c573261941a895dbd68"

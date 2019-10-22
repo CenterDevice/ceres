@@ -9,6 +9,9 @@ and this project adheres to [Semantic Versioning](http://semver.org/spec/v2.0.0.
 ### Change
 * Update dependencies due to "cargo audit" warnings
 
+### Fixes
+* I can have collections for centerdevice uploads
+
 ## [0.0.30] - 2019-10-02
 
 ### Fixes

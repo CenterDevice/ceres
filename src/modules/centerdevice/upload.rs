@@ -49,7 +49,7 @@ impl Module for SubModule {
                 .use_delimiter(true)
                 .number_of_values(1)
                 .help("Sets tag for document"))
-            .arg(Arg::with_name("collection")
+            .arg(Arg::with_name("collections")
                 .long("collection")
                 .short("c")
                 .takes_value(true)
@@ -86,6 +86,7 @@ fn do_call(args: &ArgMatches, run_config: &RunConfig, config: &Config) -> Result
     )?;
 
     // This happens here due to the borrow checker.
+    let collections: Vec<&str> = args.values_of("collections").unwrap_or_else(Default::default).collect();
     let tags: Vec<&str> = args.values_of("tags").unwrap_or_else(Default::default).collect();
 
     let file_path = args.value_of("file").unwrap(); // Safe
@@ -108,6 +109,9 @@ fn do_call(args: &ArgMatches, run_config: &RunConfig, config: &Config) -> Result
     }
     if let Some(author) = args.value_of("author") {
         upload = upload.author(author);
+    }
+    if !collections.is_empty() {
+        upload = upload.collections(&collections);
     }
     if !tags.is_empty() {
         upload = upload.tags(&tags);
