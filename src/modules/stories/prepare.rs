@@ -15,15 +15,15 @@ pub const NAME: &str = "prepare";
 pub const TASKS: &[&str] = &[
     "Detail Planning including Risk Assessment",
     "Document Risk Assessment",
-    "Prepare Feature Branch",
-    "Functional Development including Tests and Documentation",
-    "Request Code Review",
-    "Request Functional Review",
+    "Create Feature Branch",
+    "Development including Tests and Documentation",
+    "Create Pull Request and Request Review",
+    "Request Functional Acceptance",
     "Prepare Deployment",
-    "Request Deployment Approval",
+    "Request Deployment/Merge Approval",
     "Merge Pull Request",
     "Execute Deployment",
-    "Check Availability in Production",
+    "Verify Production Delivery",
 ];
 
 pub const NO_RISK_ASSESSMET: &str = r#"# Risk Assessment

@@ -7,6 +7,11 @@ and this project adheres to [Semantic Versioning](http://semver.org/spec/v2.0.0.
 ## [Unreleased]
 
 
+## [0.0.32] - 2019-10-30
+
+### Change
+* Updated PT ticket tasks
+
 ## [0.0.31] - 2019-10-22
 
 ### Add
@@ -198,7 +203,8 @@ Add deployments in Travis build.
 ### Changed
 - `instances terminate` uses `warn!` macro instead of yellow `println!` to output warning in case of active dry mode.
 
-[Unreleased]: https://github.com/centerdevice/ceres/compare/v0.0.31...HEAD
+[Unreleased]: https://github.com/centerdevice/ceres/compare/v0.0.32...HEAD
+[0.0.32]: https://github.com/centerdevice/ceres/compare/v0.0.31...v0.0.32
 [0.0.31]: https://github.com/centerdevice/ceres/compare/v0.0.30...v0.0.31
 [0.0.30]: https://github.com/centerdevice/ceres/compare/v0.0.29...v0.0.30
 [0.0.29]: https://github.com/centerdevice/ceres/compare/v0.0.28...v0.0.29
