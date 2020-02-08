@@ -57,9 +57,7 @@ impl OutputCatalogResult for TableOutputCatalogResult {
             }
         }
         for r in rows {
-            table.add_row(Row::new(
-                r.iter().map(|cell| Cell::new(cell)).collect::<Vec<_>>(),
-            ));
+            table.add_row(Row::new(r.iter().map(|cell| Cell::new(cell)).collect::<Vec<_>>()));
         }
 
         table.print(writer).chain_err(|| ErrorKind::OutputFailed)

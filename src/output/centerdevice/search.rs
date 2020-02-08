@@ -29,13 +29,7 @@ impl OutputSearchResult for PlainOutputSearchResult {
         for d in result {
             let line = format!(
                 "{} {} {} {} {} {} {}\n",
-                d.id,
-                d.filename,
-                d.document_date,
-                d.upload_date,
-                d.version,
-                d.version_date,
-                d.owner,
+                d.id, d.filename, d.document_date, d.upload_date, d.version, d.version_date, d.owner,
             );
             let _ = writer.write(line.as_bytes());
         }
@@ -91,7 +85,5 @@ impl<'a> OutputSearchResult for TableOutputSearchResult<'a> {
 }
 
 impl<'a> TableOutputSearchResult<'a> {
-    fn map_user_id_to_name<'b: 'a>(&self, id: &'b str) -> &'a str {
-        super::map_user_id_to_name(self.user_map, id)
-    }
+    fn map_user_id_to_name<'b: 'a>(&self, id: &'b str) -> &'a str { super::map_user_id_to_name(self.user_map, id) }
 }

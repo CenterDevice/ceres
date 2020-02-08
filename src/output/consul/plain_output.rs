@@ -33,11 +33,9 @@ impl OutputCatalogResult for PlainOutputCatalogResult {
                 for node in nodes {
                     match self.fields.as_slice() {
                         // cf. https://github.com/rust-lang/rust/issues/23121
-                        /*
-                        [NodeField::MetaData(Some(ref mdf))] if mdf.len() == 1 && mdf.first().unwrap() == "ec2_instance_id" => {
-                            rows.push( node.metadata.get("ec2_instance_id").unwrap_or("n/a"));
-                        },
-                        */
+                        // [NodeField::MetaData(Some(ref mdf))] if mdf.len() == 1 && mdf.first().unwrap() ==
+                        // "ec2_instance_id" => { rows.push(
+                        // node.metadata.get("ec2_instance_id").unwrap_or("n/a")); },
                         _ => {
                             let row = self
                                 .fields

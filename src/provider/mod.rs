@@ -63,9 +63,11 @@ impl FromStr for InstanceDescriptorFields {
             }
             "VirtualizationType" => Ok(InstanceDescriptorFields::VirtualizationType),
             "VpcId" => Ok(InstanceDescriptorFields::VpcId),
-            _ => Err(Error::from_kind(
-                ErrorKind::InstanceDescriptorFieldsParsingFailed(s.to_owned()),
-            )),
+            _ => {
+                Err(Error::from_kind(ErrorKind::InstanceDescriptorFieldsParsingFailed(
+                    s.to_owned(),
+                )))
+            }
         }
     }
 }
@@ -82,90 +84,90 @@ fn extract_tags_filter(tags_str: &str) -> Option<Vec<String>> {
 
 #[derive(Serialize)]
 pub struct InstanceDescriptor {
-    pub ami_launch_index: Option<i64>,
-    pub architecture: Option<String>,
-    pub block_device_mappings: Option<Vec<String>>,
-    pub client_token: Option<String>,
-    pub ebs_optimized: Option<bool>,
+    pub ami_launch_index:         Option<i64>,
+    pub architecture:             Option<String>,
+    pub block_device_mappings:    Option<Vec<String>>,
+    pub client_token:             Option<String>,
+    pub ebs_optimized:            Option<bool>,
     // Won't convert this
-    //pub elastic_gpu_associations: Option<Vec<ElasticGpuAssociation>>,
-    pub ena_support: Option<bool>,
-    pub hypervisor: Option<String>,
-    pub iam_instance_profile: Option<String>,
-    pub image_id: Option<String>,
-    pub instance_id: Option<String>,
-    pub instance_lifecycle: Option<String>,
-    pub instance_type: Option<String>,
-    pub kernel_id: Option<String>,
-    pub key_name: Option<String>,
-    pub launch_time: Option<String>,
-    pub monitoring: Option<String>,
+    // pub elastic_gpu_associations: Option<Vec<ElasticGpuAssociation>>,
+    pub ena_support:              Option<bool>,
+    pub hypervisor:               Option<String>,
+    pub iam_instance_profile:     Option<String>,
+    pub image_id:                 Option<String>,
+    pub instance_id:              Option<String>,
+    pub instance_lifecycle:       Option<String>,
+    pub instance_type:            Option<String>,
+    pub kernel_id:                Option<String>,
+    pub key_name:                 Option<String>,
+    pub launch_time:              Option<String>,
+    pub monitoring:               Option<String>,
     // network_interfaces contains a lot of useful information but it's a data structure rabbit
     // hole, but the most important information is already available in InstanceDescriptor.
-    //pub network_interfaces: Option<Vec<InstanceNetworkInterface>>,
-    pub placement: Option<String>,
-    pub platform: Option<String>,
-    pub private_dns_name: Option<String>,
-    pub private_ip_address: Option<String>,
+    // pub network_interfaces: Option<Vec<InstanceNetworkInterface>>,
+    pub placement:                Option<String>,
+    pub platform:                 Option<String>,
+    pub private_dns_name:         Option<String>,
+    pub private_ip_address:       Option<String>,
     // Won't convert this
-    //pub product_codes: Option<Vec<ProductCode>>,
-    pub public_dns_name: Option<String>,
-    pub public_ip_address: Option<String>,
-    pub ramdisk_id: Option<String>,
-    pub root_device_name: Option<String>,
-    pub root_device_type: Option<String>,
-    pub security_groups: Option<Vec<String>>,
-    pub source_dest_check: Option<bool>,
+    // pub product_codes: Option<Vec<ProductCode>>,
+    pub public_dns_name:          Option<String>,
+    pub public_ip_address:        Option<String>,
+    pub ramdisk_id:               Option<String>,
+    pub root_device_name:         Option<String>,
+    pub root_device_type:         Option<String>,
+    pub security_groups:          Option<Vec<String>>,
+    pub source_dest_check:        Option<bool>,
     pub spot_instance_request_id: Option<String>,
-    pub sriov_net_support: Option<String>,
-    pub state: Option<String>,
-    pub state_reason: Option<String>,
-    pub state_transition_reason: Option<String>,
-    pub subnet_id: Option<String>,
-    pub tags: Option<HashMap<String, Option<String>>>,
-    pub virtualization_type: Option<String>,
-    pub vpc_id: Option<String>,
+    pub sriov_net_support:        Option<String>,
+    pub state:                    Option<String>,
+    pub state_reason:             Option<String>,
+    pub state_transition_reason:  Option<String>,
+    pub subnet_id:                Option<String>,
+    pub tags:                     Option<HashMap<String, Option<String>>>,
+    pub virtualization_type:      Option<String>,
+    pub vpc_id:                   Option<String>,
 }
 
 impl Default for InstanceDescriptor {
     fn default() -> Self {
         InstanceDescriptor {
-            ami_launch_index: None,
-            architecture: None,
-            block_device_mappings: None,
-            client_token: None,
-            ebs_optimized: None,
-            ena_support: None,
-            hypervisor: None,
-            iam_instance_profile: None,
-            image_id: None,
-            instance_id: None,
-            instance_lifecycle: None,
-            instance_type: None,
-            kernel_id: None,
-            key_name: None,
-            launch_time: None,
-            monitoring: None,
-            placement: None,
-            platform: None,
-            private_dns_name: None,
-            private_ip_address: None,
-            public_dns_name: None,
-            public_ip_address: None,
-            ramdisk_id: None,
-            root_device_name: None,
-            root_device_type: None,
-            security_groups: None,
-            source_dest_check: None,
+            ami_launch_index:         None,
+            architecture:             None,
+            block_device_mappings:    None,
+            client_token:             None,
+            ebs_optimized:            None,
+            ena_support:              None,
+            hypervisor:               None,
+            iam_instance_profile:     None,
+            image_id:                 None,
+            instance_id:              None,
+            instance_lifecycle:       None,
+            instance_type:            None,
+            kernel_id:                None,
+            key_name:                 None,
+            launch_time:              None,
+            monitoring:               None,
+            placement:                None,
+            platform:                 None,
+            private_dns_name:         None,
+            private_ip_address:       None,
+            public_dns_name:          None,
+            public_ip_address:        None,
+            ramdisk_id:               None,
+            root_device_name:         None,
+            root_device_type:         None,
+            security_groups:          None,
+            source_dest_check:        None,
             spot_instance_request_id: None,
-            sriov_net_support: None,
-            state: None,
-            state_reason: None,
-            state_transition_reason: None,
-            subnet_id: None,
-            tags: None,
-            virtualization_type: None,
-            vpc_id: None,
+            sriov_net_support:        None,
+            state:                    None,
+            state_reason:             None,
+            state_transition_reason:  None,
+            subnet_id:                None,
+            tags:                     None,
+            virtualization_type:      None,
+            vpc_id:                   None,
         }
     }
 }
@@ -177,26 +179,17 @@ pub trait StartInstances {
 }
 
 pub trait StopInstances {
-    fn stop_instances(
-        &self,
-        dry: bool,
-        force: bool,
-        instance_ids: &[InstanceId],
-    ) -> Result<Vec<StateChange>>;
+    fn stop_instances(&self, dry: bool, force: bool, instance_ids: &[InstanceId]) -> Result<Vec<StateChange>>;
 }
 
 pub trait TerminateInstances {
-    fn terminate_instances(
-        &self,
-        dry: bool,
-        instance_ids: &[InstanceId],
-    ) -> Result<Vec<StateChange>>;
+    fn terminate_instances(&self, dry: bool, instance_ids: &[InstanceId]) -> Result<Vec<StateChange>>;
 }
 
 #[derive(Serialize)]
 pub struct StateChange {
-    pub instance_id: InstanceId,
-    pub current_state: String,
+    pub instance_id:    InstanceId,
+    pub current_state:  String,
     pub previous_state: String,
 }
 
@@ -234,9 +227,7 @@ mod tests {
 
         let res = extract_tags_filter(&tag_str);
 
-        assert_that(&res)
-            .is_some()
-            .is_equal_to(vec!["Name".to_owned()]);
+        assert_that(&res).is_some().is_equal_to(vec!["Name".to_owned()]);
     }
 
     #[test]
@@ -419,10 +410,12 @@ pub mod filter {
                     match splits.len() {
                         2 => Ok((splits.remove(0), Some(splits.remove(0)))),
                         1 => Ok((splits.remove(0), None)),
-                        _ => Err(Error::from_kind(ErrorKind::FilterParsingFailed(
-                            s.to_owned(),
-                            "splitting fields failed".to_owned(),
-                        ))),
+                        _ => {
+                            Err(Error::from_kind(ErrorKind::FilterParsingFailed(
+                                s.to_owned(),
+                                "splitting fields failed".to_owned(),
+                            )))
+                        }
                     }
                 })
                 .collect();
@@ -437,9 +430,7 @@ pub mod filter {
                             "parsing instance descriptor field failed".to_owned(),
                         ))
                     })? {
-                        InstanceDescriptorFields::BlockDeviceMappings => {
-                            f_builder = f_builder.block_device_mappings(v)
-                        }
+                        InstanceDescriptorFields::BlockDeviceMappings => f_builder = f_builder.block_device_mappings(v),
                         InstanceDescriptorFields::Hypervisor => f_builder = f_builder.hypervisor(v),
                         InstanceDescriptorFields::IamInstanceProfile => {
                             f_builder = f_builder.iam_instance_profile(v);
@@ -454,7 +445,7 @@ pub mod filter {
                             f_builder = f_builder.instance_type(v);
                         }
                         InstanceDescriptorFields::LaunchTime => {
-                            /* A string based time matcher does not make sense */
+                            // A string based time matcher does not make sense
                         }
                         InstanceDescriptorFields::Monitoring => {
                             f_builder = f_builder.monitoring(v);
@@ -568,9 +559,7 @@ pub mod filter {
 
             let hm = parse_tags_filter_to_hash(tags_filter);
 
-            assert_that(&hm)
-                .is_ok()
-                .contains_entry("Name".to_owned(), None);
+            assert_that(&hm).is_ok().contains_entry("Name".to_owned(), None);
             assert_that(&hm)
                 .is_ok()
                 .contains_entry("AnsibleHostGroup".to_owned(), Some("batch_.*"));
@@ -599,9 +588,7 @@ pub mod filter {
         #[test]
         fn filter_instance_with_empty_filter() {
             let instance = create_instance();
-            let filter = FilterBuilder::new()
-                .build()
-                .expect("Failed to build filter");
+            let filter = FilterBuilder::new().build().expect("Failed to build filter");
 
             assert_that(&filter.filter(&instance)).is_true()
         }
@@ -659,10 +646,7 @@ pub mod filter {
             let mut tags = HashMap::new();
             tags.insert("Name".to_owned(), Some("my_.*"));
             tags.insert("Intent".to_owned(), Some("my_.*"));
-            let filter = FilterBuilder::new()
-                .tags(tags)
-                .build()
-                .expect("Failed to build filter");
+            let filter = FilterBuilder::new().tags(tags).build().expect("Failed to build filter");
 
             assert_that(&filter.filter(&instance)).is_true()
         }
@@ -673,10 +657,7 @@ pub mod filter {
 
             let mut tags = HashMap::new();
             tags.insert("Name".to_owned(), None);
-            let filter = FilterBuilder::new()
-                .tags(tags)
-                .build()
-                .expect("Failed to build filter");
+            let filter = FilterBuilder::new().tags(tags).build().expect("Failed to build filter");
 
             assert_that(&filter.filter(&instance)).is_true()
         }
@@ -687,10 +668,7 @@ pub mod filter {
 
             let mut tags = HashMap::new();
             tags.insert("NoSuchTagName".to_owned(), Some("my_.*"));
-            let filter = FilterBuilder::new()
-                .tags(tags)
-                .build()
-                .expect("Failed to build filter");
+            let filter = FilterBuilder::new().tags(tags).build().expect("Failed to build filter");
 
             assert_that(&filter.filter(&instance)).is_false()
         }
@@ -702,10 +680,7 @@ pub mod filter {
             let mut tags = HashMap::new();
             tags.insert("Name".to_owned(), Some("my_.*"));
             tags.insert("Intent".to_owned(), Some("not_my_.*"));
-            let filter = FilterBuilder::new()
-                .tags(tags)
-                .build()
-                .expect("Failed to build filter");
+            let filter = FilterBuilder::new().tags(tags).build().expect("Failed to build filter");
 
             assert_that(&filter.filter(&instance)).is_false()
         }

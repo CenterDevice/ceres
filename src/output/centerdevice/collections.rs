@@ -93,7 +93,5 @@ impl<'a> OutputCollections for TableOutputCollections<'a> {
 }
 
 impl<'a> TableOutputCollections<'a> {
-    fn map_user_id_to_name<'b: 'a>(&self, id: &'b str) -> &'a str {
-        super::map_user_id_to_name(self.user_map, id)
-    }
+    fn map_user_id_to_name<'b: 'a>(&self, id: &'b str) -> &'a str { super::map_user_id_to_name(self.user_map, id) }
 }

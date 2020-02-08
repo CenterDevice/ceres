@@ -14,9 +14,7 @@ impl FromStr for OutputType {
         match s.to_owned().to_uppercase().as_ref() {
             "JSON" => Ok(OutputType::Json),
             "MARKDOWN" => Ok(OutputType::MarkDown),
-            _ => Err(Error::from_kind(ErrorKind::OutputParsingFailed(
-                s.to_owned(),
-            ))),
+            _ => Err(Error::from_kind(ErrorKind::OutputParsingFailed(s.to_owned()))),
         }
     }
 }
@@ -27,12 +25,7 @@ pub mod markdown_output;
 pub use self::{json_output::JsonOutputStory, markdown_output::MarkDownOutputStory};
 
 pub trait OutputStory {
-    fn output<T: Write>(
-        &self,
-        writer: &mut T,
-        story: &Story,
-        members: &[ProjectMember],
-    ) -> Result<()>;
+    fn output<T: Write>(&self, writer: &mut T, story: &Story, members: &[ProjectMember]) -> Result<()>;
 }
 
 error_chain! {

@@ -9,7 +9,8 @@ pub mod plain_output;
 pub mod table_output;
 
 pub use self::{
-    json_output::JsonOutputCatalogResult, plain_output::PlainOutputCatalogResult,
+    json_output::JsonOutputCatalogResult,
+    plain_output::PlainOutputCatalogResult,
     table_output::TableOutputCatalogResult,
 };
 
@@ -21,9 +22,7 @@ fn value_for_field(field: &NodeField, catalog: &Catalog, node: &Node) -> String 
     match *field {
         NodeField::Id => node.id.clone(),
         NodeField::Name => node.name.clone(),
-        NodeField::MetaData(ref filter) => {
-            format_meta_data(&node.meta_data, filter.as_ref().map(|x| x.as_slice()))
-        }
+        NodeField::MetaData(ref filter) => format_meta_data(&node.meta_data, filter.as_ref().map(|x| x.as_slice())),
         NodeField::Address => node.address.clone(),
         NodeField::ServicePort => node.service_port.to_string(),
         NodeField::ServiceTags => node.service_tags.as_slice().join(","),

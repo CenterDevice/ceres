@@ -6,11 +6,11 @@ use provider;
 #[derive(Config, Debug, Clone, Default, Serialize, Deserialize, PartialEq)]
 pub struct CeresConfig {
     pub default_profile: String,
-    pub github: GitHub,
-    pub pivotal: Pivotal,
-    pub logging: Logging,
-    pub status_pages: HashMap<String, StatusPage>,
-    pub profiles: HashMap<String, Profile>,
+    pub github:          GitHub,
+    pub pivotal:         Pivotal,
+    pub logging:         Logging,
+    pub status_pages:    HashMap<String, StatusPage>,
+    pub profiles:        HashMap<String, Profile>,
 }
 
 impl CeresConfig {
@@ -23,15 +23,13 @@ impl CeresConfig {
         Ok(profile)
     }
 
-    pub fn get_default_profile(&self) -> Result<&Profile> {
-        self.get_profile(&self.default_profile)
-    }
+    pub fn get_default_profile(&self) -> Result<&Profile> { self.get_profile(&self.default_profile) }
 }
 
 #[derive(Debug, Clone, Default, Serialize, Deserialize, PartialEq)]
 pub struct Logging {
     pub default: String,
-    pub ceres: String,
+    pub ceres:   String,
 }
 
 #[derive(Debug, Clone, Default, Serialize, Deserialize, PartialEq)]
@@ -51,23 +49,23 @@ pub struct StatusPage {
 
 #[derive(Debug, Clone, Serialize, Deserialize, PartialEq)]
 pub struct Profile {
-    pub ssh_user: Option<String>,
+    pub ssh_user:       Option<String>,
     pub local_base_dir: Option<String>,
-    pub issue_tracker: IssueTracker,
-    pub story_tracker: StoryTracker,
-    pub provider: Option<Provider>,
-    pub consul: Option<Consul>,
-    pub health: HealthCheck,
-    pub centerdevice: Option<CenterDevice>,
+    pub issue_tracker:  IssueTracker,
+    pub story_tracker:  StoryTracker,
+    pub provider:       Option<Provider>,
+    pub consul:         Option<Consul>,
+    pub health:         HealthCheck,
+    pub centerdevice:   Option<CenterDevice>,
 }
 
 #[derive(Debug, Clone, Serialize, Deserialize, PartialEq)]
 pub struct IssueTracker {
-    pub github_org: String,
-    pub github_repo: String,
-    pub project_number: u64,
+    pub github_org:                  String,
+    pub github_repo:                 String,
+    pub project_number:              u64,
     pub default_issue_template_name: String,
-    pub local_issue_template_path: String,
+    pub local_issue_template_path:   String,
 }
 
 #[derive(Debug, Clone, Serialize, Deserialize, PartialEq)]
@@ -94,11 +92,11 @@ pub struct HealthCheck {
 
 #[derive(Debug, Clone, Serialize, Deserialize, PartialEq)]
 pub struct CenterDevice {
-    pub client_id: String,
+    pub client_id:     String,
     pub client_secret: String,
-    pub redirect_uri: String,
-    pub base_domain: String,
-    pub access_token: Option<String>,
+    pub redirect_uri:  String,
+    pub base_domain:   String,
+    pub access_token:  Option<String>,
     pub refresh_token: Option<String>,
 }
 
@@ -122,35 +120,32 @@ mod tests {
     #[test]
     fn serialize_deserialize_round_trip() {
         let aws_provider = provider::aws::Aws {
-            access_key_id: String::from("a key id"),
+            access_key_id:     String::from("a key id"),
             secret_access_key: String::from("an access key"),
-            token: Some("a-token".to_string()),
-            region: Region::EuCentral1,
-            role_arn: String::from("a_role_arn"),
+            token:             Some("a-token".to_string()),
+            region:            Region::EuCentral1,
+            role_arn:          String::from("a_role_arn"),
         };
         let issue_tracker = IssueTracker {
-            github_org: "MyOrg".to_owned(),
-            github_repo: "MyRepo".to_owned(),
-            project_number: 1,
+            github_org:                  "MyOrg".to_owned(),
+            github_repo:                 "MyRepo".to_owned(),
+            project_number:              1,
             default_issue_template_name: "some markdown file.md".to_owned(),
-            local_issue_template_path: "some/path".to_owned(),
+            local_issue_template_path:   "some/path".to_owned(),
         };
         let story_tracker = StoryTracker { project_id: 1 };
         let consul = Consul {
-            urls: vec![
-                "http://localhost:8500".to_owned(),
-                "http://127.0.0.1:8500".to_owned(),
-            ],
+            urls: vec!["http://localhost:8500".to_owned(), "http://127.0.0.1:8500".to_owned()],
         };
         let health = HealthCheck {
             base_domain: "instance_domain.com".to_owned(),
         };
         let centerdevice = CenterDevice {
-            client_id: "aa-bb-cc".to_owned(),
+            client_id:     "aa-bb-cc".to_owned(),
             client_secret: "dd-ee-ff".to_owned(),
-            redirect_uri: "https://exampled.com".to_owned(),
-            base_domain: "centerdevice.de".to_owned(),
-            access_token: None,
+            redirect_uri:  "https://exampled.com".to_owned(),
+            base_domain:   "centerdevice.de".to_owned(),
+            access_token:  None,
             refresh_token: None,
         };
         let prod_profile = Profile {
@@ -172,7 +167,7 @@ mod tests {
         status_pages.insert("prod".to_owned(), status_page);
         let logging = Logging {
             default: "warn".to_owned(),
-            ceres: "info".to_owned(),
+            ceres:   "info".to_owned(),
         };
         let github = GitHub {
             token: "a github token".to_owned(),
@@ -217,7 +212,6 @@ mod tests {
         assert_that(&aws.access_key_id).is_equal_to("XXXXX".to_owned());
         assert_that(&aws.secret_access_key).is_equal_to("XXXXX".to_owned());
         assert_that(&aws.region).is_equal_to(Region::EuCentral1);
-        assert_that(&aws.role_arn)
-            .is_equal_to("arn:aws:iam::XXXXX:role/OrganizationAccountAccessRole".to_owned());
+        assert_that(&aws.role_arn).is_equal_to("arn:aws:iam::XXXXX:role/OrganizationAccountAccessRole".to_owned());
     }
 }

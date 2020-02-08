@@ -97,17 +97,15 @@ impl OutputHealthCheck for TableOutputHealthCheck {
         }
 
         table.print(writer).chain_err(|| ErrorKind::OutputFailed)?;
-        writeln!(writer, "* Mind that results may come from different backend servers for each call and thus, time stamps may very.")
-            .chain_err(|| ErrorKind::OutputFailed)
+        writeln!(
+            writer,
+            "* Mind that results may come from different backend servers for each call and thus, time stamps may very."
+        )
+        .chain_err(|| ErrorKind::OutputFailed)
     }
 }
 
-fn make_row(
-    hc_name: &str,
-    previous_hc_name: &Option<&str>,
-    resource_name: &str,
-    resource: &HealthSample,
-) -> Row {
+fn make_row(hc_name: &str, previous_hc_name: &Option<&str>, resource_name: &str, resource: &HealthSample) -> Row {
     let service_cell = match previous_hc_name {
         Some(name) if name == &hc_name => Cell::new(""),
         Some(_) | None => Cell::new(hc_name),

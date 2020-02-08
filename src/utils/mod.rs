@@ -46,18 +46,18 @@ pub mod command {
 
     #[derive(Debug)]
     pub struct Command {
-        pub id: String,
-        pub cmd: String,
-        pub args: Option<Vec<String>>,
-        pub cwd: Option<String>,
-        pub log: PathBuf,
+        pub id:      String,
+        pub cmd:     String,
+        pub args:    Option<Vec<String>>,
+        pub cwd:     Option<String>,
+        pub log:     PathBuf,
         pub timeout: Option<Duration>,
     }
 
     #[derive(Debug, Serialize)]
     pub struct CommandResult {
-        pub id: String,
-        pub log: PathBuf,
+        pub id:          String,
+        pub log:         PathBuf,
         pub exit_status: ExitStatus,
     }
 
@@ -99,11 +99,7 @@ pub mod command {
                 Exec::cmd(&cmd)
             };
 
-            c = if let Some(cwd) = self.cwd {
-                c.cwd(cwd)
-            } else {
-                c
-            };
+            c = if let Some(cwd) = self.cwd { c.cwd(cwd) } else { c };
 
             let mut p = c
                 .stdout(File::create(self.log.clone()).unwrap())
@@ -121,14 +117,11 @@ pub mod command {
                 if let Some(count_down) = timeout {
                     let count_down = count_down - resolution;
                     if count_down <= Duration::from_secs(0) {
-                        p.kill()
-                            .chain_err(|| ErrorKind::FailedToRunCommand(cmd.clone()))?;
-                        let exit_status = p
-                            .wait()
-                            .chain_err(|| ErrorKind::FailedToRunCommand(cmd.clone()))?;
+                        p.kill().chain_err(|| ErrorKind::FailedToRunCommand(cmd.clone()))?;
+                        let exit_status = p.wait().chain_err(|| ErrorKind::FailedToRunCommand(cmd.clone()))?;
                         return Ok(CommandResult {
-                            id: self.id,
-                            log: self.log,
+                            id:          self.id,
+                            log:         self.log,
                             exit_status: exit_status.into(),
                         });
                     }
@@ -140,8 +133,8 @@ pub mod command {
                 }
                 if let Some(exit_status) = status {
                     return Ok(CommandResult {
-                        id: self.id,
-                        log: self.log,
+                        id:          self.id,
+                        log:         self.log,
                         exit_status: exit_status.into(),
                     });
                 }
@@ -213,10 +206,7 @@ pub mod run {
             let log_path = cmd.log.clone();
             let _ = thread::spawn(move || {
                 let progress = || {
-                    let line = File::open(log_path.clone())
-                        .unwrap()
-                        .read_last_line()
-                        .unwrap();
+                    let line = File::open(log_path.clone()).unwrap().read_last_line().unwrap();
 
                     pb.set_message(&format!("Running: {}", line));
                     pb.inc(1);
@@ -253,11 +243,7 @@ pub mod run {
             .collect()
     }
 
-    pub fn output_results(
-        output_type: OutputType,
-        show_all: bool,
-        results: &[CommandResult],
-    ) -> Result<()> {
+    pub fn output_results(output_type: OutputType, show_all: bool, results: &[CommandResult]) -> Result<()> {
         let mut stdout = ::std::io::stdout();
 
         match output_type {
@@ -375,8 +361,7 @@ pub mod ssh {
             ssh_opts.insert(1, login_name.to_owned());
         };
 
-        let mut remote_command_args: Vec<String> =
-            remote_command_args.iter().map(|s| s.to_string()).collect();
+        let mut remote_command_args: Vec<String> = remote_command_args.iter().map(|s| s.to_string()).collect();
 
         let ssh_args = build_ssh_arguments(&ip_addr, &mut ssh_opts, &mut remote_command_args);
 
@@ -385,11 +370,11 @@ pub mod ssh {
             .path()
             .to_path_buf();
         let c = Command {
-            id: instance_id.to_owned(),
-            cmd: "ssh".to_owned(),
-            args: Some(ssh_args),
-            cwd: None,
-            log: log_path,
+            id:      instance_id.to_owned(),
+            cmd:     "ssh".to_owned(),
+            args:    Some(ssh_args),
+            cwd:     None,
+            log:     log_path,
             timeout: Some(timeout),
         };
         Ok(c)
@@ -450,11 +435,11 @@ mod tests {
         let tmpfile = NamedTempFile::new().unwrap().path().to_path_buf();
 
         let cmd = command::Command {
-            id: "a command".to_owned(),
-            cmd: "this_command_does_not_exists".to_owned(),
-            args: None,
-            cwd: None,
-            log: tmpfile,
+            id:      "a command".to_owned(),
+            cmd:     "this_command_does_not_exists".to_owned(),
+            args:    None,
+            cwd:     None,
+            log:     tmpfile,
             timeout: None,
         };
         let res = cmd.run(None::<fn()>);
@@ -467,11 +452,11 @@ mod tests {
         let tmpfile = NamedTempFile::new().unwrap().path().to_path_buf();
 
         let cmd = command::Command {
-            id: "ls".to_owned(),
-            cmd: "/bin/ls".to_owned(),
-            args: None,
-            cwd: None,
-            log: tmpfile,
+            id:      "ls".to_owned(),
+            cmd:     "/bin/ls".to_owned(),
+            args:    None,
+            cwd:     None,
+            log:     tmpfile,
             timeout: None,
         };
         let res = cmd.run(None::<fn()>);
@@ -484,15 +469,11 @@ mod tests {
         let tmpfile = NamedTempFile::new().unwrap().path().to_path_buf();
 
         let cmd = command::Command {
-            id: "ls".to_owned(),
-            cmd: "/bin/ls".to_owned(),
-            args: Some(vec![
-                "-l".to_owned(),
-                "LICENSE".to_owned(),
-                "Makefile".to_owned(),
-            ]),
-            cwd: None,
-            log: tmpfile.clone(),
+            id:      "ls".to_owned(),
+            cmd:     "/bin/ls".to_owned(),
+            args:    Some(vec!["-l".to_owned(), "LICENSE".to_owned(), "Makefile".to_owned()]),
+            cwd:     None,
+            log:     tmpfile.clone(),
             timeout: None,
         };
         let res = cmd.run(None::<fn()>);

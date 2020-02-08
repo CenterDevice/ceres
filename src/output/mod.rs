@@ -22,9 +22,7 @@ impl FromStr for OutputType {
             "HUMAN" => Ok(OutputType::Human),
             "JSON" => Ok(OutputType::Json),
             "PLAIN" => Ok(OutputType::Plain),
-            _ => Err(Error::from_kind(ErrorKind::OutputParsingFailed(
-                s.to_owned(),
-            ))),
+            _ => Err(Error::from_kind(ErrorKind::OutputParsingFailed(s.to_owned()))),
         }
     }
 }

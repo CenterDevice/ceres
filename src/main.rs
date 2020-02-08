@@ -49,9 +49,7 @@ fn run() -> Result<()> {
     clams::console::set_color(!args.is_present("no-color"));
 
     match args.subcommand_name() {
-        Some(subcommand @ "completions") => {
-            return generate_completion(args.subcommand_matches(subcommand).unwrap())
-        } // Safe unwrap
+        Some(subcommand @ "completions") => return generate_completion(args.subcommand_matches(subcommand).unwrap()), /* Safe unwrap */
         Some("show-example-config") => return show_example_config(),
         _ => {}
     };
@@ -72,9 +70,9 @@ fn run() -> Result<()> {
     );
 
     let run_config = RunConfig {
-        color: !args.is_present("no-color"),
+        color:          !args.is_present("no-color"),
         active_profile: args.value_of("profile").unwrap().to_owned(), // Safe unwrap
-        active_config: config_path,
+        active_config:  config_path,
     };
     info!(
         "Active profile={}, default profile={}",
@@ -146,9 +144,9 @@ fn generate_completion(args: &ArgMatches) -> Result<()> {
         .ok_or_else(|| ErrorKind::CliArgsParsingError("shell argument is missing".to_string()))?;
     build_cli().gen_completions_to(
         bin_name,
-        shell.parse::<Shell>().map_err(|_| {
-            ErrorKind::CliArgsParsingError("completion script generation failed".to_string())
-        })?,
+        shell
+            .parse::<Shell>()
+            .map_err(|_| ErrorKind::CliArgsParsingError("completion script generation failed".to_string()))?,
         &mut std::io::stdout(),
     );
 
@@ -179,7 +177,7 @@ fn start_logging(args: &ArgMatches, config: &CeresConfig) -> Result<()> {
         default,
         vec![ModLevel {
             module: "ceres".to_owned(),
-            level: ceres,
+            level:  ceres,
         }],
         None,
     );
