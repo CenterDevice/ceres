@@ -10,7 +10,7 @@ pub mod cli {
     }
 
     pub fn read_instance_ids(ids: &[&str]) -> Result<Vec<String>> {
-        let instance_ids: Vec<_> = ids.iter().map(|s| s.to_string()).collect();
+        let instance_ids: Vec<_> = ids.iter().map(|&s| s.to_string()).collect();
 
         // Let's check if we shall read instance ids from stdin
         if instance_ids.len() == 1 && instance_ids[0] == "-" {
@@ -355,13 +355,13 @@ pub mod ssh {
         remote_command_args: &[&str],
         timeout: Duration,
     ) -> Result<Command> {
-        let mut ssh_opts: Vec<String> = ssh_opts.iter().map(|s| s.to_string()).collect();
+        let mut ssh_opts: Vec<String> = ssh_opts.iter().map(|&s| s.to_string()).collect();
         if let Some(login_name) = login_name {
             ssh_opts.insert(0, "-l".to_owned());
             ssh_opts.insert(1, login_name.to_owned());
         };
 
-        let mut remote_command_args: Vec<String> = remote_command_args.iter().map(|s| s.to_string()).collect();
+        let mut remote_command_args: Vec<String> = remote_command_args.iter().map(|&s| s.to_string()).collect();
 
         let ssh_args = build_ssh_arguments(&ip_addr, &mut ssh_opts, &mut remote_command_args);
 
