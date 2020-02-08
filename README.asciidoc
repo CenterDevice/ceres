@@ -2,7 +2,7 @@
 :toc: macro
 Ceres the goddess of agriculture, grain crops, fertility and motherly relationships.
 
-image:https://travis-ci.org/centerdevice/ceres.svg?branch=master[link="https://travis-ci.org/centerdevice/ceres"] image:https://codecov.io/gh/centerdevice/ceres/branch/master/graph/badge.svg[link="https://codecov.io/gh/centerdevice/ceres"] image:https://img.shields.io/github/release/centerdevice/ceres.svg[link="https://github.com/centerdevice/ceres/releases"] image:https://img.shields.io/crates/v/ceres.svg[link="https://crates.io/crates/ceres"] image:https://img.shields.io/badge/license-MIT-blue.svg?label=License[link="./LICENSE]
+image:https://dev.azure.com/centerdevice/ceres/_apis/build/status/CenterDevice.ceres?branchName=master[link="https://dev.azure.com/centerdevice/ceres/_build/latest?definitionId=11&branchName=master"] image:https://img.shields.io/github/release/centerdevice/ceres.svg[link="https://github.com/centerdevice/ceres/releases"] image:https://img.shields.io/crates/v/ceres.svg[link="https://crates.io/crates/ceres"] image:https://img.shields.io/badge/license-MIT-blue.svg?label=License[link="./LICENSE]
 
 toc::[]
 
