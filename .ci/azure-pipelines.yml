@@ -216,9 +216,6 @@ stages:
             centerdevice:
               package_cloud_token: $(PACKAGECLOUD_API_TOKEN_CENTERDEVICE)
               package_cloud_repo: centerdevice/infrastructure
-            lukas:
-              package_cloud_token: $(PACKAGECLOUD_API_TOKEN_LUKAS)
-              package_cloud_repo: lukaspustina/opensource
         steps:
           - task: UseRubyVersion@0
             inputs:
