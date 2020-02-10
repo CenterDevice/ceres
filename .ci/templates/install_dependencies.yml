@@ -1,4 +1,4 @@
 steps:
   - script: |
-      sudo apt-get install libssl-dev
+      echo "No dependencies required for this crate."
     displayName: Install Dependencies
