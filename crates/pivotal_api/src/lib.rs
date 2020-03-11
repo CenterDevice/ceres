@@ -1,11 +1,9 @@
 #[macro_use]
 extern crate error_chain;
 extern crate futures;
-#[macro_use]
 extern crate hyper;
 #[macro_use]
 extern crate log;
-#[macro_use]
 extern crate reqwest;
 extern crate serde;
 #[macro_use]
@@ -13,12 +11,12 @@ extern crate serde_derive;
 #[macro_use]
 extern crate serde_json;
 
-header! { (XTrackerToken, "X-TrackerToken") => [String] }
+//header! { (XTrackerToken, "X-TrackerToken") => [String] }
 
 use futures::{Future, Stream};
 use futures::future::result;
-use reqwest::header::{ContentType, Connection};
-use reqwest::unstable::async::{Client as ReqwestClient};
+use reqwest::async::{Client as ReqwestClient};
+use reqwest::header::{CONNECTION, CONTENT_TYPE};
 use serde::de::DeserializeOwned;
 
 error_chain! {
@@ -167,10 +165,13 @@ fn get<T>(url: &str, client: &ReqwestClient, token: &str) -> impl Future<Item = 
 where
     T: DeserializeOwned
 {
+    let mut headers = reqwest::header::HeaderMap::new();
+    headers.insert(CONNECTION, "close".parse().unwrap());
+    headers.insert("X-TrackerToken", token.parse().unwrap());
+
     client
         .get(url)
-        .header(Connection::close())
-        .header(XTrackerToken(token.to_string()))
+        .headers(headers)
         .send()
         .and_then(|res| {
             trace!("Received response with status = {}.", res.status());
@@ -205,11 +206,14 @@ pub fn start_story(
 
    trace!("StoryRequest: {:?}", data);
 
-   client
+    let mut headers = reqwest::header::HeaderMap::new();
+    headers.insert(CONNECTION, "close".parse().unwrap());
+    headers.insert(CONTENT_TYPE, "application/json".parse().unwrap());
+    headers.insert("X-TrackerToken", token.parse().unwrap());
+
+    client
       .put(&url)
-      .header(Connection::close())
-      .header(ContentType::json())
-      .header(XTrackerToken(token.to_string()))
+      .headers(headers)
       .body(data)
       .send()
       .and_then(|res| {
@@ -248,11 +252,14 @@ pub fn create_task(
 
    trace!("Task: {:?}", data);
 
-   client
+    let mut headers = reqwest::header::HeaderMap::new();
+    headers.insert(CONNECTION, "close".parse().unwrap());
+    headers.insert(CONTENT_TYPE, "application/json".parse().unwrap());
+    headers.insert("X-TrackerToken", token.parse().unwrap());
+
+    client
       .post(&url)
-      .header(Connection::close())
-      .header(ContentType::json())
-      .header(XTrackerToken(token.to_string()))
+      .headers(headers)
       .body(data)
       .send()
       .and_then(|res| {
@@ -289,11 +296,13 @@ pub fn set_description(
 
    trace!("Description: {:?}", data);
 
-   client
+    let mut headers = reqwest::header::HeaderMap::new();
+    headers.insert(CONNECTION, "close".parse().unwrap());
+    headers.insert(CONTENT_TYPE, "application/json".parse().unwrap());
+    headers.insert("X-TrackerToken", token.parse().unwrap());
+
+    client
       .put(&url)
-      .header(Connection::close())
-      .header(ContentType::json())
-      .header(XTrackerToken(token.to_string()))
       .body(data)
       .send()
       .and_then(|res| {
