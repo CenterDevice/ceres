@@ -38,7 +38,7 @@ fn render<T: Write>(writer: &mut T, story: &formatting::Story) -> Result<()> {
 mod formatting {
     use std::collections::HashMap;
 
-    use modules::stories::pivotal_api::{self, Label, PullRequest, StoryState, StoryType, Task};
+    use pivotal_api::{self, Label, PullRequest, StoryState, StoryType, Task};
 
     pub trait FromWithPersonLookup<'a, T> {
         fn from_with(_: &'a T, persons: &HashMap<u64, &'a str>) -> Self;

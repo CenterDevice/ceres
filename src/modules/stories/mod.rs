@@ -26,9 +26,5 @@ mod errors {
     }
 }
 
-pub mod pivotal_api;
-
-header! { (XTrackerToken, "X-TrackerToken") => [String] }
-
 sub_module!("stories", "Manage stories", export, prepare, start);
 

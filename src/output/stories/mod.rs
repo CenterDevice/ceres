@@ -1,4 +1,4 @@
-use modules::stories::pivotal_api::{ProjectMember, Story};
+use pivotal_api::{ProjectMember, Story};
 
 use std::{io::Write, str::FromStr};
 

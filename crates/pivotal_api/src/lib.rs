@@ -1,12 +1,33 @@
+#[macro_use]
+extern crate error_chain;
+extern crate futures;
+#[macro_use]
+extern crate hyper;
+#[macro_use]
+extern crate log;
+#[macro_use]
+extern crate reqwest;
+extern crate serde;
+#[macro_use]
+extern crate serde_derive;
+#[macro_use]
+extern crate serde_json;
+
+header! { (XTrackerToken, "X-TrackerToken") => [String] }
+
 use futures::{Future, Stream};
 use futures::future::result;
 use reqwest::header::{ContentType, Connection};
 use reqwest::unstable::async::{Client as ReqwestClient};
 use serde::de::DeserializeOwned;
-use serde_json;
 
-use modules::stories::XTrackerToken;
-use modules::stories::errors::*;
+error_chain! {
+    errors {
+        FailedToQueryPivotalApi {
+            description("Failed to query Pivotal Tracker API")
+        }
+    }
+}
 
 #[derive(Debug, Serialize, Deserialize)]
 pub struct Story {

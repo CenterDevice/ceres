@@ -7,7 +7,7 @@ use tokio_core;
 use config::CeresConfig as Config;
 use run_config::RunConfig;
 use modules::{Result as ModuleResult, Error as ModuleError, ErrorKind as ModuleErrorKind, Module};
-use modules::stories::pivotal_api::*;
+use pivotal_api::{create_task, get_story, set_description, Story};
 use modules::stories::errors::*;
 
 pub const NAME: &str = "prepare";
@@ -80,6 +80,7 @@ fn do_call(args: &ArgMatches, run_config: &RunConfig, config: &Config) -> Result
    let client = ReqwestClient::new(&core.handle());
 
    let f = get_story(&client, project_id, story_id, &token)
+      .map_err(|e| Error::with_chain(e, ErrorKind::FailedToQueryPivotalApi))
       .and_then(|story|
          if story.tasks.is_empty() || force {
             future::ok(story)
@@ -87,7 +88,8 @@ fn do_call(args: &ArgMatches, run_config: &RunConfig, config: &Config) -> Result
             future::err(Error::from_kind(ErrorKind::StoryHasTasksAlready))
          }
       );
-   let story: Story = core.run(f)?;
+   let story: Story = core.run(f)
+     .chain_err(|| ErrorKind::FailedToQueryPivotalApi)?;
    debug!("{:#?}", story);
 
    info!("Creating tasks");
@@ -97,6 +99,7 @@ fn do_call(args: &ArgMatches, run_config: &RunConfig, config: &Config) -> Result
       .map(|(pos, x)| {
          let f = create_task(&client, project_id, story_id, &token, pos+1, x);
          core.run(f)
+            .chain_err(|| ErrorKind::FailedToQueryPivotalApi)
       })
       .collect();
    let result = result?;
@@ -105,7 +108,8 @@ fn do_call(args: &ArgMatches, run_config: &RunConfig, config: &Config) -> Result
    info!("Adding description");
    let description = format!("{}\n\n{}\n", story.description.unwrap_or_else(|| "".to_string()), NO_RISK_ASSESSMET);
    let f = set_description(&client, project_id, story_id, &token, &description);
-   let result = core.run(f)?;
+   let result = core.run(f)
+     .chain_err(|| ErrorKind::FailedToQueryPivotalApi)?;
    debug!("{:#?}", result);
 
    Ok(())
