@@ -1,7 +1,7 @@
 use clap::{App, Arg, ArgMatches, SubCommand};
 use futures::Future;
 use futures::future;
-use reqwest::unstable::async::{Client as ReqwestClient};
+use reqwest::async::{Client as ReqwestClient};
 use tokio_core;
 
 use config::CeresConfig as Config;
@@ -77,7 +77,7 @@ fn do_call(args: &ArgMatches, run_config: &RunConfig, config: &Config) -> Result
    info!("Quering existing tasks");
    let mut core = tokio_core::reactor::Core::new()
      .chain_err(|| ErrorKind::FailedToQueryPivotalApi)?;
-   let client = ReqwestClient::new(&core.handle());
+   let client = ReqwestClient::new();
 
    let f = get_story(&client, project_id, story_id, &token)
       .map_err(|e| Error::with_chain(e, ErrorKind::FailedToQueryPivotalApi))
