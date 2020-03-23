@@ -1,4 +1,4 @@
-use rusoto_core::{default_tls_client, Region};
+use rusoto_core::{request::HttpClient, Region};
 use rusoto_credential::StaticProvider;
 use rusoto_ec2::{
     self as ec2,
@@ -90,12 +90,13 @@ impl DescribeInstances for Aws {
 
 fn list(aws: &Aws) -> Result<Vec<InstanceDescriptor>> {
     let credentials_provider = assume_role(aws)?;
-    let default_client = default_tls_client().chain_err(|| ErrorKind::AwsApiError)?;
-    let client = ec2::Ec2Client::new(default_client, credentials_provider, aws.region.clone());
+    let default_client = HttpClient::new().chain_err(|| ErrorKind::AwsApiError)?;
+    let client = ec2::Ec2Client::new_with(default_client, credentials_provider, aws.region.clone());
 
     let request = Default::default();
     let result = client
-        .describe_instances(&request)
+        .describe_instances(request)
+        .sync()
         .chain_err(|| ErrorKind::AwsApiError)?;
     let reservations = result
         .reservations
@@ -126,8 +127,8 @@ impl DescribeInstance for Aws {
 
 fn describe(aws: &Aws, instance_id: &str) -> Result<InstanceDescriptor> {
     let credentials_provider = assume_role(aws)?;
-    let default_client = default_tls_client().chain_err(|| ErrorKind::AwsApiError)?;
-    let client = ec2::Ec2Client::new(default_client, credentials_provider, aws.region.clone());
+    let default_client = HttpClient::new().chain_err(|| ErrorKind::AwsApiError)?;
+    let client = ec2::Ec2Client::new_with(default_client, credentials_provider, aws.region.clone());
 
     let request = DescribeInstancesRequest {
         dry_run:      Some(false),
@@ -137,7 +138,8 @@ fn describe(aws: &Aws, instance_id: &str) -> Result<InstanceDescriptor> {
         next_token:   None,
     };
     let result = client
-        .describe_instances(&request)
+        .describe_instances(request)
+        .sync()
         .chain_err(|| ErrorKind::AwsApiError)?;
     let mut reservations = result
         .reservations
@@ -280,8 +282,8 @@ fn assume_role(aws: &Aws) -> Result<StsAssumeRoleSessionCredentialsProvider> {
         aws.token.clone(),
         None,
     );
-    let default_client = default_tls_client().chain_err(|| ErrorKind::AwsApiError)?;
-    let sts = StsClient::new(default_client, base_provider, aws.region.clone());
+    let default_client = HttpClient::new().chain_err(|| ErrorKind::AwsApiError)?;
+    let sts = StsClient::new_with(default_client, base_provider, aws.region.clone());
 
     let provider = StsAssumeRoleSessionCredentialsProvider::new(
         sts,
@@ -309,8 +311,8 @@ impl StartInstances for Aws {
 
 fn start(aws: &Aws, dry: bool, instance_ids: &[InstanceId]) -> Result<Vec<StateChange>> {
     let credentials_provider = assume_role(aws)?;
-    let default_client = default_tls_client().chain_err(|| ErrorKind::AwsApiError)?;
-    let client = ec2::Ec2Client::new(default_client, credentials_provider, aws.region.clone());
+    let default_client = HttpClient::new().chain_err(|| ErrorKind::AwsApiError)?;
+    let client = ec2::Ec2Client::new_with(default_client, credentials_provider, aws.region.clone());
 
     let request = StartInstancesRequest {
         additional_info: None,
@@ -319,7 +321,7 @@ fn start(aws: &Aws, dry: bool, instance_ids: &[InstanceId]) -> Result<Vec<StateC
     };
     // If run in dry mode, AWS returns an error of type DryRunOperation
     // cf. https://docs.rs/rusoto_ec2/0.31.0/rusoto_ec2/struct.TerminateInstancesRequest.html#structfield.dry_run
-    let result = match client.start_instances(&request) {
+    let result = match client.start_instances(request).sync() {
         Err(StartInstancesError::Unknown(ref s)) if s.contains("DryRunOperation") => {
             return Ok(create_dry_run_results(instance_ids))
         }
@@ -350,8 +352,8 @@ impl StopInstances for Aws {
 
 fn stop(aws: &Aws, dry: bool, force: bool, instance_ids: &[InstanceId]) -> Result<Vec<StateChange>> {
     let credentials_provider = assume_role(aws)?;
-    let default_client = default_tls_client().chain_err(|| ErrorKind::AwsApiError)?;
-    let client = ec2::Ec2Client::new(default_client, credentials_provider, aws.region.clone());
+    let default_client = HttpClient::new().chain_err(|| ErrorKind::AwsApiError)?;
+    let client = ec2::Ec2Client::new_with(default_client, credentials_provider, aws.region.clone());
 
     let request = StopInstancesRequest {
         dry_run:      Some(dry),
@@ -360,7 +362,7 @@ fn stop(aws: &Aws, dry: bool, force: bool, instance_ids: &[InstanceId]) -> Resul
     };
     // If run in dry mode, AWS returns an error of type DryRunOperation
     // cf. https://docs.rs/rusoto_ec2/0.31.0/rusoto_ec2/struct.TerminateInstancesRequest.html#structfield.dry_run
-    let result = match client.stop_instances(&request) {
+    let result = match client.stop_instances(request).sync() {
         Err(StopInstancesError::Unknown(ref s)) if s.contains("DryRunOperation") => {
             return Ok(create_dry_run_results(instance_ids))
         }
@@ -394,8 +396,8 @@ impl TerminateInstances for Aws {
 
 fn destroy(aws: &Aws, dry: bool, instance_ids: &[InstanceId]) -> Result<Vec<StateChange>> {
     let credentials_provider = assume_role(aws)?;
-    let default_client = default_tls_client().chain_err(|| ErrorKind::AwsApiError)?;
-    let client = ec2::Ec2Client::new(default_client, credentials_provider, aws.region.clone());
+    let default_client = HttpClient::new().chain_err(|| ErrorKind::AwsApiError)?;
+    let client = ec2::Ec2Client::new_with(default_client, credentials_provider, aws.region.clone());
 
     let request = TerminateInstancesRequest {
         dry_run:      Some(dry),
@@ -403,7 +405,7 @@ fn destroy(aws: &Aws, dry: bool, instance_ids: &[InstanceId]) -> Result<Vec<Stat
     };
     // If run in dry mode, AWS returns an error of type DryRunOperation
     // cf. https://docs.rs/rusoto_ec2/0.31.0/rusoto_ec2/struct.TerminateInstancesRequest.html#structfield.dry_run
-    let result = match client.terminate_instances(&request) {
+    let result = match client.terminate_instances(request).sync() {
         Err(TerminateInstancesError::Unknown(ref s)) if s.contains("DryRunOperation") => {
             return Ok(create_dry_run_results(instance_ids))
         }
