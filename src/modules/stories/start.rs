@@ -1,13 +1,13 @@
 use clap::{App, Arg, ArgMatches, SubCommand};
 use futures::Future;
 use futures::future;
-use reqwest::unstable::async::{Client as ReqwestClient};
+use reqwest::async::{Client as ReqwestClient};
 use tokio_core;
 
 use config::CeresConfig as Config;
 use run_config::RunConfig;
 use modules::{Result as ModuleResult, Error as ModuleError, ErrorKind as ModuleErrorKind, Module};
-use modules::stories::pivotal_api::*;
+use pivotal_api::{get_story, start_story, StoryState};
 use modules::stories::errors::*;
 
 pub const NAME: &str = "start";
@@ -58,9 +58,10 @@ fn do_call(args: &ArgMatches, run_config: &RunConfig, config: &Config) -> Result
    info!("Quering story state");
    let mut core = tokio_core::reactor::Core::new()
      .chain_err(|| ErrorKind::FailedToQueryPivotalApi)?;
-   let client = ReqwestClient::new(&core.handle());
+   let client = ReqwestClient::new();
 
    let work = get_story(&client, project_id, story_id, &token)
+      .map_err(|e| Error::with_chain(e, ErrorKind::FailedToQueryPivotalApi))
       .and_then(|story|
          if story.estimate.is_none() {
             future::err(Error::from_kind(ErrorKind::StoryIsNotEstimated))
@@ -72,6 +73,7 @@ fn do_call(args: &ArgMatches, run_config: &RunConfig, config: &Config) -> Result
       )
       .and_then(|story|
          start_story(&client, project_id, story.id, &token)
+            .map_err(|e| Error::with_chain(e, ErrorKind::FailedToQueryPivotalApi))
       );
    let result = core.run(work)?;
 

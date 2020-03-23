@@ -1,8 +1,8 @@
 use clap::{App, Arg, ArgMatches, SubCommand};
 use futures::{Future, Stream};
 use futures::future::{join_all, result};
-use reqwest::header::Connection;
-use reqwest::unstable::async::{Client as ReqwestClient};
+use reqwest::header::CONNECTION;
+use reqwest::async::{Client as ReqwestClient};
 use serde_json;
 use tokio_core;
 
@@ -49,7 +49,7 @@ fn do_call(args: &ArgMatches, _: &RunConfig, config: &Config) -> Result<()> {
     info!("Quering status");
     let mut core = tokio_core::reactor::Core::new()
       .chain_err(|| ErrorKind::FailedToQueryStatusPage)?;
-    let client = ReqwestClient::new(&core.handle());
+    let client = ReqwestClient::new();
 
     let queries = status_pages.iter().map(|(name, status_page)| {
         query_page_status(&client, name.to_string(), &status_page.id)
@@ -65,9 +65,13 @@ fn do_call(args: &ArgMatches, _: &RunConfig, config: &Config) -> Result<()> {
 
 fn query_page_status(client: &ReqwestClient, name: String, id: &str) -> impl Future<Item = PageStatusResult, Error = Error> {
     let base_url = format!("https://{}.statuspage.io/api/v2/status.json", id);
+
+    let mut headers = reqwest::header::HeaderMap::new();
+    headers.insert(CONNECTION, "close".parse().unwrap());
+
     client
         .get(&base_url)
-        .header(Connection::close())
+        .headers(headers)
         .send()
         .and_then(|res| {
             trace!("Received response with status = {}.", res.status());

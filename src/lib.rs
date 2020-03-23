@@ -10,14 +10,14 @@ extern crate failure;
 extern crate futures;
 extern crate handlebars;
 extern crate hubcaps;
+extern crate hyper;
 extern crate ignore;
 extern crate itertools;
-#[macro_use]
-extern crate hyper;
 #[macro_use]
 extern crate log;
 extern crate mime;
 extern crate mime_guess;
+extern crate pivotal_api;
 extern crate prettytable;
 extern crate regex;
 extern crate reqwest;
@@ -28,7 +28,6 @@ extern crate rusoto_sts;
 extern crate serde;
 #[macro_use]
 extern crate serde_derive;
-#[macro_use]
 extern crate serde_json;
 extern crate service_world;
 extern crate subprocess;

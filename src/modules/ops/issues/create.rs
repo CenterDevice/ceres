@@ -200,8 +200,7 @@ fn send_issue(github_token: &str, org: &str, repo: &str, issue: &IssueOptions) -
   let mut core = Core::new().expect("reactor fail");
   let github = Github::new(
       concat!(env!("CARGO_PKG_NAME"), "/", env!("CARGO_PKG_VERSION")),
-      Some(Credentials::Token(github_token.to_owned())),
-      &core.handle()
+      Some(Credentials::Token(github_token.to_owned()))
   );
 
   let f = github

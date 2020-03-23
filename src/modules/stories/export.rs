@@ -1,5 +1,5 @@
 use clap::{App, Arg, ArgMatches, SubCommand};
-use reqwest::unstable::async::{Client as ReqwestClient};
+use reqwest::async::{Client as ReqwestClient};
 use tokio_core;
 
 use config::CeresConfig as Config;
@@ -7,7 +7,7 @@ use run_config::RunConfig;
 use output::stories::OutputType;
 use output::stories::{JsonOutputStory, MarkDownOutputStory, OutputStory};
 use modules::{Result as ModuleResult, Error as ModuleError, ErrorKind as ModuleErrorKind, Module};
-use modules::stories::pivotal_api::*;
+use pivotal_api::{get_story, get_project_members, Story, ProjectMember};
 use modules::stories::errors::*;
 
 pub const NAME: &str = "export";
@@ -72,14 +72,16 @@ fn do_call(args: &ArgMatches, run_config: &RunConfig, config: &Config) -> Result
    info!("Quering story");
    let mut core = tokio_core::reactor::Core::new()
      .chain_err(|| ErrorKind::FailedToQueryPivotalApi)?;
-   let client = ReqwestClient::new(&core.handle());
+   let client = ReqwestClient::new();
 
    let work = get_story(&client, project_id, story_id, &token);
-   let story = core.run(work)?;
+   let story = core.run(work)
+     .chain_err(|| ErrorKind::FailedToQueryPivotalApi)?;
    debug!("{:#?}", story);
 
    let work = get_project_members(&client, project_id, &token);
-   let members = core.run(work)?;
+   let members = core.run(work)
+     .chain_err(|| ErrorKind::FailedToQueryPivotalApi)?;
    debug!("{:#?}", members);
 
    info!("Outputting instance descriptions");

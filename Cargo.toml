@@ -10,8 +10,13 @@ homepage = "https://github.com/centerdevice/ceres"
 travis-ci = { repository = "centerdevice/ceres", branch = "master" }
 codecov = { repository = "centerdevice/ceres", branch = "master", service = "github" }
 
+[workspace]
+members = [
+  "crates/pivotal_api"
+]
+
 [dependencies]
-centerdevice = "0.3.12"
+centerdevice = { version = "0.4.1", git = "https://github.com/centerdevice/centerdevice-rs", branch = "reqwest-0.9" }
 clams = "^0.0.16"
 clams-derive = "^0.0.6"
 clap = "^2.31"
@@ -25,19 +30,20 @@ fern = { version = "^0.5", features = ["colored"] }
 futures = "0.1"
 ignore = "0.4.2"
 handlebars = "2.0"
-hubcaps = "^0.4"
+hubcaps = { git = "https://github.com/softprops/hubcaps", rev = "855b86c0608e672816a84d3e3132cb967d7d8dd1", default-features = false, features = ["rustls"] }
 human-panic = "^1.0"
 itertools = "^0.7"
 mime = "0.2"
 mime_guess = "1.8"
 prettytable-rs = "^0.7"
 regex = "^1.0"
-hyper = "0.11.9" # Strongly connected to reqwest
-reqwest = { version = "0.8.6", features = ["unstable"] }
-rusoto_core = "0.31.0"
-rusoto_credential = "0.10.0"
-rusoto_ec2 = "0.31.0"
-rusoto_sts = "0.31.0"
+hyper = "0.12.22" # Strongly connected to reqwest
+pivotal_api = { path = "crates/pivotal_api" }
+reqwest = { version = "0.9.8", default-features = false, features = ["rustls-tls"] }
+rusoto_core = { version = "0.34.0", default-features = false, features = ["rustls"] }
+rusoto_ec2 = { version = "0.34.0", default-features = false, features = ["rustls"] }
+rusoto_credential = { version = "0.13.0" }
+rusoto_sts = { version = "0.34.0", default-features = false, features = ["rustls"] }
 serde = "^1.0"
 serde_derive = "^1.0"
 serde_json = "^1.0"

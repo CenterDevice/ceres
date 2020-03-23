@@ -117,7 +117,7 @@ fn ssh_to_instance(
             .chain_err(|| ErrorKind::ModuleFailed(String::from(NAME)))?;
         utils::ssh::exec_ssh_to_ip_address(
             ip_addr,
-            command.as_ref().map(|x| x.as_str()),
+            command.as_deref(),
             Some(ssh_opts),
         ).chain_err(|| ErrorKind::ModuleFailed(String::from(NAME)))
     } else {

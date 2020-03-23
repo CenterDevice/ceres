@@ -3,8 +3,8 @@ use futures::{Future, Stream};
 use futures::future::result;
 use futures::stream::futures_ordered;
 use reqwest::StatusCode;
-use reqwest::header::Connection;
-use reqwest::unstable::async::{Client as ReqwestClient};
+use reqwest::header::CONNECTION;
+use reqwest::async::{Client as ReqwestClient};
 use serde_json;
 use std::collections::HashMap;
 use tokio_core;
@@ -90,7 +90,7 @@ fn do_call(args: &ArgMatches, run_config: &RunConfig, config: &Config) -> Result
    info!("Checking Health");
    let mut core = tokio_core::reactor::Core::new()
       .chain_err(|| ErrorKind::FailedQueryHeatlhCheck("failed to create reactor".to_owned()))?;
-   let client = ReqwestClient::new(&core.handle());
+   let client = ReqwestClient::new();
 
    let queries = ENDPOINTS.iter().map(|name| {
       let url = format!("https://{}.{}/healthcheck", name, base_domain);
@@ -109,14 +109,18 @@ fn do_call(args: &ArgMatches, run_config: &RunConfig, config: &Config) -> Result
 
 fn query_health(client: &ReqwestClient, name: &'static str, url: &str) -> impl Future<Item = HealthCheck, Error = Error> {
    trace!("Quering health for {}", url);
+
+    let mut headers = reqwest::header::HeaderMap::new();
+    headers.insert(CONNECTION, "close".parse().unwrap());
+
    client
       .get(url)
-      .header(Connection::close())
+      .headers(headers)
       .send()
       .map_err(|e| Error::with_chain(e, ErrorKind::FailedQueryHeatlhCheck("failed to request health check from server".to_owned())))
       .and_then(|response| {
          trace!("Received response with status = {}.", response.status());
-         let res = if response.status() == StatusCode::Ok {
+         let res = if response.status() == StatusCode::OK {
             Ok(response)
          } else {
             let reason = format!("of unexpected status code {} != 200", response.status());
