@@ -10,9 +10,9 @@ extern crate failure;
 extern crate futures;
 extern crate handlebars;
 extern crate hubcaps;
+extern crate hyper;
 extern crate ignore;
 extern crate itertools;
-extern crate hyper;
 #[macro_use]
 extern crate log;
 extern crate mime;
