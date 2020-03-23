@@ -6,6 +6,9 @@ and this project adheres to [Semantic Versioning](http://semver.org/spec/v2.0.0.
 
 ## [Unreleased]
 
+
+## [0.0.33] - 2020-03-23
+
 ### Update
 * centerdevice-rs
 * hubcaps-rs 
@@ -207,7 +210,8 @@ Add deployments in Travis build.
 ### Changed
 - `instances terminate` uses `warn!` macro instead of yellow `println!` to output warning in case of active dry mode.
 
-[Unreleased]: https://github.com/centerdevice/ceres/compare/v0.0.32...HEAD
+[Unreleased]: https://github.com/centerdevice/ceres/compare/v0.0.33...HEAD
+[0.0.33]: https://github.com/centerdevice/ceres/compare/v0.0.32...v0.0.33
 [0.0.32]: https://github.com/centerdevice/ceres/compare/v0.0.31...v0.0.32
 [0.0.31]: https://github.com/centerdevice/ceres/compare/v0.0.30...v0.0.31
 [0.0.30]: https://github.com/centerdevice/ceres/compare/v0.0.29...v0.0.30

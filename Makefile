@@ -33,7 +33,7 @@ release: clean-package release-test release-bump all
 release-test: check test clippy
 	cargo audit
 	cargo +nightly fmt -- --check
-	cargo publish --dry-run
+	#cargo publish --dry-run
 
 release-bump:
 	cargo bump
