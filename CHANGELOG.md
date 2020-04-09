@@ -6,6 +6,16 @@ and this project adheres to [Semantic Versioning](http://semver.org/spec/v2.0.0.
 
 ## [Unreleased]
 
+## [0.0.33] - 2020-03-23
+
+### Add
+* Support for external Root CA for centerdevice module
+
+### Change
+* Mark optional configuration settings in man page
+
+### Update
+* Dependency updates
 
 ## [0.0.33] - 2020-03-23
 
@@ -210,7 +220,8 @@ Add deployments in Travis build.
 ### Changed
 - `instances terminate` uses `warn!` macro instead of yellow `println!` to output warning in case of active dry mode.
 
-[Unreleased]: https://github.com/centerdevice/ceres/compare/v0.0.33...HEAD
+[Unreleased]: https://github.com/centerdevice/ceres/compare/v0.0.34...HEAD
+[0.0.34]: https://github.com/centerdevice/ceres/compare/v0.0.33...v0.0.34
 [0.0.33]: https://github.com/centerdevice/ceres/compare/v0.0.32...v0.0.33
 [0.0.32]: https://github.com/centerdevice/ceres/compare/v0.0.31...v0.0.32
 [0.0.31]: https://github.com/centerdevice/ceres/compare/v0.0.30...v0.0.31
