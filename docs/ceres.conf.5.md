@@ -73,6 +73,8 @@ redirect_uri = \"CenterDevice client redirect URL for ceres\"
 
 base_domain = \"Base domain for distributor associated with this profile\"
 
+root_ca = \"PEM file containing additional Root CA cert\"
+
 # SEE ALSO
   ceres(1)
 

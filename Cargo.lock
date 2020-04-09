@@ -206,8 +206,8 @@ source = "registry+https://github.com/rust-lang/crates.io-index"
 
 [[package]]
 name = "centerdevice"
-version = "0.4.1"
-source = "git+https://github.com/centerdevice/centerdevice-rs?branch=reqwest-0.9#837aaf186a7470a041e8310f1978d0724e936663"
+version = "0.5.1"
+source = "git+https://github.com/centerdevice/centerdevice-rs?branch=reqwest-0.9#e567206753fbb12e63e9a30fcce84d53a41bf4b3"
 dependencies = [
  "chrono 0.4.10 (registry+https://github.com/rust-lang/crates.io-index)",
  "failure 0.1.6 (registry+https://github.com/rust-lang/crates.io-index)",
@@ -226,9 +226,9 @@ dependencies = [
 
 [[package]]
 name = "ceres"
-version = "0.0.32"
+version = "0.0.33"
 dependencies = [
- "centerdevice 0.4.1 (git+https://github.com/centerdevice/centerdevice-rs?branch=reqwest-0.9)",
+ "centerdevice 0.5.1 (git+https://github.com/centerdevice/centerdevice-rs?branch=reqwest-0.9)",
  "chrono 0.4.10 (registry+https://github.com/rust-lang/crates.io-index)",
  "chrono-humanize 0.0.11 (registry+https://github.com/rust-lang/crates.io-index)",
  "clams 0.0.16 (registry+https://github.com/rust-lang/crates.io-index)",
@@ -1342,7 +1342,7 @@ source = "registry+https://github.com/rust-lang/crates.io-index"
 dependencies = [
  "num-integer 0.1.42 (registry+https://github.com/rust-lang/crates.io-index)",
  "num-traits 0.2.11 (registry+https://github.com/rust-lang/crates.io-index)",
- "rand 0.4.6 (registry+https://github.com/rust-lang/crates.io-index)",
+ "rand 0.3.23 (registry+https://github.com/rust-lang/crates.io-index)",
  "rustc-serialize 0.3.24 (registry+https://github.com/rust-lang/crates.io-index)",
 ]
 
@@ -2912,7 +2912,7 @@ dependencies = [
 "checksum bytes 0.5.4 (registry+https://github.com/rust-lang/crates.io-index)" = "130aac562c0dd69c56b3b1cc8ffd2e17be31d0b6c25b61c96b76231aa23e39e1"
 "checksum c2-chacha 0.2.3 (registry+https://github.com/rust-lang/crates.io-index)" = "214238caa1bf3a496ec3392968969cab8549f96ff30652c9e56885329315f6bb"
 "checksum cc 1.0.50 (registry+https://github.com/rust-lang/crates.io-index)" = "95e28fa049fda1c330bcf9d723be7663a899c4679724b34c81e9f5a326aab8cd"
-"checksum centerdevice 0.4.1 (git+https://github.com/centerdevice/centerdevice-rs?branch=reqwest-0.9)" = "<none>"
+"checksum centerdevice 0.5.1 (git+https://github.com/centerdevice/centerdevice-rs?branch=reqwest-0.9)" = "<none>"
 "checksum cfg-if 0.1.10 (registry+https://github.com/rust-lang/crates.io-index)" = "4785bdd1c96b2a846b2bd7cc02e86b6b3dbf14e7e53446c4f54c92a361040822"
 "checksum chrono 0.4.10 (registry+https://github.com/rust-lang/crates.io-index)" = "31850b4a4d6bae316f7a09e691c944c28299298837edc0a03f755618c23cbc01"
 "checksum chrono-humanize 0.0.11 (registry+https://github.com/rust-lang/crates.io-index)" = "eb2ff48a655fe8d2dae9a39e66af7fd8ff32a879e8c4e27422c25596a8b5e90d"

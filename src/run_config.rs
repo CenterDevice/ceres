@@ -7,6 +7,7 @@ use std::path::Path;
 ///
 /// In contrast to `config::Config` it is meant to store parameters for individual executions of
 /// Ceres.
+#[derive(Debug)]
 pub struct RunConfig<'a> {
     pub color:          bool,
     pub active_profile: String,

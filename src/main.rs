@@ -79,6 +79,10 @@ fn run() -> Result<()> {
         run_config.active_profile, config.default_profile
     );
 
+    if args.is_present("show-config") {
+        println!("Active Config: {:#?}", config);
+    }
+
     modules::call(&args, &run_config, &config).map_err(|e| e.into())
 }
 
@@ -114,6 +118,11 @@ fn build_cli() -> App<'static, 'static> {
                 .short("v")
                 .multiple(true)
                 .help("Sets the level of verbosity"),
+        )
+        .arg(
+            Arg::with_name("show-config")
+                .long("show-config")
+                .help("Show active config before running commands"),
         )
         .subcommand(
             SubCommand::with_name("completions")

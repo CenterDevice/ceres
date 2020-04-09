@@ -16,7 +16,7 @@ members = [
 ]
 
 [dependencies]
-centerdevice = { version = "0.4.1", git = "https://github.com/centerdevice/centerdevice-rs", branch = "reqwest-0.9" }
+centerdevice = { version = "0.5.1", git = "https://github.com/centerdevice/centerdevice-rs", branch = "reqwest-0.9" }
 clams = "^0.0.16"
 clams-derive = "^0.0.6"
 clap = "^2.31"

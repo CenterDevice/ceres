@@ -33,16 +33,21 @@ mod errors {
                 description("Failed to output")
                 display("Failed to output")
             }
+            FailedToReadRootCaCert(file: String) {
+                description("Failed to read Root CA certificate file")
+                display("Failed to read Root CA certificate file '{}'", file)
+            }
         }
     }
 }
 
 use config::{CenterDevice as CenterDeviceConfig};
-use centerdevice::{CenterDevice, Client, ClientCredentials, Token};
+use centerdevice::{CenterDevice, Certificate, ClientBuilder, ClientCredentials, Token};
 use centerdevice::client::AuthorizedClient;
 use centerdevice::client::users::UsersQuery;
 use std::convert::TryFrom;
 use std::collections::HashMap;
+use std::path::Path;
 
 impl<'a> TryFrom<&'a CenterDeviceConfig> for AuthorizedClient<'a> {
     type Error = errors::Error;
@@ -60,10 +65,34 @@ impl<'a> TryFrom<&'a CenterDeviceConfig> for AuthorizedClient<'a> {
             .ok_or_else(|| Error::from_kind(ErrorKind::TokenMissing))?
             .to_string();
         let token = Token::new(access_token, refresh_token);
-        let client = Client::with_token(&centerdevice.base_domain, client_credentials, token);
 
-        Ok(client)
+        create_centerdevice_client(centerdevice, client_credentials, token)
     }
+}
+
+fn create_centerdevice_client<'a>(centerdevice: &'a CenterDeviceConfig, client_credentials: ClientCredentials<'a>, token: Token) -> errors::Result<AuthorizedClient<'a>> {
+    let mut client = ClientBuilder::new(&centerdevice.base_domain, client_credentials);
+    if let Some(ref root_ca_file) = centerdevice.root_ca {
+        let certificate = load_cert_from_file(root_ca_file)?;
+        client = client.add_root_certificate(certificate);
+    }
+
+    let client = client.build_with_token(token);
+
+    Ok(client)
+}
+
+fn load_cert_from_file<P: AsRef<Path>>(path: P) -> errors::Result<Certificate> {
+    use self::errors::*;
+
+    let pem = std::fs::read(path.as_ref())
+        .map_err(|e| Error::with_chain(e, ErrorKind::FailedToReadRootCaCert(path.as_ref().to_string_lossy().to_string())))?;
+    let cert = Certificate::from_pem(&pem)
+        .map_err(|e| Error::with_chain(e, ErrorKind::FailedToReadRootCaCert(path.as_ref().to_string_lossy().to_string())))?;
+
+    debug!("Successfully loaded Root CA from '{}'", path.as_ref().to_string_lossy().to_string());
+
+    Ok(cert)
 }
 
 pub(crate) trait AuthorizedClientExt<'a> {

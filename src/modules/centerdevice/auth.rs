@@ -1,7 +1,7 @@
 use clams::prelude::{Config as ClamsConfig};
 use clap::{App, Arg, ArgMatches, SubCommand};
-use centerdevice::{CenterDevice, Client, ClientCredentials, Token};
-use centerdevice::client::AuthorizedClient;
+use centerdevice::{CenterDevice, ClientBuilder, ClientCredentials, Token};
+use centerdevice::client::{AuthorizedClient, UnauthorizedClient};
 use centerdevice::client::auth::{Code, CodeProvider, IntoUrl};
 use centerdevice::errors::{Result as CenterDeviceResult};
 use failure::Fail;
@@ -9,6 +9,7 @@ use std::io;
 use std::io::Write;
 use std::convert::TryInto;
 
+use modules::centerdevice::load_cert_from_file;
 use config::{CeresConfig as Config, CenterDevice as CenterDeviceConfig, Profile};
 use run_config::RunConfig;
 use modules::{Result as ModuleResult, Error as ModuleError, ErrorKind as ModuleErrorKind, Module};
@@ -108,13 +109,25 @@ fn get_token(centerdevice: &CenterDeviceConfig) -> Result<Token> {
     let code_provider = CliCodeProvider {};
 
     info!("Authenticating with CenterDevice at {}", centerdevice.base_domain);
-    let client = Client::new(&centerdevice.base_domain, client_credentials)
+    let client = create_centerdevice_client(centerdevice, client_credentials)?
         .authorize_with_code_flow(&centerdevice.redirect_uri, &code_provider)
         .map_err(|e| Error::with_chain(e.compat(), ErrorKind::FailedToAccessCenterDeviceApi))?;
     info!("Successfully authenticated.");
 
     Ok(client.token().clone())
 }
+
+fn create_centerdevice_client<'a>(centerdevice: &'a CenterDeviceConfig, client_credentials: ClientCredentials<'a>) -> Result<UnauthorizedClient<'a>> {
+    let mut client = ClientBuilder::new(&centerdevice.base_domain, client_credentials);
+    if let Some(ref root_ca_file) = centerdevice.root_ca {
+        let certificate = load_cert_from_file(root_ca_file)?;
+        client = client.add_root_certificate(certificate);
+    }
+
+    let client = client.build();
+
+    Ok(client)
+} 
 
 fn refresh_token(centerdevice: &CenterDeviceConfig) -> Result<Token> {
     info!("Refreshing token with CenterDevice at {}", centerdevice.base_domain);
