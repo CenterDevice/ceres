@@ -29,10 +29,10 @@ token = \[lq]<your pivotal token>\[rq]
 .PP
 [profiles.\[lq]<profile name>\[rq]]
 .PP
-ssh_user = \[lq]<a user name>\[rq]
+ssh_user = \[lq]<a user name>\[rq] (\f[I]optional\f[R])
 .PP
 local_base_dir = \[lq]<path to your infrastructure as code sub-directory
-of your CenterDevice infrastructure repo>\[rq]
+of your CenterDevice infrastructure repo>\[rq] (\f[I]optional\f[R])
 .PP
 [profiles.\[lq]<profile name>\[rq].issue_tracker]
 .PP
@@ -46,21 +46,21 @@ project_number = <number of corresponding github project>
 .PP
 project_id = <number of corresponding pivotal project>
 .PP
-[profiles.\[lq]<profile name>\[rq].provider]
+[profiles.\[lq]<profile name>\[rq].provider] (\f[I]optional\f[R])
 .PP
-\f[I]type\f[R] = \[lq]aws\[rq]
+type = \[lq]aws\[rq]
 .PP
-\f[I]access_key_id\f[R] = \[lq]<access key id>\[rq]
+access_key_id = \[lq]<access key id>\[rq]
 .PP
-\f[I]secret_access_key\f[R] = \[lq]<secret access key>\[rq]
+secret_access_key = \[lq]<secret access key>\[rq]
 .PP
-\f[I]token\f[R] = \[lq]<session token>\[rq]
+token = \[lq]<session token>\[rq]
 .PP
-\f[I]region\f[R] = \[lq]<AWS region string>\[rq]
+region = \[lq]<AWS region string>\[rq]
 .PP
-\f[I]role_arn\f[R] = \[lq]<role arn/>\[rq]
+role_arn = \[lq]<role arn>\[rq]
 .PP
-[profiles.\[lq]<profile name>\[rq].consul]
+[profiles.\[lq]<profile name>\[rq].consul] (\f[I]optional\f[R])
 .PP
 urls = [\[lq]<URL to your consul server or agent>\[rq], \&...]
 .PP
@@ -68,7 +68,7 @@ urls = [\[lq]<URL to your consul server or agent>\[rq], \&...]
 .PP
 base_domain = \[lq]<base domain name of your CenterDevice instance>\[rq]
 .PP
-[profiles.\[lq]<profile name>\[rq].centerdevice]
+[profiles.\[lq]<profile name>\[rq].centerdevice] (\f[I]optional\f[R])
 .PP
 client_id = \[dq]CenterDevice client id for ceres\[dq]
 .PP
@@ -79,7 +79,12 @@ redirect_uri = \[dq]CenterDevice client redirect URL for ceres\[dq]
 base_domain = \[dq]Base domain for distributor associated with this
 profile\[dq]
 .PP
+access_token = \[dq]Access token\[dq] (\f[I]optional\f[R])
+.PP
+refresh_token = \[dq]Refresh token\[dq] (\f[I]optional\f[R])
+.PP
 root_ca = \[dq]PEM file containing additional Root CA cert\[dq]
+(\f[I]optional\f[R])
 .SH SEE ALSO
 .PP
 ceres(1)

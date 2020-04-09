@@ -25,9 +25,9 @@ id = "\<your status page id\>"
 
 [profiles."\<profile name\>"]
 
-ssh_user = "\<a user name\>"
+ssh_user = "\<a user name\>" (*optional*)
 
-local_base_dir = "\<path to your infrastructure as code sub-directory of your CenterDevice infrastructure repo\>"
+local_base_dir = "\<path to your infrastructure as code sub-directory of your CenterDevice infrastructure repo\>" (*optional*)
 
 [profiles."\<profile name\>".issue_tracker]
 
@@ -41,21 +41,21 @@ project_number = \<number of corresponding github project\>
 
 project_id = \<number of corresponding pivotal project\>
 
-[profiles."\<profile name\>".provider]
+[profiles."\<profile name\>".provider] (*optional*)
 
-*type* = "aws"
+type = "aws"
 
-*access_key_id* = "\<access key id\>"
+access_key_id = "\<access key id\>"
 
-*secret_access_key* = "\<secret access key\>"
+secret_access_key = "\<secret access key\>"
 
-*token* = "\<session token\>"
+token = "\<session token\>"
 
-*region* = "\<AWS region string\>"
+region = "\<AWS region string\>"
 
-*role_arn* = "\<role arn/>"
+role_arn = "\<role arn\>"
 
-[profiles."\<profile name\>".consul]
+[profiles."\<profile name\>".consul] (*optional*)
 
 urls = ["\<URL to your consul server or agent\>", ...]
 
@@ -63,7 +63,7 @@ urls = ["\<URL to your consul server or agent\>", ...]
 
 base_domain = "\<base domain name of your CenterDevice instance\>"
 
-[profiles."\<profile name\>".centerdevice]
+[profiles."\<profile name\>".centerdevice] (*optional*)
 
 client_id = \"CenterDevice client id for ceres\"
 
@@ -73,7 +73,11 @@ redirect_uri = \"CenterDevice client redirect URL for ceres\"
 
 base_domain = \"Base domain for distributor associated with this profile\"
 
-root_ca = \"PEM file containing additional Root CA cert\"
+access_token = \"Access token\" (*optional*)
+
+refresh_token = \"Refresh token\" (*optional*)
+
+root_ca = \"PEM file containing additional Root CA cert\" (*optional*)
 
 # SEE ALSO
   ceres(1)
