@@ -98,7 +98,7 @@ pub struct CenterDevice {
     pub base_domain:   String,
     pub access_token:  Option<String>,
     pub refresh_token: Option<String>,
-    pub root_ca: Option<String>,
+    pub root_ca:       Option<String>,
 }
 
 error_chain! {
@@ -148,7 +148,7 @@ mod tests {
             base_domain:   "centerdevice.de".to_owned(),
             access_token:  None,
             refresh_token: None,
-            root_ca: None,
+            root_ca:       None,
         };
         let prod_profile = Profile {
             ssh_user: Some("a_user".to_owned()),
