@@ -29,7 +29,7 @@ failure = "0.1"
 fern = { version = "^0.5", features = ["colored"] }
 futures = "0.1"
 ignore = "0.4.2"
-handlebars = "2.0"
+handlebars = "^3"
 hubcaps = { git = "https://github.com/softprops/hubcaps", rev = "855b86c0608e672816a84d3e3132cb967d7d8dd1", default-features = false, features = ["rustls"] }
 human-panic = "^1.0"
 itertools = "^0.7"
