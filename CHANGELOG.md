@@ -6,7 +6,14 @@ and this project adheres to [Semantic Versioning](http://semver.org/spec/v2.0.0.
 
 ## [Unreleased]
 
-## [0.0.33] - 2020-03-23
+
+## [0.0.35] - 2020-04-14
+
+### Add
+* `instances run` exits with code != 1 if any remote command fails
+
+
+## [0.0.34] - 2020-04-09
 
 ### Add
 * Support for external Root CA for centerdevice module
@@ -17,6 +24,7 @@ and this project adheres to [Semantic Versioning](http://semver.org/spec/v2.0.0.
 ### Update
 * Dependency updates
 
+
 ## [0.0.33] - 2020-03-23
 
 ### Update
@@ -24,10 +32,12 @@ and this project adheres to [Semantic Versioning](http://semver.org/spec/v2.0.0.
 * hubcaps-rs 
 * rusoto
 
+
 ## [0.0.32] - 2019-10-30
 
 ### Change
 * Updated PT ticket tasks
+
 
 ## [0.0.31] - 2019-10-22
 
@@ -46,6 +56,7 @@ and this project adheres to [Semantic Versioning](http://semver.org/spec/v2.0.0.
 ### Fixes
 * [#125](https://github.com/CenterDevice/ceres/issues/125): Fehlerhafte Ceres Dokumentation für den CenterDevice Upload 
 * [#126](https://github.com/CenterDevice/ceres/issues/126): Ceres CenterDevice Aufrufe sollten JSON als Output zurückgeben
+
 
 ## [0.0.29] - 2019-10-01
 
@@ -220,7 +231,8 @@ Add deployments in Travis build.
 ### Changed
 - `instances terminate` uses `warn!` macro instead of yellow `println!` to output warning in case of active dry mode.
 
-[Unreleased]: https://github.com/centerdevice/ceres/compare/v0.0.34...HEAD
+[Unreleased]: https://github.com/centerdevice/ceres/compare/v0.0.35...HEAD
+[0.0.35]: https://github.com/centerdevice/ceres/compare/v0.0.34...v0.0.35
 [0.0.34]: https://github.com/centerdevice/ceres/compare/v0.0.33...v0.0.34
 [0.0.33]: https://github.com/centerdevice/ceres/compare/v0.0.32...v0.0.33
 [0.0.32]: https://github.com/centerdevice/ceres/compare/v0.0.31...v0.0.32
