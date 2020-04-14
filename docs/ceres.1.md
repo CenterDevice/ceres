@@ -381,6 +381,9 @@ The *instances* modules interacts with instances in the environment selected by 
   --no-progress-bar
   : Do not show progress bar during command execution. This is useful for non-interactive sessions.
 
+  --fail-on-fail
+  : Exits with code != 1 if any remote command fails
+
   -p, --public-ip
   : Use public IP address of instance
 

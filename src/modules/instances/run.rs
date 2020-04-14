@@ -43,6 +43,11 @@ impl Module for SubModule {
                     .help("Do not show progressbar during command execution"),
             )
             .arg(
+                Arg::with_name("fail-on-fail")
+                    .long("fail-on-fail")
+                    .help("Exits with code != 1 if any remote command fails"),
+            )
+            .arg(
                 Arg::with_name("public-ip")
                     .short("p")
                     .long("public-ip")
@@ -106,6 +111,7 @@ fn do_call(args: &ArgMatches, run_config: &RunConfig, config: &Config) -> Result
     );
 
     let progress_bar = !args.is_present("no-progress-bar");
+    let fail_on_fail = args.is_present("fail-on-fail");
 
     let show_all = args.is_present("show-all");
     let output_type = args.value_of("output").unwrap() // Safe
@@ -126,6 +132,10 @@ fn do_call(args: &ArgMatches, run_config: &RunConfig, config: &Config) -> Result
 
     run::output_results(output_type, show_all, results.as_slice())
         .chain_err(|| ErrorKind::ModuleFailed(NAME.to_owned()))?;
+
+    if fail_on_fail && results.iter().any(|r| !r.exit_status.success()) {
+        return Err(Error::from_kind(ErrorKind::ModuleFailed(NAME.to_owned())));
+    }
 
     Ok(())
 }
