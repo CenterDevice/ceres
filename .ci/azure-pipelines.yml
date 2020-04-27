@@ -20,7 +20,8 @@ schedules:
     displayName: Daily midnight build
     branches:
       include:
-      - master
+        - master
+    always: true
 
 stages:
   - stage: Check_Build_Test
