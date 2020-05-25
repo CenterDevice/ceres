@@ -1,0 +1,62 @@
+#!/bin/bash
+function usage() {
+    cat <<EOF
+    Usage: $(basename ${0}) -p|--profile profile -n|--name instance-name [[-t|--tags key=value] ...] [--all] [--csv|--json]
+      profile       : as per ceres config file
+      instance-name : full or part of the instance name (as per the Name tag)
+      tags          : one or more key=value pairs to filter
+      --all         : don't limit to running instances
+      --csv         : output fields with separators (;)
+      --json        : json output (default if stdout is not a terminal)
+EOF
+  exit 1
+}
+F_STATE="State=running"
+if [ -t 1 ]; then
+  OUTMODE="human"
+else
+  OUTMODE="json"
+fi
+while [[ ${#} > 0 ]]; do
+    case "${1}" in
+        -p | --profile )
+            shift
+            PROFILE="${1}"
+            shift
+            ;;
+        -n | --name )
+            shift
+            NAME="${1}"
+            shift
+            ;;
+        -t | --tag )
+            shift
+            TAGS="${TAGS} ${1}"
+            shift
+            ;;
+        --json )
+            OUTMODE="json"
+            shift
+            ;;
+        --csv )
+            OUTMODE="plain"
+            shift
+            ;;
+        -a | --all )
+            F_STATE=""
+            shift
+            ;;
+        *)
+            usage
+            ;;
+    esac
+done
+if [[ -z "${NAME}" || -z "${PROFILE}" ]]; then
+  usage
+fi
+F="Tags=Name=.*${NAME}.*,${F_STATE}"
+for t in ${TAGS}; do
+    F="${F}:${t}"
+done
+ceres --profile ${PROFILE} instances list --output ${OUTMODE} --output-options InstanceId,PrivateIpAddress,State,Tags=Name:SourceAMI --filter "${F}"
+
