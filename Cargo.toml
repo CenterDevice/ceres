@@ -1,6 +1,6 @@
 [package]
 name = "ceres"
-version = "0.0.35"
+version = "0.0.36"
 authors = ["Lukas Pustina <lukas@pustina.net>"]
 description = "SRE Tool for CenterDevice"
 repository = "https://github.com/centerdevice/ceres.git"

@@ -7,6 +7,11 @@ and this project adheres to [Semantic Versioning](http://semver.org/spec/v2.0.0.
 ## [Unreleased]
 
 
+## [0.0.36] - 2020-05-25
+
+### Add
+* `cil` contrib script to easily list instances
+
 ## [0.0.35] - 2020-04-14
 
 ### Add
@@ -231,7 +236,8 @@ Add deployments in Travis build.
 ### Changed
 - `instances terminate` uses `warn!` macro instead of yellow `println!` to output warning in case of active dry mode.
 
-[Unreleased]: https://github.com/centerdevice/ceres/compare/v0.0.35...HEAD
+[Unreleased]: https://github.com/centerdevice/ceres/compare/v0.0.36...HEAD
+[0.0.36]: https://github.com/centerdevice/ceres/compare/v0.0.35...v0.0.36
 [0.0.35]: https://github.com/centerdevice/ceres/compare/v0.0.34...v0.0.35
 [0.0.34]: https://github.com/centerdevice/ceres/compare/v0.0.33...v0.0.34
 [0.0.33]: https://github.com/centerdevice/ceres/compare/v0.0.32...v0.0.33
