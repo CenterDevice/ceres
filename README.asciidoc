@@ -32,11 +32,11 @@ First, install https://www.rustup.rs[Rustup] to install a Rust compiler.
 
 ==== Latest Release
 
-`brew install centerdevice/os/ceres`
+`brew install lukaspustina/os/ceres`
 
 ==== HEAD
 
-`brew install centerdevice/os/ceres --HEAD`
+`brew install lukaspustina/os/ceres --HEAD`
 
 === Cargo
 
