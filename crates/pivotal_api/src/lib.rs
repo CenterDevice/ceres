@@ -320,6 +320,7 @@ pub fn set_description(
 
     client
         .put(&url)
+        .headers(headers)
         .body(data)
         .send()
         .and_then(|res| {
