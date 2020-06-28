@@ -31,6 +31,7 @@ impl OutputCatalogResult for PlainOutputCatalogResult {
         for service in catalog.services() {
             if let Some(nodes) = catalog.nodes_by_service(service) {
                 for node in nodes {
+                    #[allow(clippy::match_single_binding)]
                     match self.fields.as_slice() {
                         // cf. https://github.com/rust-lang/rust/issues/23121
                         // [NodeField::MetaData(Some(ref mdf))] if mdf.len() == 1 && mdf.first().unwrap() ==

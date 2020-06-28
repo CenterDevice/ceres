@@ -26,6 +26,7 @@ impl OutputInstances for PlainOutputInstances {
     fn output<T: Write>(&self, writer: &mut T, instances: &[InstanceDescriptor]) -> Result<()> {
         let mut rows = Vec::new();
         for instance in instances {
+            #[allow(clippy::match_single_binding)]
             match self.fields.as_slice() {
                 _ => {
                     let row = self

@@ -190,7 +190,7 @@ fn create_issue(title: String, file_path: &Path, labels: Vec<String>) -> Result<
         body: Some(body),
         assignee: None,
         milestone: None,
-        labels: labels,
+        labels,
     };
 
     Ok(issue)
