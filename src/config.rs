@@ -141,7 +141,7 @@ mod tests {
         };
         let health = HealthCheck {
             base_domain: "instance_domain.com".to_owned(),
-            root_ca: None,
+            root_ca:     None,
         };
         let centerdevice = CenterDevice {
             client_id:     "aa-bb-cc".to_owned(),
