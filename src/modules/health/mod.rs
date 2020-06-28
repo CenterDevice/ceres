@@ -17,6 +17,10 @@ mod errors {
             FailedOutput {
                 description("Failed to output")
             }
+            FailedToReadRootCaCert(file: String) {
+                description("Failed to read Root CA certificate file")
+                display("Failed to read Root CA certificate file '{}'", file)
+            }
         }
     }
 }

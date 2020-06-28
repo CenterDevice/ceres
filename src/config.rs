@@ -88,6 +88,7 @@ pub struct Consul {
 #[derive(Debug, Clone, Serialize, Deserialize, PartialEq)]
 pub struct HealthCheck {
     pub base_domain: String,
+    pub root_ca:     Option<String>,
 }
 
 #[derive(Debug, Clone, Serialize, Deserialize, PartialEq)]
@@ -140,6 +141,7 @@ mod tests {
         };
         let health = HealthCheck {
             base_domain: "instance_domain.com".to_owned(),
+            root_ca: None,
         };
         let centerdevice = CenterDevice {
             client_id:     "aa-bb-cc".to_owned(),

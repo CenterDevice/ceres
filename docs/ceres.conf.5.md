@@ -63,6 +63,8 @@ urls = ["\<URL to your consul server or agent\>", ...]
 
 base_domain = "\<base domain name of your CenterDevice instance\>"
 
+root_ca = \"PEM file containing additional Root CA cert\" (*optional*)
+
 [profiles."\<profile name\>".centerdevice] (*optional*)
 
 client_id = \"CenterDevice client id for ceres\"

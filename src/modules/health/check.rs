@@ -2,11 +2,12 @@ use clap::{App, Arg, ArgMatches, SubCommand};
 use futures::{Future, Stream};
 use futures::future::result;
 use futures::stream::futures_ordered;
-use reqwest::StatusCode;
+use reqwest::{Certificate, StatusCode};
 use reqwest::header::CONNECTION;
 use reqwest::async::{Client as ReqwestClient};
 use serde_json;
 use std::collections::HashMap;
+use std::path::Path;
 use tokio_core;
 
 use config::CeresConfig as Config;
@@ -90,7 +91,13 @@ fn do_call(args: &ArgMatches, run_config: &RunConfig, config: &Config) -> Result
    info!("Checking Health");
    let mut core = tokio_core::reactor::Core::new()
       .chain_err(|| ErrorKind::FailedQueryHeatlhCheck("failed to create reactor".to_owned()))?;
-   let client = ReqwestClient::new();
+   let mut client = ReqwestClient::builder();
+   if let Some(ref root_ca_file) = profile.health.root_ca {
+      let certificate = load_cert_from_file(root_ca_file)?;
+      client = client.add_root_certificate(certificate);
+   }
+   let client = client.build()
+      .map_err(|e| Error::with_chain(e, ErrorKind::FailedQueryHeatlhCheck("failed to create HTTP client".to_owned())))?;
 
    let queries = ENDPOINTS.iter().map(|name| {
       let url = format!("https://{}.{}/healthcheck", name, base_domain);
@@ -105,6 +112,17 @@ fn do_call(args: &ArgMatches, run_config: &RunConfig, config: &Config) -> Result
    output_page_status(output_type, &health_checks)?;
 
    Ok(())
+}
+
+fn load_cert_from_file<P: AsRef<Path>>(path: P) -> Result<Certificate> {
+    let pem = std::fs::read(path.as_ref())
+        .map_err(|e| Error::with_chain(e, ErrorKind::FailedToReadRootCaCert(path.as_ref().to_string_lossy().to_string())))?;
+    let cert = Certificate::from_pem(&pem)
+        .map_err(|e| Error::with_chain(e, ErrorKind::FailedToReadRootCaCert(path.as_ref().to_string_lossy().to_string())))?;
+
+    debug!("Successfully loaded Root CA from '{}'", path.as_ref().to_string_lossy().to_string());
+
+    Ok(cert)
 }
 
 fn query_health(client: &ReqwestClient, name: &'static str, url: &str) -> impl Future<Item = HealthCheck, Error = Error> {
