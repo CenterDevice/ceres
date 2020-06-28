@@ -7,15 +7,23 @@ and this project adheres to [Semantic Versioning](http://semver.org/spec/v2.0.0.
 ## [Unreleased]
 
 
+## [0.0.38] - 2020-06-28
+
+### Add
+* Support for external Root CA for health check module
+
+
 ## [0.0.37] - 2020-06-17
 
 ### Fix
 * `stories prepare` failed for adding the description
 
+
 ## [0.0.36] - 2020-05-25
 
 ### Add
 * `cil` contrib script to easily list instances
+
 
 ## [0.0.35] - 2020-04-14
 
@@ -241,7 +249,8 @@ Add deployments in Travis build.
 ### Changed
 - `instances terminate` uses `warn!` macro instead of yellow `println!` to output warning in case of active dry mode.
 
-[Unreleased]: https://github.com/centerdevice/ceres/compare/v0.0.37...HEAD
+[Unreleased]: https://github.com/centerdevice/ceres/compare/v0.0.38...HEAD
+[0.0.38]: https://github.com/centerdevice/ceres/compare/v0.0.37...v0.0.38
 [0.0.37]: https://github.com/centerdevice/ceres/compare/v0.0.36...v0.0.37
 [0.0.36]: https://github.com/centerdevice/ceres/compare/v0.0.35...v0.0.36
 [0.0.35]: https://github.com/centerdevice/ceres/compare/v0.0.34...v0.0.35
